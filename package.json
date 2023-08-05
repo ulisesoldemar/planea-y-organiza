@@ -1,0 +1,12 @@
+{
+  "name": "planea-y-organiza",
+  "version": "0.0.1",
+  "description": "Juego para medir la capacidad de planeacion de una persona",
+  "main": "index.js",
+  "author": "Ulises Ortega <cc142622@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
