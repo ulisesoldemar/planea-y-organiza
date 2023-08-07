@@ -144,6 +144,7 @@ dist
 ### yarn ###
 # https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
 .server/
+.backend/
 .yarn/*
 !.yarn/releases
 !.yarn/patches
