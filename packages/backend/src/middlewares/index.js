@@ -16,7 +16,8 @@ const verifyAccessToken = errorHandler(async (req, res, next) => {
         req.userId = decodedToken.userId;
         next();
     } catch (e) {
-        throw new HttpError(401, 'Unauthorized');
+        console.log(e);
+        throw new HttpError(500, 'Sever error');
     }
 });
 

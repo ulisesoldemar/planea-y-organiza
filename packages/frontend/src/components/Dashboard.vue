@@ -17,7 +17,7 @@
         <v-app-bar app>
             <!-- Agrega el botón para controlar la visibilidad del menú lateral -->
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-toolbar-title>My Dashboard</v-toolbar-title>
+            <v-toolbar-title>Planea y Organiza</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn color="red" text @click="logout">Logout</v-btn>
         </v-app-bar>
@@ -28,7 +28,7 @@
                 <h1>Welcome to your Dashboard!</h1>
 
                 <!-- Agrega aquí el componente -->
-                <PlayerCrud />
+                <RoomCrud />
             </v-container>
         </v-main>
     </v-app>
@@ -36,11 +36,12 @@
   
 <script>
 import PlayerCrud from '@/components/PlayerCrud.vue'
+import RoomCrud from '@/components/RoomCrud.vue'
 import { useAdmins } from '@/stores/admin'
 
 export default {
     components: {
-        PlayerCrud
+        RoomCrud
     },
     data() {
         return {

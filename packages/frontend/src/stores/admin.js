@@ -92,6 +92,32 @@ export const useAdmins = defineStore('admin', {
             }
         },
 
+        async createRoom(roomData) {
+            try {
+                // Obtener el accessToken del estado del store
+                const accessToken = this.token.accessToken;
+
+                // Configurar los encabezados con el token de acceso
+                const headers = {
+                    Authorization: `Bearer ${accessToken}`,
+                };
+
+                // Realizar la solicitud a la ruta '/rooms' con los encabezados configurados y los datos de la sala
+                const response = await api.post('/rooms/create-room', roomData, { headers });
+
+                // Verificar si la solicitud fue exitosa (código de estado 200-299)
+                if (response.status >= 200 && response.status < 300) {
+                    // Acceder a los datos enviados por el backend a través de 'response.data'
+                    const newRoom = response.data;
+                    console.log(newRoom);
+                } else {
+                    // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
+                    console.error('Error al crear la sala:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error al crear la sala:', error);
+            }
+        },
         // Resto de las acciones...
     },
 });

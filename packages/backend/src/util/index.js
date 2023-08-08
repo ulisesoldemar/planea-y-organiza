@@ -29,7 +29,15 @@ function withTransaction(fn) {
     }
 }
 
+const verifyPassword = async (hashedPassword, rawPassword, msg) => {
+    if (!await argon2.verify(hashedPassword, rawPassword)) {
+        throw new HttpError(401, msg);
+    }
+};
+
+
 module.exports = {
     errorHandler,
-    withTransaction
+    withTransaction,
+    verifyPassword
 };

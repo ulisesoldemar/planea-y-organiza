@@ -1,27 +1,30 @@
 const jwt = require('jsonwebtoken');
-const { UserAdmin, RefreshToken } = require('../models');
+const { Player, RefreshToken } = require('../models');
 const argon2 = require('argon2');
 const { errorHandler, withTransaction, verifyPassword } = require("../util");
 const { HttpError } = require('../error');
 
 const signup = errorHandler(withTransaction(async (req, res, session) => {
-    const userDoc = new UserAdmin({
+    const playerDoc = new Player({
+        firstName: req.body.firstName,
+        firstLastName: req.body.firstName,
+        secondLastName: req.body.firstName || null,
         email: req.body.email,
-        username: req.body.username,
-        password: await argon2.hash(req.body.password)
+        age: req.body.age,
+        roomId: req.body.roomId,
     });
     const refreshTokenDoc = new RefreshToken({
-        owner: userDoc.id
+        owner: playerDoc.id
     })
 
-    await userDoc.save({ session });
+    await playerDoc.save({ session });
     await refreshTokenDoc.save({ session });
 
-    const refreshToken = createRefreshToken(userDoc.id, refreshTokenDoc.id);
-    const accessToken = createAccessToken(userDoc.id);
+    const refreshToken = createRefreshToken(playerDoc.id, refreshTokenDoc.id);
+    const accessToken = createAccessToken(playerDoc.id);
 
     return {
-        id: userDoc.id,
+        id: playerDoc.id,
         accessToken,
         refreshToken
     };
@@ -30,7 +33,7 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
 const login = errorHandler(withTransaction(async (req, res, session) => {
     const { identifier, password } = req.body;
     // Buscar el usuario por nombre de usuario o correo electrónico
-    const userDoc = await UserAdmin.findOne({
+    const userDoc = await Player.findOne({
         $or: [
             { username: identifier },
             { email: identifier }
