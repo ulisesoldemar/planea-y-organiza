@@ -1,38 +1,80 @@
-// En el controlador o donde sea que se maneje la unión de jugadores a la sala
-const { Room, Player } = require('../models')
+const { Room, AccessPassword } = require('../models');
 const argon2 = require('argon2');
 const { HttpError } = require('../error');
-const { errorHandler, withTransaction, verifyPassword } = require("../util");
+const { errorHandler, withTransaction } = require("../util");
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
-    console.log(req.body);
     const roomDoc = new Room({
         roomNumber: req.body.roomNumber,
-        password: await argon2.hash(req.body.password),
         expiration: req.body.expiration || null
     });
 
     await roomDoc.save({ session });
 
     return roomDoc;
+}));
 
+const listRooms = errorHandler(async (req, res) => {
+    const rooms = await Room
+        .find()
+        .exec();
+
+    if (!rooms) {
+        throw new HttpError(404, 'No se encontraron salas');
+    }
+
+    return rooms;
+});
+
+const addAccessPassword = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, accessPassword } = req.body;
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(401, 'Sala no encontrada');
+    }
+
+    const newAccessPassword = new AccessPassword({
+        password: await argon2.hash(accessPassword),
+        room: roomDoc._id
+    });
+
+    await newAccessPassword.save({ session });
+
+    roomDoc.accessPasswords.push(newAccessPassword);
+    await roomDoc.save({ session });
 }));
 
 const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber, password } = req.body;
-    const roomDoc = await Room.findOne({ roomNumber }).select('+password').exec();
+    const roomDoc = await Room.findOne({ roomNumber }).populate('accessPasswords').exec();
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Jugador o sala no encontrado');
+        throw new HttpError(401, 'Sala no encontrada');
     }
 
-    await verifyPassword(roomDoc.password, password, 'Wrong room number or password');
+    const validPassword = await verifyAccessPassword(roomDoc.accessPasswords, password);
+    if (!validPassword) {
+        throw new HttpError(401, 'Contraseña de acceso no válida');
+    }
 
-    return roomDoc;
-
+    return roomNumber;
 }));
+
+async function verifyAccessPassword(accessPasswords, passwordToVerify) {
+    for (const accessPassword of accessPasswords) {
+        if (!accessPassword.idUsed && await argon2.verify(accessPassword.password, passwordToVerify)) {
+            accessPassword.idUsed = true;
+            await accessPassword.save();
+            return true;
+        }
+    }
+    return false;
+}
 
 module.exports = {
     createRoom,
-    joinRoom
-}
+    listRooms,
+    addAccessPassword,
+    joinRoom,
+};

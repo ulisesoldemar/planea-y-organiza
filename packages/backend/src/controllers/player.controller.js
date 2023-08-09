@@ -4,7 +4,7 @@ const argon2 = require('argon2');
 const { errorHandler, withTransaction, verifyPassword } = require("../util");
 const { HttpError } = require('../error');
 
-const signup = errorHandler(withTransaction(async (req, res, session) => {
+const createPlayer = errorHandler(withTransaction(async (req, res, session) => {
     const playerDoc = new Player({
         firstName: req.body.firstName,
         firstLastName: req.body.firstName,
@@ -14,7 +14,8 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         roomId: req.body.roomId,
     });
     const refreshTokenDoc = new RefreshToken({
-        owner: playerDoc.id
+        owner: playerDoc.id,
+        ownerModel: 'Player',
     })
 
     await playerDoc.save({ session });
@@ -29,39 +30,6 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         refreshToken
     };
 }))
-
-const login = errorHandler(withTransaction(async (req, res, session) => {
-    const { identifier, password } = req.body;
-    // Buscar el usuario por nombre de usuario o correo electrónico
-    const userDoc = await Player.findOne({
-        $or: [
-            { username: identifier },
-            { email: identifier }
-        ],
-    }).select('+password').exec();
-
-    if (!userDoc) {
-        throw new HttpError(401, 'Wrong username or email or password');
-    }
-
-    await verifyPassword(userDoc.password, password, 'Wrong username or password');
-
-    const refreshTokenDoc = RefreshToken({
-        owner: userDoc.id
-    });
-
-    await refreshTokenDoc.save({ session });
-
-    const refreshToken = createRefreshToken(userDoc.id, refreshTokenDoc.id);
-    const accessToken = createAccessToken(userDoc.id);
-
-    return {
-        id: userDoc.id,
-        accessToken,
-        refreshToken
-    };
-}));
-
 
 const newRefreshToken = errorHandler(withTransaction(async (req, res, session) => {
     const currentRefreshToken = await validateRefreshToken(req.body.refreshToken);
@@ -142,7 +110,7 @@ const validateRefreshToken = async (token) => {
 };
 
 module.exports = {
-    signup,
+    signup: createPlayer,
     login,
     newRefreshToken,
     newAccessToken,

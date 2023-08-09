@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const { Schema, model } = mongoose;
+const userBaseSchema = require('./user.model'); // Importar el esquema base
 
 const playerSchema = new Schema({
-    firstName: { type: String, required: true },
-    firstLastName: { type: String, required: true },
-    secondLastName: { type: String, required: false },
-    email: { type: String, required: true, unique: true },
+    ...userBaseSchema.obj, // Extender con los campos del esquema base
     age: { type: Number, required: true },
-    roomId: { type: Number, default: null }, // Almacena el número de sala a la que el jugador tiene acceso
     score: { type: Number, default: 0 },
 });
 
-const Player = mongoose.model('Player', playerSchema);
+const Player = model('Player', playerSchema);
 
 module.exports = Player;

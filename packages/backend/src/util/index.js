@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const argon2 = require("argon2");
 
 function errorHandler(fn) {
     return async function (req, res, next) {

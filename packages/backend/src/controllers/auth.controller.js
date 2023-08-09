@@ -6,12 +6,16 @@ const { HttpError } = require('../error');
 
 const signup = errorHandler(withTransaction(async (req, res, session) => {
     const userDoc = new UserAdmin({
+        firstName: req.body.firstName,
+        firstLastName: req.body.firstName,
+        secondLastName: req.body.firstName,
         email: req.body.email,
         username: req.body.username,
         password: await argon2.hash(req.body.password)
     });
     const refreshTokenDoc = new RefreshToken({
-        owner: userDoc.id
+        owner: userDoc.id,
+        ownerModel: 'UserAdmin',
     })
 
     await userDoc.save({ session });
@@ -40,11 +44,11 @@ const login = errorHandler(withTransaction(async (req, res, session) => {
     if (!userDoc) {
         throw new HttpError(401, 'Wrong username or email or password');
     }
-
     await verifyPassword(userDoc.password, password, 'Wrong username or password');
 
     const refreshTokenDoc = RefreshToken({
-        owner: userDoc.id
+        owner: userDoc.id,
+        ownerModel: 'UserAdmin',
     });
 
     await refreshTokenDoc.save({ session });
@@ -63,7 +67,8 @@ const login = errorHandler(withTransaction(async (req, res, session) => {
 const newRefreshToken = errorHandler(withTransaction(async (req, res, session) => {
     const currentRefreshToken = await validateRefreshToken(req.body.refreshToken);
     const refreshTokenDoc = new RefreshToken({
-        owner: currentRefreshToken.userId
+        owner: currentRefreshToken.userId,
+        ownerModel: 'UserAdmin',
     });
 
     await refreshTokenDoc.save({ session });
