@@ -1,9 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAdmins } from "@/stores/admin";
-import Login from '@/components/Login.vue'
-import RoomAccess from '@/components/RoomAccess.vue'
-import Game from '@/components/Game.vue'
-import Dashboard from '@/components/Dashboard.vue'
+import Login from '@/pages/Login.vue';
+import Dashboard from '@/pages/Dashboard.vue'
 
 const routes = [
     {
@@ -11,7 +9,8 @@ const routes = [
         name: 'dashboard',
         component: Dashboard,
         meta: {
-            requiresAuth: true // Indica que esta ruta requiere autenticación
+            title: 'Dashboard',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
     {
@@ -23,23 +22,9 @@ const routes = [
         },
         meta: {
             title: 'Log in',
-            guard: 'guest',
+            requiresAuth: false,
         },
     },
-    {
-        path: '/room-access',
-        name: 'room-access',
-        component: RoomAccess
-    },
-    {
-        path: '/room/:token',
-        name: 'room',
-        component: Game,
-        meta: {
-            title: 'Game',
-            guard: 'auth',
-        }
-    }
 ];
 
 const router = createRouter({

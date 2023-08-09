@@ -11,6 +11,10 @@
                     <v-icon>mdi-account</v-icon>
                     <v-list-item-title>Usuarios</v-list-item-title>
                 </v-list-item>
+                <v-list-item>
+                    <v-icon>mdi-account-group</v-icon>
+                    <v-list-item-title @click="fetchRoomsData">Salas</v-list-item-title>
+                </v-list-item>
             </v-list>
         </v-navigation-drawer>
 
@@ -55,6 +59,11 @@ export default {
 
             adminStore.logout(); // Asegúrate de que el nombre del método sea el mismo que el definido en tu store
         },
+        fetchRoomsData() {
+            const adminStore = useAdmins();
+
+            adminStore.fetchRoomsData();
+        }
     },
 };
 </script>

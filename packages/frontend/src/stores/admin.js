@@ -7,6 +7,7 @@ export const useAdmins = defineStore('admin', {
         token: JSON.parse(localStorage.getItem('token')) || null,
         isAuthenticated: useStorage('isAuthenticated', false),
         userData: useStorage('userData', {}),
+        rooms: [],
     }),
 
     // Getters y acciones anteriores...
@@ -55,13 +56,30 @@ export const useAdmins = defineStore('admin', {
                 };
 
                 // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
-                const userDataResponse = await api.get('/users/me', { headers });
+                const userDataResponse = await api.get('/admins/me', { headers });
 
                 // Almacenar los datos del usuario en el estado del store
                 this.userData = userDataResponse.data;
             } catch (error) {
                 console.error('Error al obtener los datos del usuario:', error);
                 // Puedes manejar el error según corresponda.
+            }
+        },
+
+        async fetchRoomsData() {
+            try {
+                const accessToken = this.token.accessToken;
+
+                const headers = {
+                    Authorization: `Bearer ${accessToken}`
+                };
+
+                const roomsDataResponse = await api.get('/admins/rooms', { headers });
+                this.rooms = roomsDataResponse.data;
+                console.log(this.rooms);
+
+            } catch (error) {
+                console.error('Error al obtener los datos de las salas: ', error);
             }
         },
 
@@ -102,8 +120,8 @@ export const useAdmins = defineStore('admin', {
                     Authorization: `Bearer ${accessToken}`,
                 };
 
-                // Realizar la solicitud a la ruta '/rooms' con los encabezados configurados y los datos de la sala
-                const response = await api.post('/rooms/create-room', roomData, { headers });
+                // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
+                const response = await api.post('/admins/create-room', roomData, { headers });
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {

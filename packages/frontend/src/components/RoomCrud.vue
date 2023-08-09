@@ -5,7 +5,6 @@
             <v-card-text>
                 <v-form ref="form" @submit.prevent="createRoom">
                     <v-text-field v-model="formData.roomNumber" label="Número de Sala"></v-text-field>
-                    <v-text-field v-model="formData.password" label="Contraseña"></v-text-field>
                     <v-date-picker v-model="formData.expiration" label="Fecha de caducidad"></v-date-picker>
                     <v-btn type="submit" color="primary">Crear Sala</v-btn>
                 </v-form>
@@ -21,7 +20,6 @@ export default {
         return {
             formData: {
                 roomNumber: '',
-                password: '',
                 expiration: null,
             }
         };
