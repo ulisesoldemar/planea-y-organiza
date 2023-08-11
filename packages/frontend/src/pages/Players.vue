@@ -1,17 +1,15 @@
 <template>
     <Navbar />
-    <RoomCrud />
+    <v-main>
+        <v-slot></v-slot>
+    </v-main>
 </template>
   
 <script>
-import RoomCrud from '@/components/RoomCrud.vue'
-import PlayerCrud from '@/components/PlayerCrud.vue'
 import Navbar from '@/components/Navbar.vue';
 
 export default {
     components: {
-        RoomCrud,
-        PlayerCrud,
         Navbar
     },
 };

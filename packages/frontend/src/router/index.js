@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAdmins } from "@/stores/admin";
 import Login from '@/pages/Login.vue';
 import Dashboard from '@/pages/Dashboard.vue'
+import Rooms from '@/pages/Rooms.vue';
+import Players from '@/pages/Players.vue';
 
 const routes = [
     {
@@ -24,6 +26,24 @@ const routes = [
             title: 'Log in',
             requiresAuth: false,
         },
+    },
+    {
+        path: '/rooms',
+        name: 'rooms',
+        component: Rooms,
+        meta: {
+            title: 'Salas',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/players',
+        name: 'players',
+        component: Players,
+        meta: {
+            title: 'Sujetos',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
     },
 ];
 

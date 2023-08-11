@@ -4,8 +4,8 @@
             <v-card-title class="headline">Crear Sala</v-card-title>
             <v-card-text>
                 <v-form ref="form" @submit.prevent="createRoom">
-                    <v-text-field v-model="formData.roomNumber" label="Número de Sala"></v-text-field>
-                    <v-date-picker v-model="formData.expiration" label="Fecha de caducidad"></v-date-picker>
+                    <v-text-field v-model="formData.roomNumber" label="Número de sala"></v-text-field>
+                    <v-text-field v-model="formData.expiration" label="Fecha de expiración" type="date"></v-text-field>
                     <v-btn type="submit" color="primary">Crear Sala</v-btn>
                 </v-form>
             </v-card-text>
