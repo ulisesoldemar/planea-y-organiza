@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const accessTokenSchema = new Schema({
+const accessPasswordSchema = new Schema({
     password: { type: String, required: true, unique: true },
     roomNumber: { type: Number, default: null },
     player: { type: Schema.Types.ObjectId, ref: 'Player' },
-    idUsed: { type: Boolean, required: true, default: false },
+    idUsed: { type: Boolean, default: false },
 });
 
-const AccessToken = mongoose.model('AccessToken', accessTokenSchema);
+const AccessPassword = mongoose.model('AccessPassword', accessPasswordSchema);
 
-module.exports = AccessToken;
+module.exports = AccessPassword;

@@ -7,8 +7,8 @@ const { HttpError } = require('../error');
 const signup = errorHandler(withTransaction(async (req, res, session) => {
     const userDoc = new UserAdmin({
         firstName: req.body.firstName,
-        firstLastName: req.body.firstName,
-        secondLastName: req.body.firstName,
+        surName: req.body.surName,
+        secondSurName: req.body.secondSurName,
         email: req.body.email,
         username: req.body.username,
         password: await argon2.hash(req.body.password)
