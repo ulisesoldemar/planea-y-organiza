@@ -4,8 +4,18 @@ import Login from '@/pages/Login.vue';
 import Dashboard from '@/pages/Dashboard.vue'
 import Rooms from '@/pages/Rooms.vue';
 import Players from '@/pages/Players.vue';
+import Game from "@/components/Game.vue";
 
 const routes = [
+    {
+        path: '/game',
+        name: 'game',
+        component: Game,
+        meta: {
+            title: 'Game',
+            requiresAuth: false,
+        },
+    },
     {
         path: '/',
         name: 'dashboard',
