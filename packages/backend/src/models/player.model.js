@@ -6,6 +6,8 @@ const playerSchema = new Schema({
     ...userBaseSchema.obj, // Extender con los campos del esquema base
     age: { type: Number, required: true },
     score: { type: Number, default: 0 },
+    distance: { type: Number },
+    transitions: [{ type: Number }],
 });
 
 const Player = model('Player', playerSchema);

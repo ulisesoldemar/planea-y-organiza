@@ -28,7 +28,13 @@ app.use((err, req, res, next) => {
 const server = http.createServer(app);
 
 // Configura Socket.io para utilizar el servidor http
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: process.env.CORS_ORIGIN, // Configura el origen permitido
+        // methods: ["GET", "POST"], // Métodos permitidos
+        credentials: true // Habilita el envío de cookies en las solicitudes CORS
+    }
+});
 
 // Configura eventos de Socket.io y manejo de conexiones aquí
 io.on('connection', (socket) => {
@@ -36,6 +42,7 @@ io.on('connection', (socket) => {
 
     // Ejemplo: Escucha un evento personalizado y reenvía datos a todos los clientes
     socket.on('updateData', (data) => {
+        console.log(data);
         // Envia el evento a todos los clientes conectados
         io.emit('updateData', data);
     });

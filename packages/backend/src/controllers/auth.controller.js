@@ -130,7 +130,7 @@ const validateRefreshToken = async (token) => {
             return jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
         } catch (err) {
             // err
-            throw new HttpError(401, 'Unauthorised');
+            throw new HttpError(401, 'Unauthorized');
         }
     }
 
@@ -139,7 +139,7 @@ const validateRefreshToken = async (token) => {
     if (tokenExists) {
         return decodedToken;
     } else {
-        throw new HttpError(401, 'Unauthorised');
+        throw new HttpError(401, 'Unauthorized');
     }
 };
 

@@ -6,6 +6,7 @@ const { errorHandler, withTransaction } = require("../util");
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
     const roomDoc = new Room({
         roomNumber: req.body.roomNumber,
+        roomName: req.body.roomName || null,
         expiration: req.body.expiration || null
     });
 
