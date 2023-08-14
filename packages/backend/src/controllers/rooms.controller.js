@@ -1,7 +1,7 @@
-const { Room, AccessPassword } = require('../models');
 const argon2 = require('argon2');
+const { Room, RefreshToken, Player } = require('../models');
 const { HttpError } = require('../error');
-const { errorHandler, withTransaction } = require("../util");
+const { errorHandler, withTransaction, createAccessToken, createRefreshToken } = require("../util");
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
     const roomDoc = new Room({
@@ -20,54 +20,74 @@ const listRooms = errorHandler(async (req, res) => {
         .find()
         .exec();
 
-    if (!rooms) {
-        throw new HttpError(404, 'No se encontraron salas');
-    }
-
     return rooms;
 });
 
-const addAccessPassword = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomNumber, accessPassword } = req.body;
+const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
         throw new HttpError(401, 'Sala no encontrada');
     }
 
-    const newAccessPassword = new AccessPassword({
-        password: await argon2.hash(accessPassword),
-        room: roomDoc._id
+    const playerDoc = new Player({
+        firstName: req.body.firstName || null,
+        surName: req.body.surName || null,
+        secondSurName: req.body.secondSurName || null,
+        email: req.body.email,
+        age: req.body.age || null,
+        uniqueAccessCode: await argon2.hash(req.body.uniqueAccessCode)
     });
 
-    await newAccessPassword.save({ session });
-
-    roomDoc.accessPasswords.push(newAccessPassword);
+    roomDoc.players.push(playerDoc);
+    // TODO: Agregar el token a la base de datos y encriptado con AES-GCM para que sea más seguro
+    await playerDoc.save({ session });
     await roomDoc.save({ session });
+
+    return roomDoc;
 }));
 
 const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomNumber, password } = req.body;
-    const roomDoc = await Room.findOne({ roomNumber }).populate('accessPasswords').exec();
+    const { roomNumber, uniqueAccessCode } = req.body;
+    const roomDoc = await Room.findOne({ roomNumber }).populate('players').exec();
 
     if (!roomDoc) {
         throw new HttpError(401, 'Sala no encontrada');
     }
 
-    const validPassword = await verifyAccessPassword(roomDoc.accessPasswords, password);
-    if (!validPassword) {
+    const playerDoc = await verifyAccessCode(roomDoc.players, uniqueAccessCode);
+
+    if (!playerDoc) {
         throw new HttpError(401, 'Contraseña de acceso no válida');
     }
 
-    return roomNumber;
+    const refreshTokenDoc = new RefreshToken({
+        owner: playerDoc.id,
+        ownerModel: 'Player',
+    });
+
+    await refreshTokenDoc.save({ session });
+
+    const refreshToken = createRefreshToken(playerDoc.id, refreshTokenDoc.id);
+    const accessToken = createAccessToken(playerDoc.id);
+
+    const { firstName, surName, secondSurName, email, age } = playerDoc;
+
+    return {
+        roomNumber,
+        player: { firstName, surName, secondSurName, email, age },
+        accessToken,
+        refreshToken
+    };
 }));
 
-async function verifyAccessPassword(accessPasswords, passwordToVerify) {
-    for (const accessPassword of accessPasswords) {
-        if (!accessPassword.idUsed && await argon2.verify(accessPassword.password, passwordToVerify)) {
-            accessPassword.idUsed = true;
-            await accessPassword.save();
-            return true;
+async function verifyAccessCode(players, codeToVerify) {
+    for (const player of players) {
+        if (!player.accessCodeUsed && await argon2.verify(player.uniqueAccessCode, codeToVerify)) {
+            player.accessCodeUsed = true;
+            await player.save();
+            return player;
         }
     }
     return false;
@@ -76,6 +96,6 @@ async function verifyAccessPassword(accessPasswords, passwordToVerify) {
 module.exports = {
     createRoom,
     listRooms,
-    addAccessPassword,
+    addPlayerToRoom,
     joinRoom,
 };

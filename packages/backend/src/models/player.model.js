@@ -1,12 +1,17 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
-const userBaseSchema = require('./user.model'); // Importar el esquema base
 
 const playerSchema = new Schema({
-    ...userBaseSchema.obj, // Extender con los campos del esquema base
-    age: { type: Number, required: true },
+    firstName: { type: String },
+    surName: { type: String },
+    secondSurName: { type: String },
+    email: { type: String, unique: true },
+    age: { type: Number },
+    uniqueAccessCode: { type: String, unique: true },
+    accessCodeUsed: { type: Boolean, default: false },
+    accessCodeExpiration: {type: Date, default: null},
     score: { type: Number, default: 0 },
-    distance: { type: Number },
+    distance: { type: Number, default: 0 },
     transitions: [{ type: Number }],
 });
 

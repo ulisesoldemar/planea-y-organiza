@@ -93,7 +93,7 @@ export const useAdmins = defineStore('admin', {
                 };
 
                 // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
-                const userDataResponse = await api.get('/api/admins/me', { headers });
+                const userDataResponse = await api.get('/api/admin/me', { headers });
 
                 // Almacenar los datos del usuario en el estado del store
                 this.userData = userDataResponse.data;
@@ -111,7 +111,7 @@ export const useAdmins = defineStore('admin', {
                     Authorization: `Bearer ${accessToken}`
                 };
 
-                const roomsDataResponse = await api.get('/api/admins/rooms', { headers });
+                const roomsDataResponse = await api.get('/api/admin/rooms', { headers });
                 this.rooms = roomsDataResponse.data;
                 console.log(this.rooms);
 
@@ -158,7 +158,7 @@ export const useAdmins = defineStore('admin', {
                 };
 
                 // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
-                const response = await api.post('/api/admins/create-room', roomData, { headers });
+                const response = await api.post('/api/admin/create-room', roomData, { headers });
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {

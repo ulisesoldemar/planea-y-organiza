@@ -6,6 +6,6 @@ const router = express.Router();
 router.get('/me', middlewares.verifyAccessToken, controllers.admins.me);
 router.get('/rooms', middlewares.verifyAccessToken, controllers.rooms.listRooms);
 router.post('/create-room', middlewares.verifyAccessToken, controllers.rooms.createRoom);
-router.post('/add-password', middlewares.verifyAccessToken, controllers.rooms.addAccessPassword);
+router.post('/add-player', middlewares.verifyAccessToken, controllers.rooms.addPlayerToRoom);
 
 module.exports = router;

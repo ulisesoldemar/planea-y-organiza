@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
 const { UserAdmin, RefreshToken } = require('../models');
 const argon2 = require('argon2');
-const { errorHandler, withTransaction, verifyPassword } = require("../util");
+const { errorHandler, withTransaction, createAccessToken, createRefreshToken, validateRefreshToken } = require("../util");
 const { HttpError } = require('../error');
 
 const signup = errorHandler(withTransaction(async (req, res, session) => {
@@ -29,7 +28,7 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         accessToken,
         refreshToken
     };
-}))
+}));
 
 const login = errorHandler(withTransaction(async (req, res, session) => {
     const { identifier, password } = req.body;
@@ -107,39 +106,9 @@ const logoutAll = errorHandler(withTransaction(async (req, res, session) => {
     return { success: true };
 }));
 
-function createAccessToken(userId) {
-    return jwt.sign({
-        userId: userId
-    }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '10m'
-    });
-}
-
-function createRefreshToken(userId, refreshTokenId) {
-    return jwt.sign({
-        userId: userId,
-        tokenId: refreshTokenId
-    }, process.env.JWT_REFRESH_SECRET_KEY, {
-        expiresIn: '30d'
-    });
-}
-
-const validateRefreshToken = async (token) => {
-    const decodeToken = () => {
-        try {
-            return jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
-        } catch (err) {
-            // err
-            throw new HttpError(401, 'Unauthorized');
-        }
-    }
-
-    const decodedToken = decodeToken();
-    const tokenExists = await RefreshToken.exists({ _id: decodedToken.tokenId, owner: decodedToken.userId });
-    if (tokenExists) {
-        return decodedToken;
-    } else {
-        throw new HttpError(401, 'Unauthorized');
+const verifyPassword = async (hashedPassword, rawPassword, msg) => {
+    if (!await argon2.verify(hashedPassword, rawPassword)) {
+        throw new HttpError(401, msg);
     }
 };
 

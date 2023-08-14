@@ -6,6 +6,7 @@ const userBaseSchema = new Schema({
     surName: { type: String, required: true },
     secondSurName: { type: String, required: false },
     email: { type: String, unique: true },
+    password: { type: String, select: false },
 });
 
 module.exports = userBaseSchema;
