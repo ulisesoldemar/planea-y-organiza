@@ -1,17 +1,11 @@
 <template>
     <Navbar />
-    <v-main>
-        <v-slot></v-slot>
-    </v-main>
+    <PlayerCrud />
 </template>
   
-<script>
+<script setup>
 import Navbar from '@/components/Navbar.vue';
+import PlayerCrud from '@/components/PlayerCrud.vue';
 
-export default {
-    components: {
-        Navbar
-    },
-};
 </script>
   

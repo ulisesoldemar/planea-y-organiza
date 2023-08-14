@@ -3,7 +3,7 @@ import BaseScene from '@/game/scenes/BaseScene';
 export default class TutorialScene extends BaseScene {
     constructor() {
         super('TutorialScene', 'tutorial');
-        this.countDown = 10; // Tiempo de espera para iniciar la prueba
+        this.countDown = 1; // Tiempo de espera para iniciar la prueba
     }
 
     create() {

@@ -22,7 +22,7 @@ export default class PlayScene extends BaseScene {
             // Variables para el tracking de distancia recorrida por pelota
             ball.prevX = ball.x;
             ball.prevY = ball.y;
-            
+
             // Agregado el evento para trackear cambio de sección
             ball.on('pointerdown', () => {
                 this.pathTraveled.push(ball.getData('sectionIndex'));
@@ -39,10 +39,6 @@ export default class PlayScene extends BaseScene {
             ball.prevX = ball.x;
             ball.prevY = ball.y;
         });
-    }
-
-    update() {
-        super.update();
     }
 
     timeOver() {

@@ -4,7 +4,7 @@
             <v-navigation-drawer expand-on-hover rail>
 
                 <v-list>
-                    <v-list-item :title="this.userName" :subtitle="this.userEmail"></v-list-item>
+                    <v-list-item :title="adminStore.userName" :subtitle="adminStore.userData.email"></v-list-item>
                 </v-list>
 
                 <v-divider></v-divider>
@@ -14,7 +14,7 @@
                         <v-list-item prepend-icon="mdi-home" title="Inicio" value="home"></v-list-item>
                     </router-link>
                     <router-link to="/rooms">
-                        <v-list-item prepend-icon="mdi-google-classroom" title="Salas de tarea" value="rooms"></v-list-item>
+                        <v-list-item prepend-icon="mdi-account-group" title="Salas de tarea" value="rooms"></v-list-item>
                     </router-link>
                     <router-link to="/players">
                         <v-list-item prepend-icon="mdi-account" title="Sujetos" value="players"></v-list-item>
@@ -25,7 +25,7 @@
                 <template v-slot:append>
                     <v-divider></v-divider>
                     <v-list density="compact">
-                        <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" @click="logout"></v-list-item>
+                        <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" @click="adminStore.logout"></v-list-item>
                     </v-list>
                 </template>
 
@@ -34,39 +34,15 @@
     </v-card>
 </template>
   
-<script>
+<script setup>
 import { useAdmins } from '@/stores/admin';
+import { onMounted } from 'vue';
 
-export default {
-    data() {
-        return {
-            userAvatar: "",
-            userName: "",
-            userEmail: "",
-        };
-    },
-    mounted() {
-        this.fetchUserData()
-    },
-    methods: {
-        logout() {
-            // Llama al método logout del store userStore
-            const adminStore = useAdmins();
+const adminStore = useAdmins();
 
-            adminStore.logout(); // Asegúrate de que el nombre del método sea el mismo que el definido en tu store
-        },
-        fetchUserData() {
-            const adminStore = useAdmins();
-            const userData = adminStore.userData;
-            this.userName = `${userData.firstName} ${userData.surName} ${userData.secondSurName || ''}`;
-            this.email = userData.email;
-        },
-        fetchRoomsData() {
-            const adminStore = useAdmins();
+onMounted(() => {
+    adminStore.fetchUserData();
+});
 
-            adminStore.fetchRoomsData();
-        },
-    },
-};
 </script>
   

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useStorage } from '@vueuse/core';
-import api from '@/api';
+import { api, socket } from '@/api';
 
 export const useAdmins = defineStore('admin', {
     state: () => ({
@@ -11,12 +11,49 @@ export const useAdmins = defineStore('admin', {
     }),
 
     // Getters y acciones anteriores...
+    getters: {
+        userName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`
+    },
 
     actions: {
+
+        // Metodos de socket.io
+        connect() {
+            socket.connect();
+        },
+
+        disconnect() {
+            socket.disconnect();
+        },
+
+        // Token de refresh nuevo
+        async startTokenRefreshTimer() {
+            this.refreshTokenInterval = setInterval(async () => {
+                try {
+                    const response = await api.post('/api/auth/refreshToken', this.token, refreshToken);
+                    // Verificar si la solicitud fue exitosa (código de estado 200-299)
+                    if (response.status >= 200 && response.status < 300) {
+                        // Acceder a los datos enviados por el backend a través de 'response.data'
+                        const { accessToken, refreshToken } = response.data;
+
+                        // Almacenar los tokens en el estado del store y en el LocalStorage
+                        this.token = { accessToken, refreshToken };
+                        localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
+                    } else {
+                        // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
+                        console.error('Error en el refresh de token:', response.statusText);
+                    }
+                    console.log('iniciar refresh de token')
+                } catch (error) {
+                    console.error('Error al refrescar el token:', error);
+                    // Maneja los errores de refresco aquí
+                }
+            }, 8 * 60 * 1000); // Refresca cada 8 minutos (2 minutos antes de la expiración)
+        },
         // Acción para realizar el login
         async login(formData) {
             try {
-                const response = await api.post('/auth/login', formData);
+                const response = await api.post('/api/auth/login', formData);
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {
@@ -56,7 +93,7 @@ export const useAdmins = defineStore('admin', {
                 };
 
                 // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
-                const userDataResponse = await api.get('/admins/me', { headers });
+                const userDataResponse = await api.get('/api/admins/me', { headers });
 
                 // Almacenar los datos del usuario en el estado del store
                 this.userData = userDataResponse.data;
@@ -74,7 +111,7 @@ export const useAdmins = defineStore('admin', {
                     Authorization: `Bearer ${accessToken}`
                 };
 
-                const roomsDataResponse = await api.get('/admins/rooms', { headers });
+                const roomsDataResponse = await api.get('/api/admins/rooms', { headers });
                 this.rooms = roomsDataResponse.data;
                 console.log(this.rooms);
 
@@ -90,7 +127,7 @@ export const useAdmins = defineStore('admin', {
                 const refreshToken = this.token.refreshToken;
 
                 // Enviar la solicitud de logout al backend
-                await api.post('/auth/logout', { refreshToken });
+                await api.post('/api/auth/logout', { refreshToken });
 
                 // Borrar el token del estado del store y del LocalStorage
                 this.token = null;
@@ -105,7 +142,7 @@ export const useAdmins = defineStore('admin', {
                 // Redirigir al usuario a la página de inicio de sesión o a otra página que desees
                 this.router.push({ name: 'login' });
             } catch (error) {
-                console.error('Error al cerrar sesión:', error.response.data.message);
+                console.error('Error al cerrar sesión:', error);
                 throw error;
             }
         },
@@ -121,7 +158,7 @@ export const useAdmins = defineStore('admin', {
                 };
 
                 // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
-                const response = await api.post('/admins/create-room', roomData, { headers });
+                const response = await api.post('/api/admins/create-room', roomData, { headers });
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {

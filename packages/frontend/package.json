@@ -19,6 +19,7 @@
     "vue": "^3.2.47",
     "vue-cookies": "^1.8.3",
     "vue-router": "^4.2.4",
+    "vue-socket.io": "^3.0.10",
     "vuetify": "^3.3.3"
   },
   "devDependencies": {

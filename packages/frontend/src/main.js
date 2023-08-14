@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-const pinia = createPinia()
+const pinia = createPinia();
 
 // Vuetify
 import 'vuetify/styles'
@@ -33,7 +33,7 @@ const app = createApp(App)
 
 app.use(
   pinia.use(({ store }) => {
-      store.router = markRaw(router)
+    store.router = markRaw(router)
   }),
 )
 app.use(router)

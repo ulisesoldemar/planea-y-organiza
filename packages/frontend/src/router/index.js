@@ -4,9 +4,20 @@ import Login from '@/pages/Login.vue';
 import Dashboard from '@/pages/Dashboard.vue'
 import Rooms from '@/pages/Rooms.vue';
 import Players from '@/pages/Players.vue';
+import Instructions from '@/pages/Instructions.vue';
 import Game from "@/components/Game.vue";
+import Test from '@/pages/Test.vue'
 
 const routes = [
+    {
+        path: '/test',
+        name: 'test',
+        component: Test,
+        meta: {
+            title: 'Test',
+            requiresAuth: false,
+        }, 
+    },
     {
         path: '/game',
         name: 'game',
@@ -52,6 +63,15 @@ const routes = [
         component: Players,
         meta: {
             title: 'Sujetos',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/instructions',
+        name: 'instructions',
+        component: Instructions,
+        meta: {
+            title: 'Instrucciones',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
