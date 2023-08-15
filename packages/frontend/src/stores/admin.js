@@ -120,6 +120,24 @@ export const useAdmins = defineStore('admin', {
             }
         },
 
+        //Obtener los datos de los jugadores
+        async fetchPlayersData() {
+            try {
+                const accessToken = this.token.accessToken;
+
+                const headers = {
+                    Authorization: `Bearer ${accessToken}`
+                };
+
+                const playersDataResponse = await api.get('/api/admins/players', { headers });
+                this.players = playersDataResponse.data;
+                console.log(this.players);
+
+            } catch (error) {
+                console.error('Error al obtener los datos de las salas: ', error);
+            }
+        },
+
         // Acción para realizar el logout
         async logout() {
             try {

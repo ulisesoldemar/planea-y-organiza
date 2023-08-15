@@ -1,7 +1,7 @@
 <template>
-    <v-card>
+    <v-card style="z-index: 1000" class="elevation-1">
         <v-layout>
-            <v-navigation-drawer expand-on-hover rail>
+            <v-navigation-drawer expand-on-hover rail permanent>
 
                 <v-list>
                     <v-list-item :title="adminStore.userName" :subtitle="adminStore.userData.email"></v-list-item>
@@ -10,15 +10,10 @@
                 <v-divider></v-divider>
 
                 <v-list density="compact" nav>
-                    <router-link to="/">
-                        <v-list-item prepend-icon="mdi-home" title="Inicio" value="home"></v-list-item>
-                    </router-link>
-                    <router-link to="/rooms">
-                        <v-list-item prepend-icon="mdi-account-group" title="Salas de tarea" value="rooms"></v-list-item>
-                    </router-link>
-                    <router-link to="/players">
-                        <v-list-item prepend-icon="mdi-account" title="Sujetos" value="players"></v-list-item>
-                    </router-link>
+                    <v-list-item prepend-icon="mdi-home" title="Inicio" value="home" to="/"></v-list-item>                    
+                    <v-list-item prepend-icon="mdi-account-group" title="Salas de tarea" value="rooms" to="/rooms"></v-list-item>
+                    <v-list-item prepend-icon="mdi-account" title="Sujetos" value="players" to="/players"></v-list-item>                 
+                    <v-list-item prepend-icon="mdi-exit-run" title="Ingresar a la Sala" value="join" to="/join-room"></v-list-item>
                     <v-list-item prepend-icon="mdi-list-status" title="Resultados" value="results"></v-list-item>
                 </v-list>
 
@@ -46,3 +41,15 @@ onMounted(() => {
 
 </script>
   
+<style scoped>
+/* Style for unvisited links */
+.v-list-item__action {
+  text-decoration: none; /* Remove underline for links */
+  color: #424242;
+}
+
+a.active-link{
+    color: #01579B;
+}
+
+</style>

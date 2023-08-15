@@ -1,23 +1,21 @@
 <template>
     <v-layout style="margin-left: 70px;" class="mt-4 mr-4"> 
         <v-card class="w-100">
-            <!-- <p>Ancho: {{ screenWidth }}</p>
-            <p>Alto: {{ screenHeight }}</p> -->
-            <v-card-title class="headline">Crear Sala</v-card-title>
+            <v-card-title class="headline">Ingresar a la Sala</v-card-title>
             <v-card-text>
                 <v-form ref="form" @submit.prevent="createRoom">
-                   
                     <v-row>
-                        <v-col cols="6">
-                            <v-text-field v-model="roomData.roomNumber" label="Número de sala" type="number"></v-text-field>
+                        <v-col cols="12">
+                            <v-text-field v-model="formData.roomNumber" label="Número de sala" type="number"></v-text-field>
                         </v-col>
-                        <v-col cols="6">
-                            <v-text-field v-model="roomData.roomName" label="Nombre de la sala"></v-text-field>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field v-model="formData.roomName" label="Código de Acceso"></v-text-field>
                         </v-col>
                     </v-row>
                     
-                    <v-text-field v-model="roomData.expiration" label="Fecha de expiración" type="date"></v-text-field>
-                    <v-btn type="submit" color="primary">Crear Sala</v-btn>
+                    <v-btn type="submit" color="primary">Unirme</v-btn>
                 </v-form>
             </v-card-text>
         </v-card>
@@ -45,14 +43,14 @@ onMounted(() => {
     window.addEventListener('resize', updateScreenSize);
 });
 
-const roomData = ref({
+const formData = ref({
     roomNumber: null,
     roomName: null,
     expiration: null,
 });
 
 function createRoom() {
-    adminStore.createRoom(roomData.value);
+    adminStore.createRoom(formData.value);
 }
 
 </script>

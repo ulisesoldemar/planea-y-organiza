@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-screen d-flex justify-center align-center">
     <v-card class="pb-8 mx-auto pa-12" elevation="8" width="448" max-width="448" rounded="lg">
       <div class="text-subtitle-1 text-medium-emphasis">Nombre de usuario o correo</div>
       <v-text-field v-model="form.identifier" density="compact" placeholder="Nombre o correo"

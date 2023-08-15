@@ -5,10 +5,25 @@ import Dashboard from '@/pages/Dashboard.vue'
 import Rooms from '@/pages/Rooms.vue';
 import Players from '@/pages/Players.vue';
 import Instructions from '@/pages/Instructions.vue';
+import JoinRoom from '@/pages/JoinRoom.vue';
 import Game from "@/components/Game.vue";
-import Test from '@/pages/Test.vue'
+import Test from '@/pages/Test.vue';
+
+
+import LoadingPage from '@/components/Loading.vue';
+import ErrorHeader from '@/components/ErrorHeader.vue';
 
 const routes = [
+    {
+        path: '/Error',
+        name: 'error',
+        component: ErrorHeader,
+        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.',},
+        meta: {
+            title: 'Error',
+            requiresAuth: false,
+        }, 
+    },
     {
         path: '/test',
         name: 'test',
@@ -73,6 +88,24 @@ const routes = [
         meta: {
             title: 'Instrucciones',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/join-room',
+        name: 'join-room',
+        component: JoinRoom,
+        meta: {
+            title: 'Ingresar a sala',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/loading', // QUITAR PROBABLEMENTE
+        name: 'loading',
+        component: LoadingPage,
+        meta: {
+            title: 'Loading',
+            requiresAuth: true, 
         }
     },
 ];
