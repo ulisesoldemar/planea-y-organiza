@@ -1,47 +1,22 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAdmins } from "@/stores/admin";
-import Login from '@/pages/Login.vue';
-import Dashboard from '@/pages/Dashboard.vue'
-import Rooms from '@/pages/Rooms.vue';
-import Players from '@/pages/Players.vue';
-import Instructions from '@/pages/Instructions.vue';
-import JoinRoom from '@/pages/JoinRoom.vue';
+import { usePlayer } from "@/stores/player";
+// Admin
+import Login from '@/pages/Admin/Login.vue';
+import Dashboard from '@/pages/Admin/Dashboard.vue'
+import Rooms from '@/pages/Admin/Rooms.vue';
+import Room from '@/components/Admin/Room.vue';
+import Players from '@/pages/Admin/Players.vue';
+import Results from '@/pages/Admin/Results.vue';
+
+import Instructions from '@/pages/Players/Instructions.vue';
+import JoinRoom from '@/pages/Players/JoinRoom.vue';
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
 
-
-import LoadingPage from '@/components/Loading.vue';
 import ErrorHeader from '@/components/ErrorHeader.vue';
 
-const routes = [
-    {
-        path: '/Error',
-        name: 'error',
-        component: ErrorHeader,
-        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.',},
-        meta: {
-            title: 'Error',
-            requiresAuth: false,
-        }, 
-    },
-    {
-        path: '/test',
-        name: 'test',
-        component: Test,
-        meta: {
-            title: 'Test',
-            requiresAuth: false,
-        }, 
-    },
-    {
-        path: '/game',
-        name: 'game',
-        component: Game,
-        meta: {
-            title: 'Game',
-            requiresAuth: false,
-        },
-    },
+const adminRoutes = [
     {
         path: '/',
         name: 'dashboard',
@@ -73,6 +48,14 @@ const routes = [
         }
     },
     {
+        path: '/rooms/:roomNumber',
+        component: Room,
+        meta: {
+            title: 'Sala',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
         path: '/players',
         name: 'players',
         component: Players,
@@ -82,47 +65,93 @@ const routes = [
         }
     },
     {
-        path: '/instructions',
-        name: 'instructions',
-        component: Instructions,
+        path: '/players/:playerId',
+        component: Players,
         meta: {
-            title: 'Instrucciones',
+            title: 'Sujeto',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
+    {
+        path: '/results',
+        name: 'results',
+        component: Results,
+        meta: {
+            title: 'Resultados',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+]
+
+const playerRoutes = [
     {
         path: '/join-room',
         name: 'join-room',
         component: JoinRoom,
         meta: {
             title: 'Ingresar a sala',
-            requiresAuth: true, // Indica que esta ruta requiere autenticación
+            requiresAuth: false,
         }
     },
     {
-        path: '/loading', // QUITAR PROBABLEMENTE
-        name: 'loading',
-        component: LoadingPage,
+        path: '/instructions',
+        name: 'instructions',
+        component: Instructions,
         meta: {
-            title: 'Loading',
-            requiresAuth: true, 
+            title: 'Instrucciones',
+            requiresConnected: true,
         }
+    },
+    {
+        path: '/game',
+        name: 'game',
+        component: Game,
+        meta: {
+            title: 'Game',
+            requiresConnected: true, // Indica que se debe estar conectado
+        },
+    },
+];
+
+const genericRoutes = [
+    {
+        path: '/test',
+        name: 'test',
+        component: Test,
+        meta: {
+            title: 'Test',
+        },
+    },
+    {
+        path: '/404',
+        name: 'error',
+        component: ErrorHeader,
+        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.', },
+        meta: {
+            title: 'Error',
+        },
     },
 ];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes: [...genericRoutes,
+    ...adminRoutes,
+    ...playerRoutes
+    ],
 })
 
 // Verificar el estado de autenticación antes de cada navegación
 router.beforeEach((to, from, next) => {
     const adminStore = useAdmins(); // Accede al store de usuarios
+    const playerStore = usePlayer();
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-
+    const requiresConnected = to.matched.some(record => record.meta.requiresConnected);
     // Si la ruta requiere autenticación y el usuario no está autenticado, redirige al inicio de sesión
     if (requiresAuth && !adminStore.isAuthenticated) {
         next({ name: 'login' });
+    } else if (requiresConnected && !playerStore.connected) {
+        next({ name: 'join-room' });
     } else {
         next();
     }

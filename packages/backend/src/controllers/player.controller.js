@@ -1,119 +1,89 @@
-const jwt = require('jsonwebtoken');
-const { Player, RefreshToken } = require('../models');
-const argon2 = require('argon2');
-const { errorHandler, withTransaction, verifyPassword } = require("../util");
-const { HttpError } = require('../error');
+const { errorHandler } = require("../util");
+const Player = require("../models/player.model");
+const { HttpError } = require("../error");
+const mongoose = require("mongoose");
 
-const createPlayer = errorHandler(withTransaction(async (req, res, session) => {
-    const playerDoc = new Player({
-        firstName: req.body.firstName,
-        firstLastName: req.body.firstName,
-        secondLastName: req.body.firstName || null,
-        email: req.body.email,
-        age: req.body.age,
-        roomId: req.body.roomId,
-    });
-    const refreshTokenDoc = new RefreshToken({
-        owner: playerDoc.id,
-        ownerModel: 'Player',
-    })
-
-    await playerDoc.save({ session });
-    await refreshTokenDoc.save({ session });
-
-    const refreshToken = createRefreshToken(playerDoc.id, refreshTokenDoc.id);
-    const accessToken = createAccessToken(playerDoc.id);
-
-    return {
-        id: playerDoc.id,
-        accessToken,
-        refreshToken
-    };
-}))
-
-const newRefreshToken = errorHandler(withTransaction(async (req, res, session) => {
-    const currentRefreshToken = await validateRefreshToken(req.body.refreshToken);
-    const refreshTokenDoc = new RefreshToken({
-        owner: currentRefreshToken.userId
-    });
-
-    await refreshTokenDoc.save({ session });
-    await RefreshToken.deleteOne({ _id: currentRefreshToken.tokenId }, { session });
-
-    const refreshToken = createRefreshToken(currentRefreshToken.userId, refreshTokenDoc.id);
-    const accessToken = createAccessToken(currentRefreshToken.userId);
-
-    return {
-        id: currentRefreshToken.userId,
-        accessToken,
-        refreshToken
-    };
-}));
-
-const newAccessToken = errorHandler(async (req, res) => {
-    const refreshToken = await validateRefreshToken(req.body.refreshToken);
-    const accessToken = createAccessToken(refreshToken.userId);
-
-    return {
-        id: refreshToken.userId,
-        accessToken,
-        refreshToken: req.body.refreshToken
-    };
+// Obtener una lista de todos los jugadores
+const listPlayers = errorHandler(async (req, res) => {
+    const players = await Player.find().exec();
+    return players;
 });
 
-const logout = errorHandler(withTransaction(async (req, res, session) => {
-    const refreshToken = await validateRefreshToken(req.body.refreshToken);
-    await RefreshToken.deleteOne({ _id: refreshToken.tokenId }, { session });
-    return { success: true };
-}));
+// Crear un nuevo jugador
+const createPlayer = errorHandler(async (req, res) => {
+    const playerData = req.body;
+    const newPlayer = new Player(playerData);
+    await newPlayer.save();
+    return newPlayer;
+});
 
-const logoutAll = errorHandler(withTransaction(async (req, res, session) => {
-    const refreshToken = await validateRefreshToken(req.body.refreshToken);
-    await RefreshToken.deleteMany({ owner: refreshToken.userId }, { session });
-    return { success: true };
-}));
+// Obtener datos de un jugador específico
+const getPlayer = errorHandler(async (req, res) => {
+    const playerId = req.params.playerId;
+    const player = await Player.findById(playerId).exec();
+    if (!player) {
+        throw new HttpError(404, 'Player not found');
+    }
+    return player;
+});
 
-function createAccessToken(userId) {
-    return jwt.sign({
-        userId: userId
-    }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '10m'
-    });
-}
+// Actualizar los datos de un jugador
+const updatePlayer = errorHandler(async (req, res) => {
+    const playerId = req.params.playerId;
+    const updates = req.body;
 
-function createRefreshToken(userId, refreshTokenId) {
-    return jwt.sign({
-        userId: userId,
-        tokenId: refreshTokenId
-    }, process.env.JWT_REFRESH_SECRET_KEY, {
-        expiresIn: '30d'
-    });
-}
+    // Uso de transacción para actualizar los datos del jugador
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-const validateRefreshToken = async (token) => {
-    const decodeToken = () => {
-        try {
-            return jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
-        } catch (err) {
-            // err
-            throw new HttpError(401, 'Unauthorized');
+    try {
+        const player = await Player.findByIdAndUpdate(playerId, updates, { new: true, session }).exec();
+
+        if (!player) {
+            throw new HttpError(404, 'Player not found');
         }
-    }
 
-    const decodedToken = decodeToken();
-    const tokenExists = await RefreshToken.exists({ _id: decodedToken.tokenId, owner: decodedToken.userId });
-    if (tokenExists) {
-        return decodedToken;
-    } else {
-        throw new HttpError(401, 'Unauthorized');
+        await session.commitTransaction();
+        session.endSession();
+
+        return player;
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
     }
-};
+});
+
+// Eliminar un jugador
+const deletePlayer = errorHandler(async (req, res) => {
+    const playerId = req.params.playerId;
+
+    // Uso de transacción para eliminar un jugador
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const player = await Player.findByIdAndDelete(playerId, { session }).exec();
+
+        if (!player) {
+            throw new HttpError(404, 'Player not found');
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return { message: 'Player deleted successfully' };
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
+});
 
 module.exports = {
-    signup: createPlayer,
-    login,
-    newRefreshToken,
-    newAccessToken,
-    logout,
-    logoutAll
+    listPlayers,
+    createPlayer,
+    getPlayer,
+    updatePlayer,
+    deletePlayer
 };

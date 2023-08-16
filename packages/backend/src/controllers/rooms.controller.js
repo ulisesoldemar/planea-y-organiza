@@ -7,6 +7,7 @@ const createRoom = errorHandler(withTransaction(async (req, res, session) => {
     const roomDoc = new Room({
         roomNumber: req.body.roomNumber,
         roomName: req.body.roomName || null,
+        password: req.body.password || null,
         expiration: req.body.expiration || null
     });
 
@@ -21,6 +22,46 @@ const listRooms = errorHandler(async (req, res) => {
         .exec();
 
     return rooms;
+});
+
+const deleteRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber } = req.params;
+
+    const deletedRoom = await Room.findOneAndDelete({ roomNumber }).session(session).exec();
+
+    if (!deletedRoom) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    return deletedRoom;
+}));
+
+const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber } = req.params;
+
+    const updatedRoom = await Room.findOneAndUpdate(
+        { roomNumber },
+        { $set: req.body },
+        { new: true }
+    ).session(session).exec();
+
+    if (!updatedRoom) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    return updatedRoom;
+}));
+
+const fetchRoom = errorHandler(async (req, res) => {
+    const { roomNumber } = req.params;
+
+    const room = await Room.findOne({ roomNumber }).exec();
+
+    if (!room) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    return room;
 });
 
 const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
@@ -84,7 +125,7 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 
 async function verifyAccessCode(players, codeToVerify) {
     for (const player of players) {
-        if (!player.accessCodeUsed && await argon2.verify(player.uniqueAccessCode, codeToVerify)) {
+        if (/*!player.accessCodeUsed &&*/ await argon2.verify(player.uniqueAccessCode, codeToVerify)) {
             player.accessCodeUsed = true;
             await player.save();
             return player;
@@ -98,4 +139,7 @@ module.exports = {
     listRooms,
     addPlayerToRoom,
     joinRoom,
+    deleteRoom,
+    updateRoom,
+    fetchRoom,
 };

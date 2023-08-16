@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
-const userBaseSchema = require('./user.model'); // Importar el esquema base
 
 const userAdminSchema = new Schema({
-    ...userBaseSchema.obj, // Extender con los campos del esquema base
+    firstName: { type: String, required: true },
+    surName: { type: String, required: true },
+    secondSurName: { type: String, required: false },
+    email: { type: String, unique: true },
+    password: { type: String, select: false },
     username: { type: String, unique: true },
 });
 

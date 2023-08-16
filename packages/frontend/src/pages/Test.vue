@@ -1,63 +1,68 @@
 <template>
-    <div>
-        <v-card class="pb-8 mx-auto pa-12" elevation="8" width="448" max-width="448" rounded="lg">
-            <div class="text-subtitle-1 text-medium-emphasis">Número de la sala</div>
-            <v-text-field v-model="form.roomNumber" density="compact" placeholder="Sala"
-                prepend-inner-icon="mdi-account-group" variant="outlined"></v-text-field>
-
-            <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
-                Contraseña
-                <!-- <a class="text-caption text-decoration-none text-blue" href="#" rel="noopener noreferrer" target="_blank">
-            Forgot login password?</a> -->
-            </div>
-
-            <v-text-field v-model="form.password" :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                :type="visible ? 'text' : 'password'" density="compact" placeholder="Ingresa tu contraseña"
-                prepend-inner-icon="mdi-lock-outline" variant="outlined"
-                @click:append-inner="visible = !visible"></v-text-field>
-
-            <!-- Agregar el evento click para iniciar el proceso de login -->
-            <v-btn block class="mb-8" color="blue" size="large" variant="tonal" @click="handleLogin">
-                Ingresar
-            </v-btn>
-
-            <v-card-text class="text-center">
-                <a class="text-blue text-decoration-none" href="#" rel="noopener noreferrer" target="_blank">
-                    Sign up now <v-icon icon="mdi-chevron-right"></v-icon>
-                </a>
-            </v-card-text>
-        </v-card>
-    </div>
+    <v-container>
+        <v-row>
+            <v-col cols="12" md="4">
+                <v-text-field v-model="formData.firstName" label="Nombre" :rules="nameRules" required></v-text-field>
+            </v-col>
+            <v-col cols="12" md="4">
+                <v-text-field v-model="formData.surName" label="Primer Apellido" :rules="nameRules" required></v-text-field>
+            </v-col>
+            <v-col cols="12" md="4">
+                <v-text-field v-model="formData.secondSurName" label="Segundo Apellido"></v-text-field>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="12" md="6">
+                <v-text-field v-model="formData.email" label="Correo Electrónico" :rules="emailRules"
+                    required></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+                <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules" required></v-text-field>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="12" md="6">
+                <v-text-field v-model="formData.age" label="Edad" type="number" :rules="ageRules"></v-text-field>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="12">
+                <v-btn type="submit" color="primary" @click="submitForm">Enviar</v-btn>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
   
-<script>
-import { useAdmins } from "@/stores/admin";
+<script setup>
+import { usePlayer } from '@/stores/player';
+import { ref } from 'vue';
 
-export default {
-    data() {
-        return {
-            form: {
-                roomNumber: null,
-                password: null,
-            },
-            visible: false,
-        };
-    },
-    methods: {
-        async handleLogin() {
-            // Acceder a la instancia del store
-            const adminStore = useAdmins();
+const playerStore = usePlayer();
 
-            try {
-                // Llamar a la acción de inicio de sesión del store
-                await adminStore.login(this.form);
+const formData = ref(playerStore.playerData);
 
-            } catch (error) {
-                // Manejar los errores del inicio de sesión
-                console.error("Error en el inicio de sesión:", error);
-            }
-        },
-    },
+const nameRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => (v && v.length >= 2) || 'Ingrese al menos 2 caracteres',
+];
+
+const emailRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => /.+@.+\..+/.test(v) || 'Ingrese una dirección de correo electrónico válida',
+];
+
+const phoneRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido',
+];
+
+const ageRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => (v >= 0 && v <= 150) || 'Ingrese una edad válida',
+];
+
+const submitForm = async () => {
+    await playerStore.updatePlayer(formData);
 };
 </script>
   

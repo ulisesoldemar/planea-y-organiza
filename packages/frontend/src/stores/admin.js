@@ -7,7 +7,6 @@ export const useAdmins = defineStore('admin', {
         token: JSON.parse(localStorage.getItem('token')) || null,
         isAuthenticated: useStorage('isAuthenticated', false),
         userData: useStorage('userData', {}),
-        rooms: [],
     }),
 
     // Getters y acciones anteriores...
@@ -43,7 +42,6 @@ export const useAdmins = defineStore('admin', {
                         // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
                         console.error('Error en el refresh de token:', response.statusText);
                     }
-                    console.log('iniciar refresh de token')
                 } catch (error) {
                     console.error('Error al refrescar el token:', error);
                     // Maneja los errores de refresco aquí
@@ -51,7 +49,7 @@ export const useAdmins = defineStore('admin', {
             }, 8 * 60 * 1000); // Refresca cada 8 minutos (2 minutos antes de la expiración)
         },
         // Acción para realizar el login
-        async login(formData) {
+        async login(formData, errorMessage) {
             try {
                 const response = await api.post('/api/auth/login', formData);
 
@@ -72,69 +70,13 @@ export const useAdmins = defineStore('admin', {
 
                     // Redirigir al usuario a la página de inicio del panel de control o cualquier otra página que desees
                     this.router.push({ name: 'dashboard' });
-                } else {
-                    // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
-                    console.error('Error en el inicio de sesión:', response.statusText);
                 }
             } catch (error) {
-                console.error('Error en el inicio de sesión:', error);
-            }
-        },
-
-        // Acción para obtener los datos del usuario usando el token de acceso
-        async fetchUserData() {
-            try {
-                // Obtener el token de acceso del estado del store
-                const accessToken = this.token.accessToken;
-
-                // Configurar los encabezados con el token de acceso
-                const headers = {
-                    Authorization: `Bearer ${accessToken}`,
-                };
-
-                // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
-                const userDataResponse = await api.get('/api/admin/me', { headers });
-
-                // Almacenar los datos del usuario en el estado del store
-                this.userData = userDataResponse.data;
-            } catch (error) {
-                console.error('Error al obtener los datos del usuario:', error);
-                // Puedes manejar el error según corresponda.
-            }
-        },
-
-        async fetchRoomsData() {
-            try {
-                const accessToken = this.token.accessToken;
-
-                const headers = {
-                    Authorization: `Bearer ${accessToken}`
-                };
-
-                const roomsDataResponse = await api.get('/api/admin/rooms', { headers });
-                this.rooms = roomsDataResponse.data;
-                console.log(this.rooms);
-
-            } catch (error) {
-                console.error('Error al obtener los datos de las salas: ', error);
-            }
-        },
-
-        //Obtener los datos de los jugadores
-        async fetchPlayersData() {
-            try {
-                const accessToken = this.token.accessToken;
-
-                const headers = {
-                    Authorization: `Bearer ${accessToken}`
-                };
-
-                const playersDataResponse = await api.get('/api/admins/players', { headers });
-                this.players = playersDataResponse.data;
-                console.log(this.players);
-
-            } catch (error) {
-                console.error('Error al obtener los datos de las salas: ', error);
+                if (error.response.status === 401 || error.response.status === 403) {
+                    throw new Error('Credenciales de acceso no válidas');
+                } else {
+                    throw new Error('Error en el inicio de sesión. Inténtalo de nuevo más tarde');
+                }
             }
         },
 
@@ -165,9 +107,10 @@ export const useAdmins = defineStore('admin', {
             }
         },
 
-        async createRoom(roomData) {
+        // Acción para obtener los datos del usuario usando el token de acceso
+        async fetchUserData() {
             try {
-                // Obtener el accessToken del estado del store
+                // Obtener el token de acceso del estado del store
                 const accessToken = this.token.accessToken;
 
                 // Configurar los encabezados con el token de acceso
@@ -175,20 +118,34 @@ export const useAdmins = defineStore('admin', {
                     Authorization: `Bearer ${accessToken}`,
                 };
 
-                // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
-                const response = await api.post('/api/admin/create-room', roomData, { headers });
+                // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
+                const userDataResponse = await api.get('/api/admin/me', { headers });
 
-                // Verificar si la solicitud fue exitosa (código de estado 200-299)
-                if (response.status >= 200 && response.status < 300) {
-                    // Acceder a los datos enviados por el backend a través de 'response.data'
-                    const newRoom = response.data;
-                    console.log(newRoom);
+                // Almacenar los datos del usuario en el estado del store
+                this.userData = userDataResponse.data;
+            } catch (error) {
+                console.error('Error al obtener los datos del usuario:', error);
+                // Puedes manejar el error según corresponda.
+            }
+        },
+
+        // Obtener los datos de los jugadores
+        async fetchPlayersData() {
+            try {
+                const accessToken = this.token.accessToken;
+
+                const headers = {
+                    Authorization: `Bearer ${accessToken}`
+                };
+
+                const playersDataResponse = await api.get('/api/admins/players', { headers });
+                if (playersDataResponse.status >= 200 && playersDataResponse.status < 300) {
+                    this.players = playersDataResponse.data;
                 } else {
-                    // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
-                    console.error('Error al crear la sala:', response.statusText);
+                    throw new Error('Error al obtener los datos de los jugadores');
                 }
             } catch (error) {
-                console.error('Error al crear la sala:', error);
+                throw new Error('Error al obtener los datos de los jugadores: ' + error.message);
             }
         },
         // Resto de las acciones...
