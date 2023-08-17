@@ -2,6 +2,7 @@ const { errorHandler } = require("../util");
 const Player = require("../models/player.model");
 const { HttpError } = require("../error");
 const mongoose = require("mongoose");
+const argon2 = require('argon2');
 
 // Obtener una lista de todos los jugadores
 const listPlayers = errorHandler(async (req, res) => {
@@ -12,7 +13,17 @@ const listPlayers = errorHandler(async (req, res) => {
 // Crear un nuevo jugador
 const createPlayer = errorHandler(async (req, res) => {
     const playerData = req.body;
-    const newPlayer = new Player(playerData);
+    const newPlayer = new Player({
+        firstName: playerData.firstName || null,
+        surName: playerData.surName || null,
+        secondSurName: playerData.secondSurName || null,
+        email: playerData.email || null,
+        phone: playerData.phone || null,
+        age: playerData.age || null,
+        uniqueAccessCode: await argon2.hash(playerData.uniqueAccessCode),
+        accessCodeExpiration: playerData.accessCodeExpiration
+    });
+    
     await newPlayer.save();
     return newPlayer;
 });

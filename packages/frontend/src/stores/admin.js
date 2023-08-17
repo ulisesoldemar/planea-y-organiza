@@ -52,6 +52,7 @@ export const useAdmins = defineStore('admin', {
         async login(formData, errorMessage) {
             try {
                 const response = await api.post('/api/auth/login', formData);
+                console.log(response);
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {

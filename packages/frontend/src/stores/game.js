@@ -7,6 +7,7 @@ export const useGame = defineStore('game', {
         isTimeOver: false,
         isGameComplete: false,
         connected: useStorage('connected', false),
+        playerData: useStorage('playerData', {}),
     }),
 
     actions: {
@@ -34,7 +35,7 @@ export const useGame = defineStore('game', {
         
         async joinRoom(formData) {
             try {
-                const response = await api.post('/api/room/join-room/', formData);
+                const response = await api.post('/api/access/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
                     const { accessToken, refreshToken, player } = response.data;

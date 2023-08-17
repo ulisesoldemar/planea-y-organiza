@@ -65,25 +65,27 @@ const fetchRoom = errorHandler(async (req, res) => {
 });
 
 const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomNumber } = req.body;
+    const { roomNumber, playerId } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
         throw new HttpError(401, 'Sala no encontrada');
     }
 
-    const playerDoc = new Player({
-        firstName: req.body.firstName || null,
-        surName: req.body.surName || null,
-        secondSurName: req.body.secondSurName || null,
-        email: req.body.email,
-        age: req.body.age || null,
-        uniqueAccessCode: await argon2.hash(req.body.uniqueAccessCode)
-    });
+    const playerDoc = await Player.findOne({ _id: playerId });
+
+    if (!playerDoc) {
+        throw new HttpError(422, `Jugador ${playerId} no existe`);
+    }
+
+    if (playerDoc.roomNumber === roomNumber) {
+        throw new HttpError(422, `Jugador ${playerId} ya está en la sala`);
+    } else {
+        playerDoc.roomNumber = roomNumber;
+        await playerDoc.save({ session });
+    }
 
     roomDoc.players.push(playerDoc);
-    // TODO: Agregar el token a la base de datos y encriptado con AES-GCM para que sea más seguro
-    await playerDoc.save({ session });
     await roomDoc.save({ session });
 
     return roomDoc;

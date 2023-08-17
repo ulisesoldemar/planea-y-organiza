@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { useStorage } from '@vueuse/core';
 import { api } from '@/api'
-import { useRouter } from 'vue-router';
 
 export const usePlayer = defineStore('player', {
     state: () => ({
