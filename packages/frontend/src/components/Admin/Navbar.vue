@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer expand-on-hover rail>
+    <v-navigation-drawer expand-on-hover rail permanent>
 
         <v-list>
             <v-list-item :title="adminStore.userName" :subtitle="adminStore.userData.email"></v-list-item>

@@ -39,7 +39,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="4" lg="3">
-                        <v-card class="d-flex flex-column align-center" height="100%" v-bind="props">
+                        <v-card class="d-flex flex-column align-center" height="100" v-bind="props">
                             <v-row align="center" justify="center">
                                 <v-icon color="grey
                         " icon="mdi-plus-circle-outline" size="64"></v-icon>

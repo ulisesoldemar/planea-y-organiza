@@ -1,29 +1,33 @@
 <template>
-    <div class="justify-center h-screen d-flex align-center">
-        <v-card class="pb-8 mx-auto pa-12" elevation="8" width="448" max-width="448" rounded="lg">
-            <v-card-title>
+    <div class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
+        <v-card class="py-8 mx-auto px-12" elevation="8" width="550" max-width="550" rounded="lg">
+            <v-card-title class="text-center mb-4">
                 Acceder al juego
             </v-card-title>
-            <div class="text-subtitle-1 text-medium-emphasis">Número de sala</div>
-            <v-text-field v-model="formData.roomNumber" :rules="roomNumberRules" :error-messages="roomNumberErrors"
-                density="compact" placeholder="Sala" prepend-inner-icon="mdi-account-group"
-                variant="outlined"></v-text-field>
-            <div class="text-subtitle-1 text-medium-emphasis">Correo electrónico</div>
-            <v-text-field v-model="formData.email" :rules="emailRules" :error-messages="emailErrors" density="compact"
-                placeholder="Correo" prepend-inner-icon="mdi-email" variant="outlined"></v-text-field>
-            <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
-                Contraseña de la sala
-            </div>
+            <v-form v-model="formFunction">
+                
+                <div class="text-subtitle-1 text-medium-emphasis">Número de sala</div>
+                <v-text-field v-model="formData.roomNumber" :rules="roomNumberRules" :error-messages="roomNumberErrors"
+                    placeholder="Sala" prepend-inner-icon="mdi-account-group"
+                    variant="outlined" color="primary"></v-text-field>
+                
+                    <div class="text-subtitle-1 text-medium-emphasis">Correo electrónico</div>
+                <v-text-field v-model="formData.email" :rules="emailRules" :error-messages="emailErrors" variant="outlined"
+                    placeholder="Correo" prepend-inner-icon="mdi-email" color="primary"></v-text-field>
+                
+                    <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
+                    Contraseña de la sala
+                </div>
+                <v-text-field v-model="formData.password" :rules="passwordRules" :error-messages="passwordErrors"
+                    :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'" :type="visible ? 'text' : 'password'"
+                    placeholder="Ingresa la contraseña de la sala" prepend-inner-icon="mdi-lock-outline"
+                    variant="outlined" @click:append-inner="visible = !visible" @keyup.enter="handleJoin" color="primary"></v-text-field>
 
-            <v-text-field v-model="formData.password" :rules="passwordRules" :error-messages="passwordErrors"
-                :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'" :type="visible ? 'text' : 'password'"
-                density="compact" placeholder="Ingresa la contraseña de la sala" prepend-inner-icon="mdi-lock-outline"
-                variant="outlined" @click:append-inner="visible = !visible" @keyup.enter="handleJoin"></v-text-field>
-
-            <p v-if="errorMessage" class="text-center text-red">{{ errorMessage }}</p>
-            <v-btn block class="mb-8" color="blue" size="large" variant="tonal" @click="handleJoin">
-                Ingresar
-            </v-btn>
+                <p v-if="errorMessage" class="text-center text-red">{{ errorMessage }}</p>
+                <v-btn color="primary" block class="mb-8 mt-4" size="large" variant="elevated" @click="handleJoin" :disabled="!formFunction">
+                    Ingresar
+                </v-btn>
+            </v-form>
         </v-card>
     </div>
 </template>
@@ -32,6 +36,9 @@
 import { useGame } from "@/stores/game";
 import { ref, watch } from "vue";
 
+const formFunction = ref(false);
+const loading = ref(false);
+
 const gameStore = useGame();
 
 const formData = ref({
@@ -39,6 +46,7 @@ const formData = ref({
     email: null,
     password: null
 });
+
 const visible = ref(false);
 
 const roomNumberRules = [

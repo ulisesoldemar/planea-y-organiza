@@ -1,36 +1,39 @@
 <template>
-    <v-container>
-        <v-row>
-            <v-col cols="12" md="4">
-                <v-text-field v-model="formData.firstName" label="Nombre" :rules="nameRules" required></v-text-field>
-            </v-col>
-            <v-col cols="12" md="4">
-                <v-text-field v-model="formData.surName" label="Primer Apellido" :rules="nameRules" required></v-text-field>
-            </v-col>
-            <v-col cols="12" md="4">
-                <v-text-field v-model="formData.secondSurName" label="Segundo Apellido"></v-text-field>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12" md="6">
-                <v-text-field v-model="formData.email" label="Correo Electrónico" :rules="emailRules"
-                    required></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-                <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules" required></v-text-field>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12" md="6">
-                <v-text-field v-model="formData.age" label="Edad" type="number" :rules="ageRules"></v-text-field>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12">
-                <v-btn type="submit" color="primary" @click="submitForm">Enviar</v-btn>
-            </v-col>
-        </v-row>
-    </v-container>
+    <div style="background-color: #f2f2f2;">
+        <v-container class="h-screen d-flex justify-center align-center">
+            <v-card class="pa-10" width="inherit">
+                <v-row>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="formData.firstName" label="Nombre" :rules="nameRules" required></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="formData.surName" label="Primer Apellido" :rules="nameRules" required></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="formData.secondSurName" label="Segundo Apellido"></v-text-field>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="formData.email" label="Correo Electrónico" :rules="emailRules"
+                            required></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="3">
+                        <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules" required></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="3">
+                        <v-text-field v-model="formData.age" label="Edad" type="number" :rules="ageRules"></v-text-field>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="12">
+                        <v-btn type="submit" color="primary" @click="submitForm">Enviar</v-btn>
+                    </v-col>
+                </v-row>
+            </v-card>
+    
+        </v-container>
+    </div>
 </template>
   
 <script setup>

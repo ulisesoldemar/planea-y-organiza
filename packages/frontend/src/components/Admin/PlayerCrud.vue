@@ -1,18 +1,19 @@
 <template>
+    
     <v-data-table-server :headers="headers" :items="users" :sort-by="[{ key: 'firstName', order: 'asc' }]"
-        :items-length="users.length" class="elevation-1">
+        :items-length="users.length" class="elevation-1 rounded-lg pb-3">
         <template v-slot:top>
-            <v-toolbar flat>
+            <v-toolbar flat class="rounded-t-lg">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="500px">
+                <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
                         <v-btn color="primary" dark class="mb-2" v-bind="props">
                             Agregar sujeto
                         </v-btn>
                     </template>
-                    <v-card>
+                    <v-card class="pa-2">
                         <v-card-title>
                             <span class="text-h5">{{ formTitle }}</span>
                         </v-card-title>
@@ -80,7 +81,7 @@ const dialog = ref(false);
 const dialogDelete = ref(false);
 const menu = ref(false);
 const headers = [
-    { title: 'Nombre(s)', align: 'start', sortable: false, key: 'firstName' },
+    { title: 'Nombre(s)', align: 'start', key: 'firstName' },
     { title: 'Primer apellido', key: 'surName' },
     { title: 'Segundo apellido', key: 'secondSurName' },
     { title: 'Email', key: 'email' },
