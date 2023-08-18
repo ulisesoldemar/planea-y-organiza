@@ -1,6 +1,12 @@
 const { UserAdmin, RefreshToken } = require('../models');
 const argon2 = require('argon2');
-const { errorHandler, withTransaction, createAccessToken, createRefreshToken, validateRefreshToken } = require("../util");
+const {
+    errorHandler,
+    withTransaction,
+    createAccessToken,
+    createRefreshToken,
+    validateRefreshToken,
+    verifyPassword } = require("../util");
 const { HttpError } = require('../error');
 
 const signup = errorHandler(withTransaction(async (req, res, session) => {
@@ -105,12 +111,6 @@ const logoutAll = errorHandler(withTransaction(async (req, res, session) => {
     await RefreshToken.deleteMany({ owner: refreshToken.userId }, { session });
     return { success: true };
 }));
-
-const verifyPassword = async (hashedPassword, rawPassword, msg) => {
-    if (!await argon2.verify(hashedPassword, rawPassword)) {
-        throw new HttpError(401, msg);
-    }
-};
 
 module.exports = {
     signup,

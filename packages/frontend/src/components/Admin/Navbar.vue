@@ -9,8 +9,8 @@
 
         <v-list density="compact" nav>
             <v-list-item prepend-icon="mdi-home" title="Inicio" value="home" to="/"></v-list-item>
-            <v-list-item prepend-icon="mdi-account-group" title="Salas de tarea" value="rooms" to="/rooms"></v-list-item>
             <v-list-item prepend-icon="mdi-account" title="Sujetos" value="players" to="/players"></v-list-item>
+            <v-list-item prepend-icon="mdi-account-group" title="Salas de tarea" value="rooms" to="/rooms"></v-list-item>
             <v-list-item prepend-icon="mdi-list-status" title="Resultados" value="results" to="/results"></v-list-item>
         </v-list>
 

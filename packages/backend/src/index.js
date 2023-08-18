@@ -47,6 +47,10 @@ io.on('connection', (socket) => {
         io.emit('updateData', data);
     });
 
+    socket.on('startGame', () => {
+        io.emit('gameStarted');
+    });
+
     // Manejar otros eventos aquí...
 });
 

@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
-import { useStorage } from '@vueuse/core';
+import { useAdmins } from './admin';
 import { api } from '@/api'
 
-export const usePlayer = defineStore('player', {
+export const usePlayers = defineStore('players', {
     state: () => ({
-        token: JSON.parse(localStorage.getItem('token')) || null,
-        playerData: useStorage('playerData', {}),
+        adminStore: useAdmins(),
+        players: [],
     }),
 
     actions: {
@@ -13,7 +13,7 @@ export const usePlayer = defineStore('player', {
             try {
                 const response = await api.get('/players', {
                     headers: {
-                        Authorization: `Bearer ${this.token.accessToken}`
+                        Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 
@@ -32,7 +32,7 @@ export const usePlayer = defineStore('player', {
             try {
                 const response = await api.post('/players', formData, {
                     headers: {
-                        Authorization: `Bearer ${this.token.accessToken}`
+                        Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 
@@ -50,7 +50,7 @@ export const usePlayer = defineStore('player', {
             try {
                 const response = await api.patch(`/players/${playerId}`, formData, {
                     headers: {
-                        Authorization: `Bearer ${this.token.accessToken}`
+                        Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 
@@ -68,7 +68,7 @@ export const usePlayer = defineStore('player', {
             try {
                 const response = await api.delete(`/players/${playerId}`, {
                     headers: {
-                        Authorization: `Bearer ${this.token.accessToken}`
+                        Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 

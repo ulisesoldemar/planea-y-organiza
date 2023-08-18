@@ -69,10 +69,17 @@ const validateRefreshToken = async (token) => {
     }
 };
 
+const verifyPassword = async (hashedPassword, rawPassword, msg) => {
+    if (!await argon2.verify(hashedPassword, rawPassword)) {
+        throw new HttpError(401, msg);
+    }
+};
+
 module.exports = {
     errorHandler,
     withTransaction,
     createAccessToken,
     createRefreshToken,
     validateRefreshToken,
+    verifyPassword
 };

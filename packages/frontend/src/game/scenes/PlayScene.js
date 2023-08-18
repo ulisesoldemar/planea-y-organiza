@@ -1,5 +1,4 @@
 import BaseScene from '@/game/scenes/BaseScene';
-import { usePlayer } from '@/stores/player';
 
 export default class PlayScene extends BaseScene {
     constructor() {

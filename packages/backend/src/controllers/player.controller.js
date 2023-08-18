@@ -20,8 +20,6 @@ const createPlayer = errorHandler(async (req, res) => {
         email: playerData.email || null,
         phone: playerData.phone || null,
         age: playerData.age || null,
-        uniqueAccessCode: await argon2.hash(playerData.uniqueAccessCode),
-        accessCodeExpiration: playerData.accessCodeExpiration
     });
     
     await newPlayer.save();

@@ -34,10 +34,10 @@
 </template>
   
 <script setup>
-import { usePlayer } from '@/stores/player';
+import { usePlayers } from '@/stores/players';
 import { ref } from 'vue';
 
-const playerStore = usePlayer();
+const playerStore = usePlayers();
 
 const formData = ref(playerStore.playerData);
 

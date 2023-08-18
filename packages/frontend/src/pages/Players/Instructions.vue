@@ -39,7 +39,7 @@ const videos = [
 ]
 </script>
 
-<style>
+<style scoped>
 .card {
     /* Asegura que todas las tarjetas tengan la misma altura */
     height: 100%;

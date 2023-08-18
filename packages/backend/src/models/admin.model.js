@@ -8,6 +8,7 @@ const userAdminSchema = new Schema({
     email: { type: String, unique: true },
     password: { type: String, select: false },
     username: { type: String, unique: true },
+    rooms: [{ type: Schema.Types.ObjectId, ref: 'Room' }]
 });
 
 const UserAdmin = model('UserAdmin', userAdminSchema);

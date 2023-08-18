@@ -1,20 +1,21 @@
 import { defineStore } from "pinia";
-import { useStorage } from "@vueuse/core";
+import { useAdmins } from "./admin";
 import { api, socket } from "@/api"
+
 
 export const useRooms = defineStore('room', {
     state: () => ({
-        token: JSON.parse(localStorage.getItem('token')) || null,
+        adminStore: useAdmins(),
         rooms: [],
     }),
+    getters: {
 
+    },
     actions: {
         async listRooms() {
             try {
-                const accessToken = this.token.accessToken;
-
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`
+                    Authorization: `Bearer ${this.adminStore.accessToken}`
                 };
 
                 const roomsDataResponse = await api.get('/api/admin/rooms/', { headers });
@@ -30,16 +31,13 @@ export const useRooms = defineStore('room', {
 
         async createRoom(roomData) {
             try {
-                // Obtener el accessToken del estado del store
-                const accessToken = this.token.accessToken;
-
                 // Configurar los encabezados con el token de acceso
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
 
                 // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
-                const response = await api.post('/api/room/', roomData, { headers });
+                const response = await api.post('/api/admin/rooms/', roomData, { headers });
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {
@@ -57,13 +55,11 @@ export const useRooms = defineStore('room', {
 
         async deleteRoom(roomNumber) {
             try {
-                const accessToken = this.token.accessToken;
-
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
 
-                const response = await api.delete(`/api/room/${roomNumber}`, { headers });
+                const response = await api.delete(`/api/admin/rooms/${roomNumber}`, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala eliminada con éxito');
@@ -78,13 +74,11 @@ export const useRooms = defineStore('room', {
 
         async updateRoom({ roomNumber, updatedData }) {
             try {
-                const accessToken = this.token.accessToken;
-
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
 
-                const response = await api.put(`/api/room/${roomNumber}`, updatedData, { headers });
+                const response = await api.put(`/api/admin/rooms/${roomNumber}`, updatedData, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala actualizada con éxito');
@@ -99,13 +93,11 @@ export const useRooms = defineStore('room', {
 
         async fetchRoomData(roomNumber) {
             try {
-                const accessToken = this.token.accessToken;
-
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
 
-                const response = await api.get(`/api/room/${roomNumber}`, { headers });
+                const response = await api.get(`/api/admin/rooms/${roomNumber}`, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
                     const roomData = response.data;
@@ -117,5 +109,5 @@ export const useRooms = defineStore('room', {
                 console.error('Error al obtener los datos de la sala:', error);
             }
         },
-    }
+    },
 });

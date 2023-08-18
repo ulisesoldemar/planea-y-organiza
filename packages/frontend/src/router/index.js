@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAdmins } from "@/stores/admin";
-import { usePlayer } from "@/stores/player";
+import { usePlayers } from "@/stores/players";
+import { useGame } from "@/stores/game";
+
 // Admin
 import Login from '@/pages/Admin/Login.vue';
 import Dashboard from '@/pages/Admin/Dashboard.vue'
@@ -11,6 +13,8 @@ import Results from '@/pages/Admin/Results.vue';
 
 import Instructions from '@/pages/Players/Instructions.vue';
 import JoinRoom from '@/pages/Players/JoinRoom.vue';
+import PlayerSignup from '@/pages/Players/Signup.vue';
+
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
 
@@ -90,7 +94,15 @@ const playerRoutes = [
         component: JoinRoom,
         meta: {
             title: 'Ingresar a sala',
-            requiresAuth: false,
+        }
+    },
+    {
+        path: '/player-signup',
+        name: 'player-signup',
+        component: PlayerSignup,
+        meta: {
+            title: 'Verifica tus datos',
+            requiresConnected: true,
         }
     },
     {
@@ -135,22 +147,23 @@ const genericRoutes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes: [...genericRoutes,
-    ...adminRoutes,
-    ...playerRoutes
+    routes: [
+        ...genericRoutes,
+        ...adminRoutes,
+        ...playerRoutes
     ],
 })
 
 // Verificar el estado de autenticación antes de cada navegación
 router.beforeEach((to, from, next) => {
     const adminStore = useAdmins(); // Accede al store de usuarios
-    const playerStore = usePlayer();
+    const gameStore = useGame();
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const requiresConnected = to.matched.some(record => record.meta.requiresConnected);
     // Si la ruta requiere autenticación y el usuario no está autenticado, redirige al inicio de sesión
     if (requiresAuth && !adminStore.isAuthenticated) {
         next({ name: 'login' });
-    } else if (requiresConnected && !playerStore.connected) {
+    } else if (requiresConnected && !gameStore.connected) {
         next({ name: 'join-room' });
     } else {
         next();

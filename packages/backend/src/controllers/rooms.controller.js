@@ -1,13 +1,13 @@
 const argon2 = require('argon2');
 const { Room, RefreshToken, Player } = require('../models');
 const { HttpError } = require('../error');
-const { errorHandler, withTransaction, createAccessToken, createRefreshToken } = require("../util");
+const { errorHandler, withTransaction, createAccessToken, createRefreshToken, verifyPassword } = require("../util");
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
     const roomDoc = new Room({
         roomNumber: req.body.roomNumber,
         roomName: req.body.roomName || null,
-        password: req.body.password || null,
+        password: await argon2.hash(req.body.password),
         expiration: req.body.expiration || null
     });
 
@@ -92,17 +92,18 @@ const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) =
 }));
 
 const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomNumber, uniqueAccessCode } = req.body;
-    const roomDoc = await Room.findOne({ roomNumber }).populate('players').exec();
+    const { roomNumber, email, password } = req.body;
+    const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
         throw new HttpError(401, 'Sala no encontrada');
     }
 
-    const playerDoc = await verifyAccessCode(roomDoc.players, uniqueAccessCode);
+    const playerDoc = await Player.findOne({ email });
+    await verifyPassword(roomDoc.password, password, 'Usuario o contraseña no válidos');
 
-    if (!playerDoc) {
-        throw new HttpError(401, 'Contraseña de acceso no válida');
+    if (!playerDoc || !roomDoc.players.includes(playerDoc._id)) {
+        throw new HttpError(401, 'Usuario o contraseña no válidos');
     }
 
     const refreshTokenDoc = new RefreshToken({
@@ -115,11 +116,13 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const refreshToken = createRefreshToken(playerDoc.id, refreshTokenDoc.id);
     const accessToken = createAccessToken(playerDoc.id);
 
-    const { firstName, surName, secondSurName, email, age } = playerDoc;
+    const { id, firstName, surName, secondSurName, age } = playerDoc;
+    const { quickStart } = roomDoc;
 
     return {
         roomNumber,
-        player: { firstName, surName, secondSurName, email, age },
+        quickStart,
+        player: { id, firstName, surName, secondSurName, email, age },
         accessToken,
         refreshToken
     };

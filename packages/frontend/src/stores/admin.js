@@ -11,25 +11,18 @@ export const useAdmins = defineStore('admin', {
 
     // Getters y acciones anteriores...
     getters: {
-        userName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`
+        userName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`,
+        refreshToken: state => state.token.refreshToken,
+        accessToken: state => state.token.accessToken,
     },
 
     actions: {
-
-        // Metodos de socket.io
-        connect() {
-            socket.connect();
-        },
-
-        disconnect() {
-            socket.disconnect();
-        },
-
         // Token de refresh nuevo
         async startTokenRefreshTimer() {
-            this.refreshTokenInterval = setInterval(async () => {
+            setInterval(async () => {
                 try {
-                    const response = await api.post('/api/auth/refreshToken', this.token, refreshToken);
+                    // Obtener el refreshToken del estado del store
+                    const response = await api.post('/api/auth/refreshToken', this.refreshToken);
                     // Verificar si la solicitud fue exitosa (código de estado 200-299)
                     if (response.status >= 200 && response.status < 300) {
                         // Acceder a los datos enviados por el backend a través de 'response.data'
@@ -46,14 +39,13 @@ export const useAdmins = defineStore('admin', {
                     console.error('Error al refrescar el token:', error);
                     // Maneja los errores de refresco aquí
                 }
-            }, 8 * 60 * 1000); // Refresca cada 8 minutos (2 minutos antes de la expiración)
+            }, 18 * 60 * 1000); // Refresca cada 18 minutos (2 minutos antes de la expiración)
         },
         // Acción para realizar el login
-        async login(formData, errorMessage) {
+        async login(formData) {
             try {
                 const response = await api.post('/api/auth/login', formData);
-                console.log(response);
-
+                localStorage.clear();
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {
                     // Acceder a los datos enviados por el backend a través de 'response.data'
@@ -75,9 +67,8 @@ export const useAdmins = defineStore('admin', {
             } catch (error) {
                 if (error.response.status === 401 || error.response.status === 403) {
                     throw new Error('Credenciales de acceso no válidas');
-                } else {
-                    throw new Error('Error en el inicio de sesión. Inténtalo de nuevo más tarde');
                 }
+                throw new Error('Error en el inicio de sesión. Inténtalo de nuevo más tarde');
             }
         },
 
@@ -85,14 +76,14 @@ export const useAdmins = defineStore('admin', {
         async logout() {
             try {
                 // Obtener el refreshToken del estado del store
-                const refreshToken = this.token.refreshToken;
+                const refreshToken = this.refreshToken;
 
                 // Enviar la solicitud de logout al backend
                 await api.post('/api/auth/logout', { refreshToken });
 
                 // Borrar el token del estado del store y del LocalStorage
                 this.token = null;
-                localStorage.removeItem('token');
+                localStorage.clear();
 
                 // Establecer el estado de autenticación a false
                 this.isAuthenticated = false;
@@ -111,12 +102,9 @@ export const useAdmins = defineStore('admin', {
         // Acción para obtener los datos del usuario usando el token de acceso
         async fetchUserData() {
             try {
-                // Obtener el token de acceso del estado del store
-                const accessToken = this.token.accessToken;
-
                 // Configurar los encabezados con el token de acceso
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${this.accessToken}`,
                 };
 
                 // Realizar la solicitud a la ruta '/users/me' con los encabezados configurados
@@ -125,18 +113,17 @@ export const useAdmins = defineStore('admin', {
                 // Almacenar los datos del usuario en el estado del store
                 this.userData = userDataResponse.data;
             } catch (error) {
-                console.error('Error al obtener los datos del usuario:', error);
-                // Puedes manejar el error según corresponda.
+                if (error.response.status === 401 || error.response.status === 403) {
+                    throw new Error('La sesión ha caducado');
+                }
             }
         },
 
         // Obtener los datos de los jugadores
         async fetchPlayersData() {
             try {
-                const accessToken = this.token.accessToken;
-
                 const headers = {
-                    Authorization: `Bearer ${accessToken}`
+                    Authorization: `Bearer ${this.accessToken}`
                 };
 
                 const playersDataResponse = await api.get('/api/admins/players', { headers });
@@ -146,6 +133,9 @@ export const useAdmins = defineStore('admin', {
                     throw new Error('Error al obtener los datos de los jugadores');
                 }
             } catch (error) {
+                if (error.response.status === 401 || error.response.status === 403) {
+                    throw new Error('La sesión ha caducado');
+                }
                 throw new Error('Error al obtener los datos de los jugadores: ' + error.message);
             }
         },

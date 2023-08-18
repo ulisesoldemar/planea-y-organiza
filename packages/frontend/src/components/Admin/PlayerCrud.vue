@@ -1,5 +1,6 @@
 <template>
-    <v-data-table :headers="headers" :items="users" :sort-by="[{ key: 'age', order: 'asc' }]" class="elevation-1">
+    <v-data-table-server :headers="headers" :items="users" :sort-by="[{ key: 'firstName', order: 'asc' }]"
+        :items-length="users.length" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
                 <v-toolbar-title>Sujetos</v-toolbar-title>
@@ -38,60 +39,42 @@
                                     <v-col cols="12" sm="6" md="4">
                                         <v-text-field v-model="editedUser.age" label="Edad"></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.uniqueAccessCode"
-                                            label="Código de acceso único"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-menu v-model="menu" :close-on-content-click="false" offset-y>
-                                            <template v-slot:activator="{ on }">
-                                                <v-text-field v-model="editedUser.accessCodeExpiration"
-                                                    label="Caducidad" prepend-icon="mdi-calendar" readonly
-                                                    v-on="on"></v-text-field>
-                                            </template>
-                                            <v-date-picker v-model="editedUser.accessCodeExpiration" no-title scrollable>
-                                                <v-spacer></v-spacer>
-                                                <v-btn text color="primary" @click="menu = false">Cancelar</v-btn>
-                                                <v-btn text color="primary" @click="menu = false; save">OK</v-btn>
-                                            </v-date-picker>
-                                        </v-menu>
-                                    </v-col>
                                 </v-row>
                             </v-container>
                         </v-card-text>
 
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click=" close ">Cancel</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click=" save ">Save</v-btn>
+                            <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
+                            <v-btn color="blue-darken-1" variant="text" @click="save">Agregar</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
-                <v-dialog v-model=" dialogDelete " max-width="500px">
+                <v-dialog v-model="dialogDelete" max-width="500px">
                     <v-card>
-                        <v-card-title class="text-h5">Are you sure you want to delete this user?</v-card-title>
+                        <v-card-title class="text-h5">¿Seguro que quieres eliminar al sujeto?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click=" closeDelete ">Cancel</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click=" deleteUserConfirm ">OK</v-btn>
+                            <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="blue-darken-1" variant="text" @click="deleteUserConfirm">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
             </v-toolbar>
         </template>
-        <template v-slot:item.actions=" { item } ">
+        <template v-slot:item.actions="{ item }">
             <v-icon size="small" class="me-2" @click="editUser(item.raw)">mdi-pencil</v-icon>
             <v-icon size="small" @click="deleteUser(item.raw)">mdi-delete</v-icon>
         </template>
-    </v-data-table>
+    </v-data-table-server>
 </template>
   
 <script setup>
 import { ref, computed } from 'vue';
-import { usePlayer } from '@/stores/player';
+import { usePlayers } from '@/stores/players';
 
-const playerStore = usePlayer();
+const playerStore = usePlayers();
 
 const dialog = ref(false);
 const dialogDelete = ref(false);
@@ -103,8 +86,6 @@ const headers = [
     { title: 'Email', key: 'email' },
     { title: 'Teléfono', key: 'phone' },
     { title: 'Edad', key: 'age' },
-    { title: 'Código de acceso', key: 'uniqueAccessCode' },
-    { title: 'Caducidad del código', key: 'accessCodeExpiration' },
     { title: 'Acciones', key: 'actions', sortable: false },
 ];
 
@@ -118,8 +99,6 @@ const editedUser = ref({
     email: '',
     phone: '',
     age: 0,
-    uniqueAccessCode: '',
-    accessCodeExpiration: null,
 });
 const defaultUser = {
     firstName: '',
@@ -128,8 +107,6 @@ const defaultUser = {
     email: '',
     phone: '',
     age: 0,
-    uniqueAccessCode: '',
-    accessCodeExpiration: null,
 };
 
 const formTitle = computed(() => {

@@ -9,7 +9,7 @@ function launch(containerId) {
     scale: {
       // mode: Phaser.Scale.RESIZE,
       // parent: containerId,
-      // autoCenter: Phaser.Scale.CENTER_BOTH,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
       width: 1280,
       height: 720,
     },
