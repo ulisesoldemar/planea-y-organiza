@@ -1,12 +1,11 @@
 const { HttpError } = require('../error');
 const { errorHandler } = require("../util");
+const { UserAdmin } = require('../models');
 const jwt = require("jsonwebtoken");
-
 
 const verifyAccessToken = errorHandler(async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-
     if (!token) {
         throw new HttpError(401, 'Unauthorized');
     }
@@ -17,13 +16,32 @@ const verifyAccessToken = errorHandler(async (req, res, next) => {
         next();
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
-            throw new HttpError(401, 'Unauthorized');
-        } else {
-            throw new HttpError(500, 'Server fail');
+            throw new HttpError(419, 'Authentication Timeout');
         }
+        throw new HttpError(500, 'Server fail');
     }
 });
 
+const validateAdmin = errorHandler(async (req, res, next) => {
+    const _id = req.userId;
+
+    try {
+        const adminDoc = await UserAdmin.findOne({ _id });
+        if (!adminDoc) {
+            throw new HttpError(404, 'User not found');
+        }
+
+        req.adminDoc = adminDoc;
+        next();
+    } catch (error) {
+        console.log(error);
+        throw new HttpError(500, 'Server fail');
+    }
+});
+
+
+
 module.exports = {
-    verifyAccessToken
+    verifyAccessToken,
+    validateAdmin,
 };

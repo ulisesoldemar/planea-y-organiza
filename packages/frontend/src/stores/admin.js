@@ -14,6 +14,7 @@ export const useAdmins = defineStore('admin', {
         userName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`,
         refreshToken: state => state.token.refreshToken,
         accessToken: state => state.token.accessToken,
+        id: state => state.userData._id,
     },
 
     actions: {

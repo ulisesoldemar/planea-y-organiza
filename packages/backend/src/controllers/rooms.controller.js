@@ -1,28 +1,36 @@
 const argon2 = require('argon2');
-const { Room, RefreshToken, Player } = require('../models');
+const { Room, RefreshToken, Player, UserAdmin } = require('../models');
 const { HttpError } = require('../error');
 const { errorHandler, withTransaction, createAccessToken, createRefreshToken, verifyPassword } = require("../util");
 
+const listRooms = errorHandler(async (req, res) => {
+    const adminId = req.userId; // Usamos el ID del admin del token
+    const rooms = await Room
+        .find({ admin: adminId }) // Filtrar por el ID del admin creador
+        .exec();
+
+    return rooms;
+});
+
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, roomName, password, expiration } = req.body;
+
+    const adminDoc = req.adminDoc;
+
+    const hashedPassword = await argon2.hash(password);
+
     const roomDoc = new Room({
-        roomNumber: req.body.roomNumber,
-        roomName: req.body.roomName || null,
-        password: await argon2.hash(req.body.password),
-        expiration: req.body.expiration || null
+        roomNumber,
+        roomName: roomName || null,
+        password: hashedPassword,
+        expiration: expiration || null,
+        admin: adminDoc,
     });
 
     await roomDoc.save({ session });
 
     return roomDoc;
 }));
-
-const listRooms = errorHandler(async (req, res) => {
-    const rooms = await Room
-        .find()
-        .exec();
-
-    return rooms;
-});
 
 const deleteRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber } = req.params;
@@ -55,7 +63,7 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
 const fetchRoom = errorHandler(async (req, res) => {
     const { roomNumber } = req.params;
 
-    const room = await Room.findOne({ roomNumber }).exec();
+    const room = await Room.findOne({ roomNumber, admin: req.userId }).exec();
 
     if (!room) {
         throw new HttpError(404, 'Sala no encontrada');
@@ -127,17 +135,6 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
         refreshToken
     };
 }));
-
-async function verifyAccessCode(players, codeToVerify) {
-    for (const player of players) {
-        if (/*!player.accessCodeUsed &&*/ await argon2.verify(player.uniqueAccessCode, codeToVerify)) {
-            player.accessCodeUsed = true;
-            await player.save();
-            return player;
-        }
-    }
-    return false;
-}
 
 module.exports = {
     createRoom,

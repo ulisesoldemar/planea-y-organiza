@@ -34,7 +34,8 @@
 
                                 <v-btn size="small" color="surface-variant" variant="text" icon="mdi-pencil"></v-btn>
 
-                                <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"></v-btn>
+                                <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"
+                                    @click="roomStore.deleteRoom(room.roomNumber)" :disabled="room.status === 'Running'"></v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-col>
@@ -64,6 +65,7 @@ const rooms = computed(() => roomStore.rooms);
 const expandedRooms = ref([]);
 
 const dialog = ref(false);
+const dialogDelete = ref(false);
 
 const closeDialog = () => {
     dialog.value = false;

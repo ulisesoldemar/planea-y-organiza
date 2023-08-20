@@ -35,15 +35,14 @@ export const useRooms = defineStore('room', {
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
-
+                roomData.admin = this.adminStore.id;
                 // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
                 const response = await api.post('/api/admin/rooms/', roomData, { headers });
 
                 // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {
                     // Acceder a los datos enviados por el backend a través de 'response.data'
-                    const newRoom = response.data;
-                    console.log(newRoom);
+                    this.listRooms();
                 } else {
                     // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
                     console.error('Error al crear la sala:', response.statusText);
@@ -53,13 +52,13 @@ export const useRooms = defineStore('room', {
             }
         },
 
-        async deleteRoom(roomNumber) {
+        async deleteRoom(roomNumber, adminId) {
             try {
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
 
-                const response = await api.delete(`/api/admin/rooms/${roomNumber}`, { headers });
+                const response = await api.delete(`/api/admin/rooms/${roomNumber}?admin=${this.adminStore.id}`, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala eliminada con éxito');
@@ -72,12 +71,13 @@ export const useRooms = defineStore('room', {
             }
         },
 
+
         async updateRoom({ roomNumber, updatedData }) {
             try {
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
-
+                updatedData.admin = this.adminStore.id;
                 const response = await api.put(`/api/admin/rooms/${roomNumber}`, updatedData, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
