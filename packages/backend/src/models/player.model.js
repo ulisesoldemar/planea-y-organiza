@@ -11,6 +11,8 @@ const playerSchema = new Schema({
     score: { type: Number, default: 0 },
     distance: { type: Number, default: 0 },
     transitions: [{ type: Number }],
+    room: { type: Schema.Types.ObjectId, ref: 'Room' },
+    admin: { type: Schema.Types.ObjectId, ref: 'UserAdmin' },
 });
 
 const Player = model('Player', playerSchema);

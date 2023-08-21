@@ -1,4 +1,5 @@
 const argon2 = require('argon2');
+const { v4: uuidv4 } = require('uuid');
 const { Room, RefreshToken, Player, UserAdmin } = require('../models');
 const { HttpError } = require('../error');
 const { errorHandler, withTransaction, createAccessToken, createRefreshToken, verifyPassword } = require("../util");
@@ -13,17 +14,22 @@ const listRooms = errorHandler(async (req, res) => {
 });
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomNumber, roomName, password, expiration } = req.body;
+    const { roomName, password, expiration, quickStart } = req.body;
+
+    if (!password) {
+        throw new HttpError(400, 'Bad request');
+    }
 
     const adminDoc = req.adminDoc;
 
     const hashedPassword = await argon2.hash(password);
 
     const roomDoc = new Room({
-        roomNumber,
+        roomNumber: uuidv4(),
         roomName: roomName || null,
         password: hashedPassword,
         expiration: expiration || null,
+        quickStart: quickStart || false,
         admin: adminDoc,
     });
 
