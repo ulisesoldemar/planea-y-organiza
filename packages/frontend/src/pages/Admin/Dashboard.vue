@@ -1,7 +1,7 @@
 <template>
 <AdminLayout>
-    <v-card class="pa-5" width="400">
-        Hola
+    <v-card width="100%">
+        <v-card-title>Bienvenido a P&O</v-card-title>
     </v-card>
     <CookiesBanner />
 </AdminLayout>
