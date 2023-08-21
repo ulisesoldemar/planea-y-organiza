@@ -19,6 +19,11 @@ export const useGame = defineStore('game', {
     },
 
     actions: {
+        async handleError(actionName, error) {
+            console.error(`Error in ${actionName}:`, error);
+            // Puedes implementar aquí la lógica para mostrar mensajes de error en la interfaz de usuario si lo deseas.
+        },
+
         async joinRoom(formData) {
             try {
                 const response = await api.post('/api/access/join-room/', formData);
@@ -40,7 +45,7 @@ export const useGame = defineStore('game', {
                 if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                     throw new Error('Credenciales de acceso no válidas');
                 } else {
-                    throw new Error('Error en el inicio de sesión. Inténtalo de nuevo más tarde');
+                    await this.handleError('joinRoom', error);
                 }
             }
         },
@@ -54,15 +59,14 @@ export const useGame = defineStore('game', {
                 });
                 if (response.status >= 200 && response.status < 300) {
                     // if (this.quickStart) {
-                        this.router.push('instructions');
+                    this.router.push('instructions');
                     // }
                 } else {
                     throw new Error('Error al actualizar los datos. Inténtalo de nuevo más tarde');
                 }
             } catch (error) {
-                throw new Error('Error al actualizar los datos. Inténtalo de nuevo más tarde');
+                await this.handleError('updatePlayer', error);
             }
-
         }
     },
 });

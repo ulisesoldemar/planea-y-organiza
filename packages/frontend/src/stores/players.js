@@ -9,6 +9,11 @@ export const usePlayers = defineStore('players', {
     }),
 
     actions: {
+        async handleError(actionName, error) {
+            console.error(`Error in ${actionName}:`, error);
+            // Puedes implementar aquí la lógica para mostrar mensajes de error en la interfaz de usuario si lo deseas.
+        },
+
         async listPlayers() {
             try {
                 const response = await api.get('/players', {
@@ -21,10 +26,10 @@ export const usePlayers = defineStore('players', {
                     const players = response.data;
                     // ... tu código para manejar la lista de jugadores ...
                 } else {
-                    console.error('Error al obtener la lista de jugadores:', response.statusText);
+                    throw new Error(`Error al obtener la lista de jugadores: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al obtener la lista de jugadores:', error);
+                await this.handleError('listPlayers', error);
             }
         },
 
@@ -39,10 +44,10 @@ export const usePlayers = defineStore('players', {
                 if (response.status === 201) {
                     // ... tu código para manejar la creación exitosa ...
                 } else {
-                    console.error('Error al crear un jugador:', response.statusText);
+                    throw new Error(`Error al crear un jugador: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al crear un jugador:', error);
+                await this.handleError('createPlayer', error);
             }
         },
 
@@ -57,10 +62,10 @@ export const usePlayers = defineStore('players', {
                 if (response.status === 200) {
                     // ... tu código para manejar la actualización exitosa ...
                 } else {
-                    console.error('Error al actualizar el jugador:', response.statusText);
+                    throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al actualizar el jugador:', error);
+                await this.handleError('updatePlayer', error);
             }
         },
 
@@ -75,10 +80,10 @@ export const usePlayers = defineStore('players', {
                 if (response.status === 204) {
                     // ... tu código para manejar la eliminación exitosa ...
                 } else {
-                    console.error('Error al eliminar el jugador:', response.statusText);
+                    throw new Error(`Error al eliminar el jugador: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al eliminar el jugador:', error);
+                await this.handleError('deletePlayer', error);
             }
         },
 

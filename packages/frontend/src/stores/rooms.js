@@ -2,16 +2,20 @@ import { defineStore } from "pinia";
 import { useAdmins } from "./admin";
 import { api, socket } from "@/api"
 
-
 export const useRooms = defineStore('room', {
     state: () => ({
         adminStore: useAdmins(),
         rooms: [],
     }),
     getters: {
-
+        date: (roomDate) => { return new Date(roomDate).toLocaleDateString('es-MX') }
     },
     actions: {
+        async handleError(actionName, error) {
+            console.error(`Error in ${actionName}:`, error);
+            // Puedes implementar aquí la lógica para mostrar mensajes de error en la interfaz de usuario si lo deseas.
+        },
+
         async listRooms() {
             try {
                 const headers = {
@@ -25,30 +29,26 @@ export const useRooms = defineStore('room', {
                     throw new Error('Error al obtener los datos de las salas');
                 }
             } catch (error) {
-                throw new Error('Error al obtener los datos de las salas: ' + error.message);
+                await this.handleError('listRooms', error);
             }
         },
 
         async createRoom(roomData) {
             try {
-                // Configurar los encabezados con el token de acceso
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
                 roomData.admin = this.adminStore.id;
-                // Realizar la solicitud a la ruta '/admin' con los encabezados configurados y los datos de la sala
+
                 const response = await api.post('/api/admin/rooms/', roomData, { headers });
 
-                // Verificar si la solicitud fue exitosa (código de estado 200-299)
                 if (response.status >= 200 && response.status < 300) {
-                    // Acceder a los datos enviados por el backend a través de 'response.data'
-                    this.listRooms();
+                    this.rooms.push(response.data);
                 } else {
-                    // La solicitud no fue exitosa, mostrar un mensaje de error o manejar el error según corresponda.
-                    console.error('Error al crear la sala:', response.statusText);
+                    throw new Error(`Error al crear la sala: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al crear la sala:', error);
+                await this.handleError('createRoom', error);
             }
         },
 
@@ -62,32 +62,36 @@ export const useRooms = defineStore('room', {
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala eliminada con éxito');
-                    await this.listRooms(); // Actualizar la lista de salas después de la eliminación
+                    await this.listRooms();
                 } else {
-                    console.error('Error al eliminar la sala:', response.statusText);
+                    throw new Error(`Error al eliminar la sala: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al eliminar la sala:', error);
+                await this.handleError('deleteRoom', error);
             }
         },
 
-
-        async updateRoom({ roomNumber, updatedData }) {
+        async updateRoom(updatedRoom) {
             try {
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
-                updatedData.admin = this.adminStore.id;
-                const response = await api.put(`/api/admin/rooms/${roomNumber}`, updatedData, { headers });
+
+                const data = {
+                    ...updatedRoom,
+                    admin: this.adminStore.id,
+                }
+
+                const response = await api.put(`/api/admin/rooms/${updatedRoom.roomNumber}`, data, { headers });
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala actualizada con éxito');
-                    await this.listRooms(); // Actualizar la lista de salas después de la actualización
+                    await this.listRooms();
                 } else {
-                    console.error('Error al actualizar la sala:', response.statusText);
+                    throw new Error(`Error al actualizar la sala: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al actualizar la sala:', error);
+                await this.handleError('updateRoom', error);
             }
         },
 
@@ -103,10 +107,10 @@ export const useRooms = defineStore('room', {
                     const roomData = response.data;
                     console.log('Datos de la sala:', roomData);
                 } else {
-                    console.error('Error al obtener los datos de la sala:', response.statusText);
+                    throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error al obtener los datos de la sala:', error);
+                await this.handleError('fetchRoomData', error);
             }
         },
     },
