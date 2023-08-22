@@ -1,7 +1,7 @@
 <template>
   <div class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
     <v-card class="pb-6 mx-auto pa-12" elevation="8" width="448" max-width="448" rounded="lg">
-      <v-form v-model="formFunction">
+      <v-form v-model="formFunction" @submit.prevent="">
         <div class="text-subtitle-1 text-medium-emphasis">Nombre de usuario o correo</div>
         <v-text-field v-model="formData.identifier" placeholder="Nombre o correo" prepend-inner-icon="mdi-account-key"
           variant="outlined" :rules="identifierRules"></v-text-field>

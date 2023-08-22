@@ -12,7 +12,9 @@
             {{ props.errorDescription }}
         </p>
 
-        <v-btn class="mt-15" color="primary" to="/">Regresar al inicio</v-btn>
+        <router-link to="/">
+          <v-btn class="mt-15" color="primary">Regresar al inicio</v-btn>
+        </router-link>
 
     </div>
    </div> 

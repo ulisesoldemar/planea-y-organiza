@@ -21,6 +21,7 @@ export const usePlayers = defineStore('players', {
     actions: {
         async handleError(actionName, error) {
             console.error(`Error in ${actionName}:`, error);
+            console.error(`Error Message`, error.response.data);
             // Puedes implementar aquí la lógica para mostrar mensajes de error en la interfaz de usuario si lo deseas.
         },
 
@@ -51,8 +52,9 @@ export const usePlayers = defineStore('players', {
                     }
                 });
 
-                if (response.status === 201) {
+                if (response.status === 200) {
                     // ... tu código para manejar la creación exitosa ...
+
                 } else {
                     throw new Error(`Error al crear un jugador: ${response.statusText}`);
                 }
@@ -63,7 +65,7 @@ export const usePlayers = defineStore('players', {
 
         async updatePlayer(formData) {
             try {
-                const response = await api.patch(`/api/admin/players/${formData.id}`, formData, {
+                const response = await api.patch(`/api/admin/players/${formData._id}`, formData, {
                     headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
@@ -81,14 +83,15 @@ export const usePlayers = defineStore('players', {
 
         async deletePlayer(playerId) {
             try {
-                const response = await api.delete(`/players/${playerId}`, {
+                const response = await api.delete(`/api/admin/players/${playerId}`, {
                     headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 
-                if (response.status === 204) {
+                if (response.status === 200) {
                     // ... tu código para manejar la eliminación exitosa ...
+                    console.log(response.data);
                 } else {
                     throw new Error(`Error al eliminar el jugador: ${response.statusText}`);
                 }

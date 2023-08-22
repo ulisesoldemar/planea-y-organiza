@@ -4,7 +4,7 @@
             <v-card-title class="text-center mb-4">
                 Acceder al juego
             </v-card-title>
-            <v-form v-model="formFunction">
+            <v-form v-model="formFunction" @submit.prevent="">
                 
                 <div class="text-subtitle-1 text-medium-emphasis">Número de sala</div>
                 <v-text-field v-model="formData.roomNumber" :rules="roomNumberRules" :error-messages="roomNumberErrors"
@@ -24,7 +24,7 @@
                     variant="outlined" @click:append-inner="visible = !visible" @keyup.enter="handleJoin" color="primary"></v-text-field>
 
                 <p v-if="errorMessage" class="text-center text-red">{{ errorMessage }}</p>
-                <v-btn color="primary" block class="mb-8 mt-4" size="large" variant="elevated" @click="handleJoin" :disabled="!formFunction">
+                <v-btn color="primary" block class="mb-8 mt-4" size="large" variant="elevated" @click="handleJoin" :disabled="!formFunction" :loading="loading">
                     Ingresar
                 </v-btn>
             </v-form>
@@ -76,10 +76,16 @@ watch(formData, () => {
 async function handleJoin() {
     try {
         if (roomNumberErrors.value.length === 0 && emailErrors.value.length === 0 && passwordErrors.value.length === 0) {
-            await gameStore.joinRoom(formData.value);
+            loading.value = true;
+            setTimeout(async () => {
+                loading.value = false;
+                await gameStore.joinRoom(formData.value);
+            }, "1000");
         }
     } catch (error) {
         errorMessage.value = error.message;
     }
+
+
 }
 </script>

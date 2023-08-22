@@ -13,34 +13,36 @@
                         </v-btn>
                     </template>
                     <v-card class="pa-2">
+                        <v-form ref="formFunc" @submit.prevent=""> 
                         <v-card-title>
                             <span class="text-h5">{{ formTitle }}</span>
                         </v-card-title>
 
                         <v-card-text>
                             <v-container>
-                                <v-row>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.surName" label="Primer apellido"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.secondSurName"
-                                            label="Segundo apellido"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.email" label="Email"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.phone" label="Teléfono"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedPlayer.age" label="Edad" type="number"
-                                            min="18"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)" :rules="nameRules"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.surName" label="Primer apellido" :rules="nameRules"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
+                                                label="Segundo apellido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.email" label="Email" :rules="emailRules"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.phone" label="Teléfono" :rules="phoneRules"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedPlayer.age" label="Edad" type="number" :rules="ageRules"
+                                                min="18"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                
                             </v-container>
                         </v-card-text>
 
@@ -49,6 +51,7 @@
                             <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
                             <v-btn color="blue-darken-1" variant="text" @click="save">Agregar</v-btn>
                         </v-card-actions>
+                    </v-form>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
@@ -66,7 +69,7 @@
         </template>
         <template v-slot:item.actions="{ item }">
             <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
-            <v-icon size="small" @click="deletePlayer(item.raw)">mdi-delete</v-icon>
+            <v-icon size="small" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
         </template>
     </v-data-table-server>
 </template>
@@ -76,6 +79,7 @@ import { usePlayers } from '@/stores/players';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
+const formFunc = ref(null)
 
 onMounted(async () => {
     await playerStore.listPlayers();
@@ -106,7 +110,7 @@ const editedPlayer = ref({
     secondSurName: '',
     email: '',
     phone: '',
-    age: 0,
+    age: null,
     room: null,
     addedAt: null,
 });
@@ -117,7 +121,7 @@ const defaultPlayer = {
     secondSurName: '',
     email: '',
     phone: '',
-    age: 0,
+    age: null,
     distance: null, // number
     score: null,    // number
     addedAt: null,
@@ -140,20 +144,20 @@ watch(dialogDelete, (val) => {
 })
 
 // Methods
-const editPlayer = (player, index) => {
-    editedIndex.value = index;
+const editPlayer = (player) => {
+    editedIndex.value = 1;
     editedPlayer.value = { ...player };
     dialog.value = true;
 };
 
-const deletePlayer = (player, index) => {
-    editedIndex.value = index;
+const deletePlayer = (player) => {
+    editedIndex.value = players.value.indexOf(player);
     editedPlayer.value = { ...player };
     dialogDelete.value = true;
 };
 
 const deletePlayerConfirm = async () => {
-    await playerStore.deletePlayer(editedPlayer.value.id);
+    await playerStore.deletePlayer(editedPlayer.value._id);
     players.value.splice(editedIndex.value, 1);
     closeDelete();
 };
@@ -175,12 +179,42 @@ const closeDelete = () => {
 };
 
 const save = async () => {
-    if (editedIndex.value > -1) {
-        await playerStore.updatePlayer(editedPlayer.value);
-    } else {
-        await playerStore.createPlayer(editedPlayer.value);
+    const { valid } = await formFunc.value.validate();
+
+    if(valid){
+        if (editedIndex.value > -1) {
+            await playerStore.updatePlayer(editedPlayer.value);
+        } else {
+            await playerStore.createPlayer(editedPlayer.value).catch(e => console.error(e));
+        }
+        await playerStore.listPlayers();
+        close();
     }
-    close();
 };
+
+const nameRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => (v && v.length >= 2) || 'Ingrese al menos 2 caracteres',
+    v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
+];
+
+const SecSurnameRules = [
+    v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
+];
+
+const emailRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => /.+@.+\..+/.test(v) || 'Ingrese una dirección de correo electrónico válida',
+];
+
+const phoneRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido',
+];
+
+const ageRules = [
+    v => !!v || 'Este campo es obligatorio',
+    v => (v >= 1 && v <= 140) || 'Ingrese una edad válida',
+];
 </script>
   

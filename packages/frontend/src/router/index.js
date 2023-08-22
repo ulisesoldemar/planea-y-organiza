@@ -143,6 +143,16 @@ const genericRoutes = [
             title: 'Error',
         },
     },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: ErrorHeader,
+        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.'},
+        meta: {
+            title: 'Error',
+            requiresAuth: false,
+        }
+    },
 ];
 
 const router = createRouter({
