@@ -5,7 +5,7 @@
                 <v-card>
                     <v-card-title class="surface-variant" v-text="`${room.roomName || room.roomNumber}`"></v-card-title>
                     <v-card-subtitle class="surface-variant"
-                        v-text="`Sala creada el: ${new Date(room.createdAt).toLocaleDateString('es-MX')}`"></v-card-subtitle>
+                        v-text="`Sala creada el: ${roomStore.createdAt(index)}`"></v-card-subtitle>
                     <v-expand-transition>
                         <div v-if="expandedRooms[index]">
                             <v-list class="bg-transparent">
@@ -17,7 +17,7 @@
                                 </v-list-item>
                                 <v-list-item title="Fecha de caducidad">
                                     <v-list-item-subtitle>
-                                        {{ room.expiration ? new Date(room.expiration).toLocaleDateString('es-MX') :
+                                        {{ room.expiration ? roomStore.expiresAt(index) :
                                             "No expira" }}
                                     </v-list-item-subtitle>
                                 </v-list-item>
@@ -72,9 +72,9 @@
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
                                     <v-text-field v-model="editedRoom.password" :label="`${passwordLabel}*`"
-                                        :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-                                        :type="visible ? 'text' : 'password'" @click:append-inner="visible = !visible" :rules="passwordRules"
-                                        required></v-text-field>
+                                        :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+                                        :type="passwordVisible ? 'text' : 'password'" @click:append-inner="passwordVisible = !passwordVisible"
+                                        :rules="passwordRules" required></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
                                     <v-text-field v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
@@ -99,7 +99,7 @@
                 </v-card>
             </v-form>
         </v-dialog>
-        <v-dialog v-model="dialogDelete" maxWidth="auto">
+        <v-dialog v-model="dialogDelete" maxWidth="500px">
             <v-card>
                 <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
                 <v-card-actions>
@@ -124,14 +124,12 @@
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useRooms } from '@/stores/rooms';
-import { nextTick } from 'vue';
-import { watch } from 'vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const roomStore = useRooms();
 
-onMounted(() => {
-    roomStore.listRooms();
+onMounted(async () => {
+    await roomStore.listRooms();
 });
 
 const nameRules = [
@@ -147,7 +145,7 @@ const expirationRules = [
     (v) => !v || new Date(v) >= new Date() || 'La fecha de caducidad debe ser en el futuro',
 ];
 
-const visible = ref(false);
+const passwordVisible = ref(false);
 
 const form = ref(null); // Crear referencia al formulario
 const dialog = ref(false);
@@ -210,8 +208,8 @@ async function deleteRoom(room, index) {
     dialogDelete.value = true;
 }
 
-function deleteRoomConfirm() {
-    roomStore.deleteRoom(editedRoom.value.roomNumber);
+async function deleteRoomConfirm() {
+    await roomStore.deleteRoom(editedRoom.value.roomNumber);
     rooms.value.splice(editedIndex.value, 1);
     closeDelete();
 }
@@ -232,14 +230,14 @@ function closeDelete() {
     });
 }
 
-function save() {
+async function save() {
     const isValid = form.value.validate(); // Validamos todos los campos
 
     if (isValid) {
         if (editedIndex.value > -1) {
-            roomStore.updateRoom(editedRoom.value);
+            await roomStore.updateRoom(editedRoom.value);
         } else {
-            roomStore.createRoom(editedRoom.value);
+            await roomStore.createRoom(editedRoom.value);
         }
         close();
     }

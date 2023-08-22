@@ -8,7 +8,8 @@ export const useRooms = defineStore('room', {
         rooms: [],
     }),
     getters: {
-        date: (roomDate) => { return new Date(roomDate).toLocaleDateString('es-MX') }
+        createdAt: state => index => { return new Date(state.rooms[index].createdAt).toLocaleDateString('es-MX') },
+        expiresAt: state => index => { return new Date(state.rooms[index].expiration).toLocaleDateString('es-MX') },
     },
     actions: {
         async handleError(actionName, error) {

@@ -1,7 +1,6 @@
 <template>
-    
-    <v-data-table-server :headers="headers" :items="users" :sort-by="[{ key: 'firstName', order: 'asc' }]"
-        :items-length="users.length" class="elevation-1 rounded-lg pb-3">
+    <v-data-table-server :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
+        :items-length="players.length" class="elevation-1 rounded-lg pb-3">
         <template v-slot:top>
             <v-toolbar flat class="rounded-t-lg">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
@@ -22,23 +21,24 @@
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.firstName" label="Nombre(s)"></v-text-field>
+                                        <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.surName" label="Primer apellido"></v-text-field>
+                                        <v-text-field v-model="editedPlayer.surName" label="Primer apellido"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.secondSurName"
+                                        <v-text-field v-model="editedPlayer.secondSurName"
                                             label="Segundo apellido"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.email" label="Email"></v-text-field>
+                                        <v-text-field v-model="editedPlayer.email" label="Email"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.phone" label="Teléfono"></v-text-field>
+                                        <v-text-field v-model="editedPlayer.phone" label="Teléfono"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedUser.age" label="Edad"></v-text-field>
+                                        <v-text-field v-model="editedPlayer.age" label="Edad" type="number"
+                                            min="18"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -57,7 +57,7 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click="deleteUserConfirm">OK</v-btn>
+                            <v-btn color="blue-darken-1" variant="text" @click="deletePlayerConfirm">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
@@ -65,21 +65,25 @@
             </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editUser(item.raw)">mdi-pencil</v-icon>
-            <v-icon size="small" @click="deleteUser(item.raw)">mdi-delete</v-icon>
+            <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
+            <v-icon size="small" @click="deletePlayer(item.raw)">mdi-delete</v-icon>
         </template>
     </v-data-table-server>
 </template>
   
 <script setup>
-import { ref, computed } from 'vue';
 import { usePlayers } from '@/stores/players';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
 
+onMounted(async () => {
+    await playerStore.listPlayers();
+});
+
 const dialog = ref(false);
 const dialogDelete = ref(false);
-const menu = ref(false);
+
 const headers = [
     { title: 'Nombre(s)', align: 'start', key: 'firstName' },
     { title: 'Primer apellido', key: 'surName' },
@@ -87,69 +91,94 @@ const headers = [
     { title: 'Email', key: 'email' },
     { title: 'Teléfono', key: 'phone' },
     { title: 'Edad', key: 'age' },
-    { title: 'Acciones', key: 'actions', sortable: false },
+    { title: 'Sala', key: 'room' },
+    { title: 'Agregado el', key: 'addedAt' },
+    { title: 'Acciones', key: 'actions' },
 ];
 
-const users = ref([]);
+const players = computed(() => playerStore.players);
 
 const editedIndex = ref(-1);
-const editedUser = ref({
+const editedPlayer = ref({
+    id: null,
     firstName: '',
     surName: '',
     secondSurName: '',
     email: '',
     phone: '',
     age: 0,
+    room: null,
+    addedAt: null,
 });
-const defaultUser = {
+const defaultPlayer = {
+    id: null,
     firstName: '',
     surName: '',
     secondSurName: '',
     email: '',
     phone: '',
     age: 0,
+    distance: null, // number
+    score: null,    // number
+    addedAt: null,
 };
 
 const formTitle = computed(() => {
     return editedIndex.value === -1 ? 'Nuevo Sujeto' : 'Editar Sujeto';
 });
 
+watch(dialog, (val) => {
+    if (!val) {
+        close();
+    }
+});
+
+watch(dialogDelete, (val) => {
+    if (!val) {
+        closeDelete();
+    }
+})
+
 // Methods
-const editUser = (user) => {
-    editedIndex.value = users.value.indexOf(user);
-    editedUser.value = { ...user };
+const editPlayer = (player, index) => {
+    editedIndex.value = index;
+    editedPlayer.value = { ...player };
     dialog.value = true;
 };
 
-const deleteUser = (user) => {
-    editedIndex.value = users.value.indexOf(user);
-    editedUser.value = { ...user };
+const deletePlayer = (player, index) => {
+    editedIndex.value = index;
+    editedPlayer.value = { ...player };
     dialogDelete.value = true;
 };
 
-const deleteUserConfirm = () => {
-    users.value.splice(editedIndex.value, 1);
+const deletePlayerConfirm = async () => {
+    await playerStore.deletePlayer(editedPlayer.value.id);
+    players.value.splice(editedIndex.value, 1);
     closeDelete();
 };
 
 const close = () => {
     dialog.value = false;
-    menu.value = false;
-    editedUser.value = { ...defaultUser };
-    editedIndex.value = -1;
+    nextTick(() => {
+        editedPlayer.value = { ...defaultPlayer };
+        editedIndex.value = -1;
+    });
 };
 
 const closeDelete = () => {
     dialogDelete.value = false;
-    editedUser.value = { ...defaultUser };
-    editedIndex.value = -1;
+    nextTick(() => {
+        editedPlayer.value = { ...defaultPlayer };
+        editedIndex.value = -1;
+    });
 };
 
-const save = () => {
+const save = async () => {
     if (editedIndex.value > -1) {
-        Object.assign(users.value[editedIndex.value], editedUser.value);
+        await playerStore.updatePlayer(editedPlayer.value);
     } else {
-        users.value.push(editedUser.value);
+        await playerStore.createPlayer(editedPlayer.value);
     }
     close();
 };

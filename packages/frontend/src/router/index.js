@@ -120,7 +120,7 @@ const playerRoutes = [
         component: Game,
         meta: {
             title: 'Game',
-            requiresConnected: true, // Indica que se debe estar conectado
+            requiresConnected: false, // Indica que se debe estar conectado
         },
     },
 ];

@@ -7,7 +7,17 @@ export const usePlayers = defineStore('players', {
         adminStore: useAdmins(),
         players: [],
     }),
-
+    getters: {
+        fullName: state => index => {
+            const player = state.players[index];
+            console.log(state.players);
+            if (player) {
+                return `${player.firstName} ${player.surName} ${player.secondSurName || ''}`;
+            }
+            return '';
+        },
+        addedAt: state => index => { return new Date(state.players[index].addedAt).toLocaleDateString('es-MX') },
+    },
     actions: {
         async handleError(actionName, error) {
             console.error(`Error in ${actionName}:`, error);
@@ -16,14 +26,14 @@ export const usePlayers = defineStore('players', {
 
         async listPlayers() {
             try {
-                const response = await api.get('/players', {
+                const response = await api.get('/api/admin/players', {
                     headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
 
                 if (response.status === 200) {
-                    const players = response.data;
+                    this.players = response.data;
                     // ... tu código para manejar la lista de jugadores ...
                 } else {
                     throw new Error(`Error al obtener la lista de jugadores: ${response.statusText}`);
@@ -35,7 +45,7 @@ export const usePlayers = defineStore('players', {
 
         async createPlayer(formData) {
             try {
-                const response = await api.post('/players', formData, {
+                const response = await api.post('/api/admin/players', formData, {
                     headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
@@ -51,9 +61,9 @@ export const usePlayers = defineStore('players', {
             }
         },
 
-        async updatePlayer(playerId, formData) {
+        async updatePlayer(formData) {
             try {
-                const response = await api.patch(`/players/${playerId}`, formData, {
+                const response = await api.patch(`/api/admin/players/${formData.id}`, formData, {
                     headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
