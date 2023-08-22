@@ -53,11 +53,24 @@ const deleteRoom = errorHandler(withTransaction(async (req, res, session) => {
 const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber } = req.params;
 
-    const updatedRoom = await Room.findOneAndUpdate(
-        { roomNumber },
-        { $set: req.body },
-        { new: true }
-    ).session(session).exec();
+    let updatedRoom;
+
+    if (!req.body.password) {
+        updatedRoom = await Room.findOneAndUpdate(
+            { roomNumber },
+            {
+                roomName: req.body.roomName,
+                expiration: req.body.expiration,
+            },
+            { new: true }
+        ).session(session).exec();
+    } else {
+        updatedRoom = await Room.findOneAndUpdate(
+            { roomNumber },
+            { $set: req.body },
+            { new: true }
+        ).session(session).exec();
+    }
 
     if (!updatedRoom) {
         throw new HttpError(404, 'Sala no encontrada');
