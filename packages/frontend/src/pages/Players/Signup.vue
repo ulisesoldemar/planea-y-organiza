@@ -26,12 +26,13 @@
                         <v-text-field v-model="formData.age" label="Edad" type="number" :rules="ageRules"></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules" required></v-text-field>
+                        <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules"></v-text-field>
                     </v-col>
                 </v-row>
                 <v-row>
                     <v-col cols="12">
-                        <v-btn type="submit" block color="primary" @click="submitForm" :disabled="!formFunction" :loading="loading">Enviar</v-btn>
+                        <v-btn type="submit" block color="primary" @click="submitForm" :disabled="!formFunction"
+                            :loading="loading">Enviar</v-btn>
                     </v-col>
                 </v-row>
             </v-form>
@@ -59,7 +60,6 @@ const emailRules = [
 ];
 
 const phoneRules = [
-    v => !!v || 'Este campo es obligatorio',
     v => /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido',
 ];
 
@@ -70,10 +70,7 @@ const ageRules = [
 
 const submitForm = async () => {
     loading.value = true;
-    setTimeout(async () => {
-        loading.value = false;
-        await gameStore.updatePlayer(formData);
-    }, "1500");
-};
+    gameStore.updatePlayer(formData).then(loading.value = false);
+}
 </script>
   

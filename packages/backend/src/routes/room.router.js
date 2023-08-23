@@ -13,5 +13,6 @@ router.post('/', middlewares.validateAdmin, controllers.rooms.createRoom);
 router.put('/:roomNumber', middlewares.validateAdmin, controllers.rooms.updateRoom);
 router.delete('/:roomNumber', middlewares.validateAdmin, controllers.rooms.deleteRoom);
 router.post('/add-player-to-room', middlewares.validateAdmin, controllers.rooms.addPlayerToRoom);
+router.post('/add-players-to-room', middlewares.validateAdmin, controllers.rooms.addPlayersToRoom);
 
 module.exports = router;

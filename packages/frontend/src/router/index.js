@@ -135,19 +135,40 @@ const genericRoutes = [
         },
     },
     {
-        path: '/404',
-        name: 'error',
+        path: '/401',
+        name: '401',
         component: ErrorHeader,
-        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.', },
+        props: { errorCode: '401', errorTitle: 'Unauthorized', errorDescription: 'Acceso denegado.' },
         meta: {
             title: 'Error',
-        },
+            requiresAuth: false,
+        }
+    },
+    {
+        path: '/403',
+        name: '403',
+        component: ErrorHeader,
+        props: { errorCode: '403', errorTitle: 'Forbidden', errorDescription: 'No tienes permiso para acceder a este recurso.' },
+        meta: {
+            title: 'Error',
+            requiresAuth: false,
+        }
     },
     {
         path: '/:pathMatch(.*)*',
-        name: 'NotFound',
+        name: '404',
         component: ErrorHeader,
-        props: { errorCode: '404', errorTitle: 'Page Not Found ⚠️', errorDescription: 'We couldnt find the page you are looking for.'},
+        props: { errorCode: '404', errorTitle: 'Page not found', errorDescription: 'No podemos encontrar la página que estabas buscando.' },
+        meta: {
+            title: 'Error',
+            requiresAuth: false,
+        }
+    },
+    {
+        path: '/500',
+        name: '/500',
+        component: ErrorHeader,
+        props: { errorCode: '500', errorTitle: 'Internal Server Error', errorDescription: 'Hubo un error, intentalo de nuevo más tarde.' },
         meta: {
             title: 'Error',
             requiresAuth: false,

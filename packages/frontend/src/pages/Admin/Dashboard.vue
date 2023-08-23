@@ -3,7 +3,7 @@
     <v-card width="100%">
         <v-card-title>Bienvenido a P&O</v-card-title>
     </v-card>
-    <CookiesBanner />
+    <!-- <CookiesBanner /> -->
 </AdminLayout>
 </template>
   

@@ -17,9 +17,29 @@ export const useAdmins = defineStore('admin', {
     },
 
     actions: {
-        async handleError(actionName, error) {
-            console.error(`Error in ${actionName}:`, error);
-            // Puedes implementar aquí la lógica para mostrar mensajes de error en la interfaz de usuario si lo deseas.
+        async handleError(caller, error) {
+            if (error && error.response) {
+                switch (error.response.status) {
+                    case 419: {
+                        this.fetchNewAccessToken();
+                        caller();
+                        break
+                    }
+                    case 401:
+                        this.router.push('401');
+                        break;
+                    case 403:
+                        this.router.push('403');
+                        break;
+                    case 500:
+                        this.router.push('500');
+                        break;
+                    default:
+                        this.router.push('500');
+                }
+            } else {
+                this.router.push('500');
+            }
         },
 
         async login(formData) {
@@ -59,7 +79,7 @@ export const useAdmins = defineStore('admin', {
 
                 this.router.push({ name: 'login' });
             } catch (error) {
-                await this.handleError('logout', error);
+                await this.handleError(this.logout, error);
             }
         },
 
@@ -77,30 +97,12 @@ export const useAdmins = defineStore('admin', {
                     throw new Error('Error al obtener los datos del usuario');
                 }
             } catch (error) {
-                if (error.response.status === 401 || error.response.status === 403) {
-                    throw new Error('La sesión ha caducado');
+                if (error.response) {
+                    if (error.response.status === 401 || error.response.status === 403) {
+                        throw new Error('La sesión ha caducado');
+                    }
                 }
-                await this.handleError('fetchUserData', error);
-            }
-        },
-
-        async fetchPlayersData() {
-            try {
-                const headers = {
-                    Authorization: `Bearer ${this.accessToken}`
-                };
-
-                const playersDataResponse = await api.get('/api/admins/players', { headers });
-                if (playersDataResponse.status >= 200 && playersDataResponse.status < 300) {
-                    this.players = playersDataResponse.data;
-                } else {
-                    throw new Error('Error al obtener los datos de los jugadores');
-                }
-            } catch (error) {
-                if (error.response.status === 401 || error.response.status === 403) {
-                    throw new Error('La sesión ha caducado');
-                }
-                await this.handleError('fetchPlayersData', error);
+                await this.handleError(this.fetchUserData, error);
             }
         },
 
@@ -114,9 +116,11 @@ export const useAdmins = defineStore('admin', {
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
 
                     this.isAuthenticated = true;
+                } else {
+                    throw new Error('Error al intentar obtener un nuevo token.');
                 }
             } catch (error) {
-                await this.handleError('fetchNewAccessToken', error);
+                await this.handleError(this.fetchNewAccessToken, error);
             }
         },
 

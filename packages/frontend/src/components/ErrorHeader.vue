@@ -1,12 +1,12 @@
 <template>
 
-   <div class="h-screen d-flex justify-center align-center">
-    <div class="text-center mb-4">
+   <div class="justify-center h-screen d-flex align-center">
+    <div class="mb-4 text-center">
         <h1 class="text-h1">
             {{ props.errorCode }}
         </h1>
-        <h5 class="text-h5 mb-1">
-            {{ props.errorTitle }}
+        <h5 class="mb-1 text-h5">
+            {{ props.errorTitle }} ⚠️
         </h5>
         <p class="text-sm">
             {{ props.errorDescription }}

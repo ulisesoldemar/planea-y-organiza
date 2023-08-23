@@ -1,30 +1,31 @@
 <template>
     <div class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
-        <v-card class="py-8 mx-auto px-12" elevation="8" width="550" max-width="550" rounded="lg">
-            <v-card-title class="text-center mb-4">
+        <v-card class="px-12 py-8 mx-auto" elevation="8" width="550" max-width="550" rounded="lg">
+            <v-card-title class="mb-4 text-center">
                 Acceder al juego
             </v-card-title>
             <v-form v-model="formFunction" @submit.prevent="">
-                
+
                 <div class="text-subtitle-1 text-medium-emphasis">Número de sala</div>
                 <v-text-field v-model="formData.roomNumber" :rules="roomNumberRules" :error-messages="roomNumberErrors"
-                    placeholder="Sala" prepend-inner-icon="mdi-account-group"
-                    variant="outlined" color="primary"></v-text-field>
-                
-                    <div class="text-subtitle-1 text-medium-emphasis">Correo electrónico</div>
+                    placeholder="Sala" prepend-inner-icon="mdi-account-group" variant="outlined"
+                    color="primary"></v-text-field>
+
+                <div class="text-subtitle-1 text-medium-emphasis">Correo electrónico</div>
                 <v-text-field v-model="formData.email" :rules="emailRules" :error-messages="emailErrors" variant="outlined"
                     placeholder="Correo" prepend-inner-icon="mdi-email" color="primary"></v-text-field>
-                
-                    <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
+
+                <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
                     Contraseña de la sala
                 </div>
                 <v-text-field v-model="formData.password" :rules="passwordRules" :error-messages="passwordErrors"
                     :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'" :type="visible ? 'text' : 'password'"
-                    placeholder="Ingresa la contraseña de la sala" prepend-inner-icon="mdi-lock-outline"
-                    variant="outlined" @click:append-inner="visible = !visible" @keyup.enter="handleJoin" color="primary"></v-text-field>
+                    placeholder="Ingresa la contraseña de la sala" prepend-inner-icon="mdi-lock-outline" variant="outlined"
+                    @click:append-inner="visible = !visible" @keyup.enter="handleJoin" color="primary"></v-text-field>
 
                 <p v-if="errorMessage" class="text-center text-red">{{ errorMessage }}</p>
-                <v-btn color="primary" block class="mb-8 mt-4" size="large" variant="elevated" @click="handleJoin" :disabled="!formFunction" :loading="loading">
+                <v-btn color="primary" block class="mt-4 mb-8" size="large" variant="elevated" @click="handleJoin"
+                    :disabled="!formFunction" :loading="loading">
                     Ingresar
                 </v-btn>
             </v-form>
@@ -74,18 +75,12 @@ watch(formData, () => {
 });
 
 async function handleJoin() {
-    try {
-        if (roomNumberErrors.value.length === 0 && emailErrors.value.length === 0 && passwordErrors.value.length === 0) {
-            loading.value = true;
-            setTimeout(async () => {
-                loading.value = false;
-                await gameStore.joinRoom(formData.value);
-            }, "1000");
-        }
-    } catch (error) {
-        errorMessage.value = error.message;
+    if (roomNumberErrors.value.length === 0 && emailErrors.value.length === 0 && passwordErrors.value.length === 0) {
+        loading.value = true;
+        gameStore.joinRoom(formData.value)
+            .then(loading.value = false)
+            .catch(error => errorMessage.value = error.message)
     }
-
 
 }
 </script>

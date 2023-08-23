@@ -1,5 +1,5 @@
 const { errorHandler } = require("../util");
-const Player = require("../models/player.model");
+const { Player, Room } = require("../models/");
 const { HttpError } = require("../error");
 const mongoose = require("mongoose");
 const argon2 = require('argon2');
@@ -21,7 +21,7 @@ const createPlayer = errorHandler(async (req, res) => {
         phone: playerData.phone || null,
         age: playerData.age || null,
     });
-    
+
     await newPlayer.save();
     return newPlayer;
 });
@@ -67,7 +67,7 @@ const updatePlayer = errorHandler(async (req, res) => {
 const deletePlayer = errorHandler(async (req, res) => {
     const playerId = req.params.playerId;
 
-    // Uso de transacción para eliminar un jugador
+    // Uso de transacción para eliminar un jugador y actualizar la sala
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -77,6 +77,13 @@ const deletePlayer = errorHandler(async (req, res) => {
         if (!player) {
             throw new HttpError(404, 'Player not found');
         }
+
+        // Actualizar la sala para eliminar la referencia al jugador
+        await Room.updateMany(
+            { players: player._id },
+            { $pull: { players: player._id } },
+            { session }
+        ).exec();
 
         await session.commitTransaction();
         session.endSession();

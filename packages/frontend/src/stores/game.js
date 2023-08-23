@@ -29,7 +29,10 @@ export const useGame = defineStore('game', {
                 const response = await api.post('/api/access/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
-                    const { roomNumber, quickStart, player, accessToken, refreshToken } = response.data;
+                    const { roomNumber, roomStatus, quickStart, player, accessToken, refreshToken } = response.data;
+                    if (roomStatus === 'Closed') {
+                        return;
+                    }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));

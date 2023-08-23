@@ -114,5 +114,28 @@ export const useRooms = defineStore('room', {
                 await this.handleError('fetchRoomData', error);
             }
         },
+
+        async addPlayerToRoom(roomNumber, playerId) {
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/add-player-to-room', { roomNumber, playerId }, { headers })
+            } catch (error) {
+                await this.handleError(this.addPlayerToRoom, error);
+            }
+        },
+
+        async addPlayersToRoom(roomNumber, playerIds) {
+            try {
+                console.log(playerIds)
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/add-players-to-room', { roomNumber, playerIds }, { headers })
+            } catch (error) {
+                await this.handleError(this.addPlayersToRoom, error);
+            }
+        }
     },
 });

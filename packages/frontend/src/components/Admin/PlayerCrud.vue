@@ -1,6 +1,6 @@
 <template>
-    <v-data-table-server :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="players.length" class="elevation-1 rounded-lg pb-3">
+    <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
+        :items-length="players.length" class="pb-3 rounded-lg elevation-1">
         <template v-slot:top>
             <v-toolbar flat class="rounded-t-lg">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
@@ -11,47 +11,54 @@
                         <v-btn color="primary" dark class="mb-2" v-bind="props">
                             Agregar sujeto
                         </v-btn>
+                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom">
+                            Aceptar
+                        </v-btn>
                     </template>
                     <v-card class="pa-2">
-                        <v-form ref="formFunc" @submit.prevent=""> 
-                        <v-card-title>
-                            <span class="text-h5">{{ formTitle }}</span>
-                        </v-card-title>
+                        <v-form ref="formFunc" @submit.prevent="">
+                            <v-card-title>
+                                <span class="text-h5">{{ formTitle }}</span>
+                            </v-card-title>
 
-                        <v-card-text>
-                            <v-container>
+                            <v-card-text>
+                                <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)" :rules="nameRules"></v-text-field>
+                                            <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)"
+                                                :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.surName" label="Primer apellido" :rules="nameRules"></v-text-field>
+                                            <v-text-field v-model="editedPlayer.surName" label="Primer apellido"
+                                                :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-text-field v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
                                                 label="Segundo apellido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.email" label="Email" :rules="emailRules"></v-text-field>
+                                            <v-text-field v-model="editedPlayer.email" label="Email"
+                                                :rules="emailRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.phone" label="Teléfono" :rules="phoneRules"></v-text-field>
+                                            <v-text-field v-model="editedPlayer.phone" label="Teléfono"
+                                                :rules="phoneRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.age" label="Edad" type="number" :rules="ageRules"
-                                                min="18"></v-text-field>
+                                            <v-text-field v-model="editedPlayer.age" label="Edad" type="number"
+                                                :rules="ageRules" min="18"></v-text-field>
                                         </v-col>
                                     </v-row>
-                                
-                            </v-container>
-                        </v-card-text>
 
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click="save">Agregar</v-btn>
-                        </v-card-actions>
-                    </v-form>
+                                </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
+                                <v-btn color="blue-darken-1" variant="text" @click="save">Agregar</v-btn>
+                            </v-card-actions>
+                        </v-form>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
@@ -68,18 +75,39 @@
             </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
-            <v-icon size="small" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
+            <v-container v-if="!enabledCheckbox">
+                <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
+                <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
+                <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
+                <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon>
+            </v-container>
+            <v-container v-else>
+                <v-checkbox v-model="selected" :value="item.raw._id" @click:append="selected.push(item.raw._id)"></v-checkbox>
+            </v-container>
         </template>
-    </v-data-table-server>
+    </v-data-table>
 </template>
   
 <script setup>
 import { usePlayers } from '@/stores/players';
-import { ref, watch, computed, onMounted, nextTick } from 'vue';
+import { useRooms } from '@/stores/rooms';
+import { ref, watch, computed, defineProps, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
+const roomStore = useRooms();
+
 const formFunc = ref(null)
+
+const props = defineProps({
+    enabledCheckbox: Boolean,
+    roomNumber: String,
+});
+
+const selected = ref([]);
+
+async function addPlayersToRoom() {
+    await roomStore.addPlayersToRoom(props.roomNumber, selected.value);
+}
 
 onMounted(async () => {
     await playerStore.listPlayers();
@@ -95,7 +123,6 @@ const headers = [
     { title: 'Email', key: 'email' },
     { title: 'Teléfono', key: 'phone' },
     { title: 'Edad', key: 'age' },
-    { title: 'Sala', key: 'room' },
     { title: 'Agregado el', key: 'addedAt' },
     { title: 'Acciones', key: 'actions' },
 ];
@@ -111,7 +138,6 @@ const editedPlayer = ref({
     email: '',
     phone: '',
     age: null,
-    room: null,
     addedAt: null,
 });
 const defaultPlayer = {
@@ -145,6 +171,7 @@ watch(dialogDelete, (val) => {
 
 // Methods
 const editPlayer = (player) => {
+    console.log(player)
     editedIndex.value = 1;
     editedPlayer.value = { ...player };
     dialog.value = true;
@@ -181,7 +208,7 @@ const closeDelete = () => {
 const save = async () => {
     const { valid } = await formFunc.value.validate();
 
-    if(valid){
+    if (valid) {
         if (editedIndex.value > -1) {
             await playerStore.updatePlayer(editedPlayer.value);
         } else {

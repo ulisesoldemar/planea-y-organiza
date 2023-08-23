@@ -43,13 +43,20 @@
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-pencil"
                             @click="editRoom(room, index)"></v-btn>
 
+                        <v-btn size="small" color="surface-variant" variant="text" icon="mdi-account-plus"
+                            @click="playerDialog = true" :disabled="room.status === 'Running'"></v-btn>
+
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"
                             @click="deleteRoom(room, index)" :disabled="room.status === 'Running'"></v-btn>
+
                     </v-card-actions>
                 </v-card>
+                <v-dialog v-model="playerDialog" max-width="auto">
+                    <PlayerCrud :enabled-checkbox="true" :room-number="room.roomNumber"></PlayerCrud>
+                </v-dialog>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3">
-                <v-card class="d-flex flex-column align-center" height="134" @click="defaultRoom = null; dialog = true">
+                <v-card class="d-flex flex-column align-center" height="134" @click="defaultRoom = null; roomDialog = true">
                     <v-row align="center" justify="center">
                         <v-icon color="grey
                         " icon="mdi-plus-circle-outline" size="64"></v-icon>
@@ -57,7 +64,7 @@
                 </v-card>
             </v-col>
         </v-row>
-        <v-dialog v-model="dialog" width="auto">
+        <v-dialog v-model="roomDialog" width="auto">
             <v-form ref="form">
                 <v-card>
                     <v-card-title>
@@ -71,16 +78,20 @@
                                         :rules="nameRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-text-field v-model="editedRoom.password" :label="`${passwordLabel}*`"
+                                    <v-text-field v-model="editedRoom.password" :label="`${passwordLabel}`"
                                         :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
-                                        :type="passwordVisible ? 'text' : 'password'" @click:append-inner="passwordVisible = !passwordVisible"
-                                        :rules="passwordRules" required></v-text-field>
+                                        :type="passwordVisible ? 'text' : 'password'"
+                                        @click:append-inner="passwordVisible = !passwordVisible" :rules="passwordRules"
+                                        required></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
                                     <v-text-field v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
                                         :rules="expirationRules"></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="6" sm="6" md="6">
+                                    <v-select v-model="editedRoom.status" label="Estado" :items="['Open', 'Closed']"></v-select>
+                                </v-col>
+                                <v-col cols="6" sm="6" md="4">
                                     <v-checkbox v-model="editedRoom.quickStart" label="Inicio rápido"></v-checkbox>
                                 </v-col>
                             </v-row>
@@ -99,7 +110,7 @@
                 </v-card>
             </v-form>
         </v-dialog>
-        <v-dialog v-model="dialogDelete" maxWidth="500px">
+        <v-dialog v-model="deleteDialog" maxWidth="500px">
             <v-card>
                 <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
                 <v-card-actions>
@@ -123,6 +134,7 @@
   
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import PlayerCrud from '@/components/Admin/PlayerCrud.vue';
 import { useRooms } from '@/stores/rooms';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
@@ -148,8 +160,9 @@ const expirationRules = [
 const passwordVisible = ref(false);
 
 const form = ref(null); // Crear referencia al formulario
-const dialog = ref(false);
-const dialogDelete = ref(false);
+const roomDialog = ref(false);
+const deleteDialog = ref(false);
+const playerDialog = ref(false);
 const copySnackbar = ref(false);
 
 const rooms = computed(() => roomStore.rooms);
@@ -163,6 +176,7 @@ const editedRoom = ref({
     password: null,
     expiration: null,
     players: [],
+    status: null,
     quickStart: false,
 });
 
@@ -172,6 +186,7 @@ const defaultRoom = {
     password: '',
     expiration: null,
     players: [],
+    status: null,
     quickStart: false,
 }
 
@@ -180,16 +195,16 @@ const formTitle = computed(() => {
 });
 
 const passwordLabel = computed(() => {
-    return editedIndex.value === -1 ? 'Contraseña' : 'Nueva contraseña'
+    return editedIndex.value === -1 ? 'Contraseña*' : 'Nueva contraseña (dejar en blanco para no cambiarla)'
 });
 
-watch(dialog, (val) => {
+watch(roomDialog, (val) => {
     if (!val) {
         close();
     }
 });
 
-watch(dialogDelete, (val) => {
+watch(deleteDialog, (val) => {
     if (!val) {
         closeDelete();
     }
@@ -199,13 +214,13 @@ function editRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
     editedRoom.value.password = null;
-    dialog.value = true;
+    roomDialog.value = true;
 }
 
 async function deleteRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
-    dialogDelete.value = true;
+    deleteDialog.value = true;
 }
 
 async function deleteRoomConfirm() {
@@ -215,7 +230,7 @@ async function deleteRoomConfirm() {
 }
 
 function close() {
-    dialog.value = false;
+    roomDialog.value = false;
     nextTick(() => {
         editedRoom.value = { ...defaultRoom };
         editedIndex.value = -1;
@@ -223,7 +238,7 @@ function close() {
 }
 
 function closeDelete() {
-    dialogDelete.value = false;
+    deleteDialog.value = false;
     nextTick(() => {
         editedRoom.value = { ...defaultRoom };
         editedIndex.value = -1;

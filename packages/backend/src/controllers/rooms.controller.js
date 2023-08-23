@@ -52,19 +52,24 @@ const deleteRoom = errorHandler(withTransaction(async (req, res, session) => {
 
 const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber } = req.params;
-
     let updatedRoom;
 
     if (!req.body.password) {
+        const { roomName, expiration, quickStart, status } = req.body;
         updatedRoom = await Room.findOneAndUpdate(
             { roomNumber },
             {
-                roomName: req.body.roomName,
-                expiration: req.body.expiration,
+                $set: {
+                    roomName,
+                    expiration,
+                    quickStart,
+                    status,
+                }
             },
             { new: true }
         ).session(session).exec();
     } else {
+        req.body.password = await argon2.hash(req.body.password);
         updatedRoom = await Room.findOneAndUpdate(
             { roomNumber },
             { $set: req.body },
@@ -75,7 +80,6 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
     if (!updatedRoom) {
         throw new HttpError(404, 'Sala no encontrada');
     }
-
     return updatedRoom;
 }));
 
@@ -92,6 +96,7 @@ const fetchRoom = errorHandler(async (req, res) => {
 });
 
 const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
+
     const { roomNumber, playerId } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
 
@@ -113,6 +118,47 @@ const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) =
     }
 
     roomDoc.players.push(playerDoc);
+    await roomDoc.save({ session });
+
+    return roomDoc;
+}));
+
+const addPlayersToRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, playerIds } = req.body;
+
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(401, 'Sala no encontrada');
+    }
+
+    // Buscar los jugadores por sus IDs
+    const playersToAdd = await Player.find({ _id: { $in: playerIds } });
+
+    // Validar si todos los jugadores existen
+    if (playersToAdd.length !== playerIds.length) {
+        throw new HttpError(422, 'Algunos jugadores no existen');
+    }
+
+    const existingPlayerIds = roomDoc.players.map(player => player._id.toString());
+
+    // Filtrar jugadores que ya están en la sala
+    const newPlayerIds = playerIds.filter(playerId => !existingPlayerIds.includes(playerId));
+
+    // Actualizar jugadores con la sala y guardar en la transacción
+    for (const playerId of newPlayerIds) {
+        const playerDoc = playersToAdd.find(player => player._id.toString() === playerId);
+
+        if (playerDoc.roomNumber === roomNumber) {
+            throw new HttpError(422, `Jugador ${playerId} ya está en la sala`);
+        } else {
+            playerDoc.roomNumber = roomNumber;
+            await playerDoc.save({ session });
+        }
+
+        roomDoc.players.push(playerDoc);
+    }
+
     await roomDoc.save({ session });
 
     return roomDoc;
@@ -143,13 +189,14 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const refreshToken = createRefreshToken(playerDoc.id, refreshTokenDoc.id);
     const accessToken = createAccessToken(playerDoc.id);
 
-    const { id, firstName, surName, secondSurName, age } = playerDoc;
+    const { id, firstName, surName, secondSurName, age, phone } = playerDoc;
     const { quickStart } = roomDoc;
 
     return {
         roomNumber,
+        roomStatus: roomDoc.status,
         quickStart,
-        player: { id, firstName, surName, secondSurName, email, age },
+        player: { id, firstName, surName, secondSurName, email, age, phone },
         accessToken,
         refreshToken
     };
@@ -159,6 +206,7 @@ module.exports = {
     createRoom,
     listRooms,
     addPlayerToRoom,
+    addPlayersToRoom,
     joinRoom,
     deleteRoom,
     updateRoom,
