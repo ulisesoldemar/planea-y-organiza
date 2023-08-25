@@ -36,11 +36,16 @@
                     </v-col>
                 </v-row>
             </v-form>
+            <v-dialog v-model="submited">
+                <Message message="Gracias" message-description="En seguida se mostraran las instrucciones"
+                    route="/instructions"></Message>
+            </v-dialog>
         </v-card>
     </div>
 </template>
   
 <script setup>
+import Message from '@/components/Message.vue';
 import { useGame } from '@/stores/game';
 import { ref } from 'vue';
 
@@ -48,6 +53,7 @@ const gameStore = useGame();
 const formFunction = ref(false);
 const formData = ref(gameStore.playerData);
 const loading = ref(false);
+const submited = ref(false);
 
 const nameRules = [
     v => !!v || 'Este campo es obligatorio',
@@ -70,7 +76,7 @@ const ageRules = [
 
 const submitForm = async () => {
     loading.value = true;
-    await gameStore.updatePlayer(formData.value).then(loading.value = false);
+    await gameStore.updatePlayer(formData.value).then(loading.value = false).then(submited.value = true);
 }
 </script>
   

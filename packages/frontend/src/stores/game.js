@@ -64,9 +64,7 @@ export const useGame = defineStore('game', {
                     }
                 });
                 if (response.status >= 200 && response.status < 300) {
-                    // if (this.quickStart) {
-                    this.router.push('instructions');
-                    // }
+                    
                 } else {
                     throw new Error('Error al actualizar los datos. Inténtalo de nuevo más tarde');
                 }

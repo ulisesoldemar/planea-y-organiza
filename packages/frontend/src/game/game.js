@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import BootScene from '@/game/scenes/BootScene'
 import PlayScene from '@/game/scenes/PlayScene'
 import TutorialScene from '@/game/scenes/TutorialScene'
+import GameStartDialogScene from '@/game/scenes/StartGameScene'
 
 function launch(containerId) {
   const gameConfig = {
@@ -22,7 +23,7 @@ function launch(containerId) {
         debug: false
       }
     },
-    scene: [BootScene, PlayScene, TutorialScene]
+    scene: [BootScene, PlayScene, TutorialScene, GameStartDialogScene]
   }
   const game = new Phaser.Game(gameConfig);
 

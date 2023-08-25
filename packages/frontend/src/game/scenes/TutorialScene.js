@@ -60,7 +60,7 @@ export default class TutorialScene extends BaseScene {
 
         if (allGoalsReached) {
             // Prueba completada
-            this.scene.start('PlayScene');
+            this.scene.start('GameStartDialogScene');
         }
     }
 }
