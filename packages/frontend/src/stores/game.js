@@ -8,6 +8,7 @@ export const useGame = defineStore('game', {
         isGameComplete: false,
         quickStart: false,
         gameStarted: false,
+        maxTime: 0,
         connectionStatus: useStorage('connectionStatus', []),
         playerData: useStorage('playerData', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
@@ -15,7 +16,8 @@ export const useGame = defineStore('game', {
 
     getters: {
         connected: state => state.connectionStatus >= 200 && state.connectionStatus < 300,
-        started: state => state.quickStart || state.gameStarted
+        started: state => state.quickStart || state.gameStarted,
+        gameTime: state => state.maxTime,
     },
 
     actions: {
@@ -26,15 +28,16 @@ export const useGame = defineStore('game', {
 
         async joinRoom(formData) {
             try {
-                const response = await api.post('/api/access/join-room/', formData);
+                const response = await api.post('/api/game/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
-                    const { roomNumber, roomStatus, quickStart, player, accessToken, refreshToken } = response.data;
+                    const { roomNumber, maxTime, roomStatus, quickStart, player, accessToken, refreshToken } = response.data;
                     if (roomStatus === 'Closed') {
                         return;
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
+                    this.maxTime = maxTime;
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
                     this.quickStart = quickStart;
@@ -55,7 +58,7 @@ export const useGame = defineStore('game', {
 
         async updatePlayer(formData) {
             try {
-                const response = await api.patch(`/api/access/update-player/${this.playerData.id}`, formData, {
+                const response = await api.patch(`/api/game/update-player/${this.playerData.id}`, formData, {
                     headers: {
                         Authorization: `Bearer ${this.token.accessToken}`
                     }
@@ -70,6 +73,21 @@ export const useGame = defineStore('game', {
             } catch (error) {
                 await this.handleError('updatePlayer', error);
             }
+        },
+
+        async uploadScore(data) {
+            await api.post(`/api/game/upload-score/${this.playerData.id}`, data, {
+                headers: {
+                    Authorization: `Bearer ${this.token.accessToken}`
+                }
+            })
+                .then(async (res) => {
+                    const refreshToken = this.token.refreshToken;
+                    await api.post('/api/game/logout', { refreshToken });
+                })
+                .catch(async (err) => {
+                    await this.handleError('uploadScore', err);
+                });
         }
     },
 });

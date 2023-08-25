@@ -1,17 +1,28 @@
 import BaseScene from '@/game/scenes/BaseScene';
+import { useGame } from '@/stores/game';
 
 export default class PlayScene extends BaseScene {
     constructor() {
         super('PlayScene', 'play');
-        this.maxTime = 1000; // Tiempo de la prueba en segundos
         this.pathTraveled = [];
+        this.sectionPattern = [
+            [], // Section 1
+            [], // Section 2
+            [], // Section 3
+            [], // Section 4
+            [], // Section 5
+        ];
+        this.distanceTraveledPerSection = [0.0, 0.0, 0.0, 0.0, 0.0];
         this.distanceTraveled = 0.0;
+        this.gameStore = useGame();
     }
 
     create() {
         // Se llama a la clase padre
         super.create();
 
+        this.maxTime = this.gameStore.gameTime * 60; // El tiempo esta en minutos, se pasa a segundos
+        this.startTime = Date.now();
         // Evento para el límite de tiempo
         this.timedEvent = this.time.delayedCall(this.maxTime * 1000, this.timeOver, [], this);
 
@@ -35,14 +46,33 @@ export default class PlayScene extends BaseScene {
                 ball.x, ball.y
             );
             this.distanceTraveled += distance;
+            this.distanceTraveledPerSection[ball.getData('sectionIndex')] += distance;
             ball.prevX = ball.x;
             ball.prevY = ball.y;
         });
     }
 
+    update() {
+        super.update();
+    }
+
     timeOver() {
         console.log("El juego ha terminado");
         console.log(`Distancia total recorrida: ${this.distanceTraveled}`);
+        this.gameStore.isTimeOver = true;
+        this.scene.stop();
+    }
+
+    gameOver() {
+        const elapsedTime = Date.now() - this.startTime;
+        this.gameStore.uploadScore({
+            time: elapsedTime / 1000,
+            distance: this.distanceTraveled,
+            distancePerSection: this.distanceTraveledPerSection,
+            transitions: this.pathTraveled,
+            patterns: this.sectionPattern,
+            score: this.cache.json.get(this.phase + 'Coords').totalDistance / this.distanceTraveled,
+        });
         this.scene.stop();
     }
 
@@ -51,5 +81,19 @@ export default class PlayScene extends BaseScene {
             num = '0' + num;
         }
         return num;
+    }
+
+    ballGoalCollision(ball, goal) {
+        super.ballGoalCollision(ball, goal);
+        this.sectionPattern[ball.getData('sectionIndex')].push(ball.getData('ballIndex'));
+        const allGoalsReached = this.goalsGroup.getChildren().every((goal) => {
+            return goal.getData('numBalls') === 0;
+        });
+
+        if (allGoalsReached) {
+            // Prueba completada
+            this.gameOver();
+        }
+
     }
 }

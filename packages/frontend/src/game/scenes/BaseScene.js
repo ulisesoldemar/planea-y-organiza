@@ -57,7 +57,7 @@ export default class BaseScene extends Scene {
         // this.physics.add.collider(this.ballsGroup, this.wallsGroup); // Agregar colisión con los muros
 
     }
-    
+
     update() {
         if (this.scale.orientation === Phaser.Scale.PORTRAIT) {
             this.pauseGame();
@@ -109,7 +109,7 @@ export default class BaseScene extends Scene {
         // La posición en Y no cambia
         const y = this.game.config.height / 2;
 
-        for (let i = 1; i < this.totalSections; i++) {
+        for (let i = 1; i < this.totalSections; ++i) {
             const x = i * sectionWidth - this.wallWidth / 2;
 
             const wall = this.wallsGroup.create(x, y, 'wall');
@@ -126,7 +126,7 @@ export default class BaseScene extends Scene {
         const sections = this.cache.json.get(this.phase + 'Coords').sections;
 
         // Colocar metas en las posiciones deseadas
-        for (let i = 0; i < sections.length; i++) {
+        for (let i = 0; i < sections.length; ++i) {
             // Coordenadas de las metas por sección
             const goalX = sections[i].target.x + (i * sectionWidth);
             const goalY = sections[i].target.y;
@@ -136,7 +136,8 @@ export default class BaseScene extends Scene {
             goal.setData('numBalls', sections[i].balls.length);
 
             // Colocar pelotas
-            for (const coord of sections[i].balls) {
+            for (let j = 0; j < sections[i].balls.length; ++j) {
+                const coord = sections[i].balls[j];
                 // Coordenadas de las pelotas por sección
                 const ballX = coord.x + (i * sectionWidth);
                 const ballY = coord.y
@@ -148,6 +149,7 @@ export default class BaseScene extends Scene {
 
                 // Propiedades de la pelota
                 ball.setData('sectionIndex', i);
+                ball.setData('ballIndex', j);
                 ball.setData('minX', minX);
                 ball.setData('maxX', maxX);
 
@@ -170,11 +172,6 @@ export default class BaseScene extends Scene {
         const numBalls = goal.getData('numBalls');
         goal.setData('numBalls', numBalls - 1);
 
-        if (numBalls - 1 === 0) {
-            // Todas las pelotas de la sección han sido alcanzadas, eliminar meta
-            goal.disableBody(true, true);
-        }
-
         // Verificar si todas las metas han sido alcanzadas en todas las secciones
         const allGoalsReached = this.goalsGroup.getChildren().every((goal) => {
             return goal.getData('numBalls') === 0;
@@ -182,7 +179,6 @@ export default class BaseScene extends Scene {
 
         if (allGoalsReached) {
             // Todas las metas han sido alcanzadas, juego completado
-            console.log('¡Juego completado!');
             this.winSound.play();
         }
     }

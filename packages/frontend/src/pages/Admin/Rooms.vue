@@ -88,8 +88,18 @@
                                     <v-text-field v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
                                         :rules="expirationRules"></v-text-field>
                                 </v-col>
+                                <v-col cols="8" sm="6" md="8">
+                                    <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="5"
+                                        hide-details>
+                                        <template v-slot:append>
+                                            <v-text-field v-model="editedRoom.maxTime" hide-details single-line
+                                                density="compact" type="number" style="width: 70px" max="60" min="5"></v-text-field>
+                                        </template>
+                                    </v-slider>
+                                </v-col>
                                 <v-col cols="6" sm="6" md="6">
-                                    <v-select v-model="editedRoom.status" label="Estado" :items="['Open', 'Closed']"></v-select>
+                                    <v-select v-model="editedRoom.status" label="Estado"
+                                        :items="['Open', 'Closed']"></v-select>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="4">
                                     <v-checkbox v-model="editedRoom.quickStart" label="Inicio rápido"></v-checkbox>
@@ -175,6 +185,7 @@ const editedRoom = ref({
     roomName: null,
     password: null,
     expiration: null,
+    maxTime: 30,
     players: [],
     status: null,
     quickStart: false,
@@ -185,6 +196,7 @@ const defaultRoom = {
     roomName: '',
     password: '',
     expiration: null,
+    maxTime: 30,
     players: [],
     status: null,
     quickStart: false,

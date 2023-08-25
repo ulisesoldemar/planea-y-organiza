@@ -70,7 +70,7 @@ const ageRules = [
 
 const submitForm = async () => {
     loading.value = true;
-    gameStore.updatePlayer(formData).then(loading.value = false);
+    await gameStore.updatePlayer(formData.value).then(loading.value = false);
 }
 </script>
   

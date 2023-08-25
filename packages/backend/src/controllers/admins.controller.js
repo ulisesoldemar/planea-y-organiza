@@ -6,7 +6,7 @@ const { HttpError } = require("../error");
 const me = errorHandler(async (req, res) => {
     const userDoc = await UserAdmin.findById(req.userId).exec();
     if (!userDoc) {
-        throw new HttpError(400, 'User not found');
+        throw new HttpError(404, 'User not found');
     }
     return userDoc;
 });
@@ -17,7 +17,7 @@ const updateAdminData = errorHandler(async (req, res) => {
     const userDoc = await UserAdmin.findByIdAndUpdate(req.userId, updates, { new: true }).exec();
 
     if (!userDoc) {
-        throw new HttpError(400, 'User not found');
+        throw new HttpError(404, 'User not found');
     }
 
     return userDoc;

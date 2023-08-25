@@ -3,19 +3,15 @@ const controllers = require("../controllers");
 const middlewares = require("../middlewares");
 const router = express.Router();
 
+router.use(middlewares.verifyAccessToken);
+
 // Obtener una lista de jugadores
-router.get('/', middlewares.verifyAccessToken, controllers.players.listPlayers);
+router.get('/', controllers.players.listPlayers);
+router.get('/:playerId', controllers.players.getPlayer);
 
 // Crear un nuevo jugador
-router.post('/', middlewares.verifyAccessToken, controllers.players.createPlayer);
-
-// Obtener datos de un jugador específico
-router.get('/:playerId', middlewares.verifyAccessToken, controllers.players.getPlayer);
-
-// Actualizar los datos de un jugador
-router.patch('/:playerId', middlewares.verifyAccessToken, controllers.players.updatePlayer);
-
-// Eliminar un jugador
-router.delete('/:playerId', middlewares.verifyAccessToken, controllers.players.deletePlayer);
+router.post('/', middlewares.validateAdmin, controllers.players.createPlayer);
+router.patch('/:playerId', middlewares.validateAdmin, controllers.players.updatePlayer);
+router.delete('/:playerId', middlewares.validateAdmin, controllers.players.deletePlayer);
 
 module.exports = router;

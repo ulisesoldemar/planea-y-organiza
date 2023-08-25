@@ -56,7 +56,7 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="save">Agregar</v-btn>
+                                <v-btn color="blue-darken-1" variant="text" @click="save">Aceptar</v-btn>
                             </v-card-actions>
                         </v-form>
                     </v-card>

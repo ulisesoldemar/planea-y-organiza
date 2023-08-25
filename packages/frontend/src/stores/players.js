@@ -52,7 +52,7 @@ export const usePlayers = defineStore('players', {
                 });
 
                 if (response.status === 200) {
-                    // ... tu código para manejar la creación exitosa ...
+                    this.players.push(response.data);
 
                 } else {
                     throw new Error(`Error al crear un jugador: ${response.statusText}`);

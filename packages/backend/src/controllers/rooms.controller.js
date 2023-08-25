@@ -14,7 +14,7 @@ const listRooms = errorHandler(async (req, res) => {
 });
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomName, password, expiration, quickStart } = req.body;
+    const { roomName, password, expiration, maxTime, quickStart } = req.body;
 
     if (!password) {
         throw new HttpError(400, 'Bad request');
@@ -29,6 +29,7 @@ const createRoom = errorHandler(withTransaction(async (req, res, session) => {
         roomName: roomName || null,
         password: hashedPassword,
         expiration: expiration || null,
+        maxTime: maxTime,
         quickStart: quickStart || false,
         admin: adminDoc,
     });
@@ -55,13 +56,14 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
     let updatedRoom;
 
     if (!req.body.password) {
-        const { roomName, expiration, quickStart, status } = req.body;
+        const { roomName, expiration, maxTime, quickStart, status } = req.body;
         updatedRoom = await Room.findOneAndUpdate(
             { roomNumber },
             {
                 $set: {
                     roomName,
                     expiration,
+                    maxTime,
                     quickStart,
                     status,
                 }
@@ -78,7 +80,7 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
     }
 
     if (!updatedRoom) {
-        throw new HttpError(404, 'Sala no encontrada');
+        throw new HttpError(404, 'Room not found');
     }
     return updatedRoom;
 }));
@@ -89,7 +91,7 @@ const fetchRoom = errorHandler(async (req, res) => {
     const room = await Room.findOne({ roomNumber, admin: req.userId }).exec();
 
     if (!room) {
-        throw new HttpError(404, 'Sala no encontrada');
+        throw new HttpError(404, 'Room not found');
     }
 
     return room;
@@ -194,6 +196,7 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 
     return {
         roomNumber,
+        maxTime: roomDoc.maxTime,
         roomStatus: roomDoc.status,
         quickStart,
         player: { id, firstName, surName, secondSurName, email, age, phone },
