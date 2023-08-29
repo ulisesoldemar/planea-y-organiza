@@ -4,11 +4,11 @@ const { errorHandler, withTransaction } = require("../util");
 
 const listScores = errorHandler(async (req, res) => {
     const adminId = req.userId; // Usamos el ID del admin del token
-    const rooms = await Score
+    const scores = await Score
         .find() // Filtrar por el ID del admin creador
         .exec();
 
-    return rooms;
+    return scores;
 });
 
 const uploadScore = errorHandler(withTransaction(async (req, res, session) => {

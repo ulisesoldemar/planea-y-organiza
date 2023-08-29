@@ -29,6 +29,9 @@ export default class PlayScene extends BaseScene {
         // Se agregan propiedades de distancia a cada pelota, además del
         // evento de tracking
         this.ballsGroup.children.iterate((ball) => {
+            // Trackedo de las coordendas iniciales para el patron seguido
+            ball.startX = ball.x;
+            ball.startY = ball.y;
             // Variables para el tracking de distancia recorrida por pelota
             ball.prevX = ball.x;
             ball.prevY = ball.y;
@@ -85,7 +88,12 @@ export default class PlayScene extends BaseScene {
 
     ballGoalCollision(ball, goal) {
         super.ballGoalCollision(ball, goal);
-        this.sectionPattern[ball.getData('sectionIndex')].push(ball.getData('ballIndex'));
+        this.sectionPattern[ball.getData('sectionIndex')].push(
+            {
+                x: ball.startX,
+                y: ball.startY,
+            }
+        );
         const allGoalsReached = this.goalsGroup.getChildren().every((goal) => {
             return goal.getData('numBalls') === 0;
         });
