@@ -12,6 +12,7 @@ const playerSchema = new Schema({
     firstPlayedAt: { type: Date }, // Última vez que se hizo la prueba
     lastPlayedAt: { type: Date }, // Última vez que se hizo la prueba
     admin: { type: Schema.Types.ObjectId, ref: 'UserAdmin' },
+    played: { type: Boolean },
     scores: [{ type: Schema.Types.ObjectId, ref: 'Score', default: null }],
 });
 

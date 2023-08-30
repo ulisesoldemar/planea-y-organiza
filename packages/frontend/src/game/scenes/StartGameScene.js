@@ -18,7 +18,7 @@ export default class GameStartDialogScene extends Phaser.Scene {
         const titleText = this.add.text(
             this.cameras.main.centerX,
             this.cameras.main.centerY - 40,
-            'Bienvenido al juego',
+            'Bienvenido',
             { fontSize: '24px', fill: '#000' }
         );
         titleText.setOrigin(0.5);
@@ -26,7 +26,7 @@ export default class GameStartDialogScene extends Phaser.Scene {
         const messageText = this.add.text(
             this.cameras.main.centerX,
             this.cameras.main.centerY,
-            '¿Estás listo para comenzar?',
+            '¿Estás listo para comenzar la tarea?',
             { fontSize: '18px', fill: '#000', align: 'center', wordWrap: { width: 250 } }
         );
         messageText.setOrigin(0.5);
@@ -35,7 +35,7 @@ export default class GameStartDialogScene extends Phaser.Scene {
         const startButton = this.add.text(
             this.cameras.main.centerX,
             this.cameras.main.centerY + 40,
-            '¡Comenzar!',
+            'Haz click aqui', // Agregar icono de play
             { fontSize: '20px', fill: '#000' }
         );
         startButton.setOrigin(0.5);
