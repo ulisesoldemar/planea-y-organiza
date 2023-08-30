@@ -60,6 +60,7 @@ export default class PlayScene extends BaseScene {
     }
 
     timeOver() {
+        // Agregar Gracias, el tiempo ha terminado
         console.log("El juego ha terminado");
         console.log(`Distancia total recorrida: ${this.distanceTraveled}`);
         this.gameStore.isTimeOver = true;
@@ -67,6 +68,7 @@ export default class PlayScene extends BaseScene {
     }
 
     gameOver() {
+        // Agregar Gracias, la tarea ha terminado
         const elapsedTime = Date.now() - this.startTime;
         this.gameStore.uploadScore({
             time: elapsedTime / 1000,
