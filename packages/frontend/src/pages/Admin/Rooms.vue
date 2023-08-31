@@ -64,29 +64,29 @@
                 </v-card>
             </v-col>
         </v-row>
-        <v-dialog v-model="roomDialog" width="auto">
-            <v-form ref="form">
-                <v-card>
+        <v-dialog v-model="roomDialog" width="700">
+            <v-card class="pa-2">
+                <v-form ref="formFunc" @submit.prevent="">
                     <v-card-title>
                         <span class="text-h5">{{ formTitle }}</span>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="12" md="12">
                                     <v-text-field v-model="editedRoom.roomName" label="Nombre de la sala"
                                         :rules="nameRules"></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="12" md="12">
                                     <v-text-field v-model="editedRoom.password" :label="`${passwordLabel}`"
                                         :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
                                         :type="passwordVisible ? 'text' : 'password'"
                                         @click:append-inner="passwordVisible = !passwordVisible" :rules="passwordRules"
                                         required></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="12" md="12">
                                     <v-text-field v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
-                                        :rules="expirationRules"></v-text-field>
+                                        :rules="expirationRules" :min="toDate"></v-text-field>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="6">
                                     <v-select v-model="editedRoom.status" label="Estado" :items="['Open', 'Closed']"></v-select>
@@ -107,8 +107,8 @@
                             Guardar
                         </v-btn>
                     </v-card-actions>
-                </v-card>
-            </v-form>
+                </v-form>
+            </v-card>
         </v-dialog>
         <v-dialog v-model="deleteDialog" maxWidth="500px">
             <v-card>
@@ -145,7 +145,7 @@ onMounted(async () => {
 });
 
 const nameRules = [
-    (v) => v && v.length <= 50 || 'El nombre de la sala debe tener 50 caracteres o menos',
+    (v) => v && v.length <= 50 || 'El nombre de la sala debe ser entre 2 a 50 caracteres',
 ];
 
 const passwordRules = [
@@ -154,16 +154,17 @@ const passwordRules = [
 ];
 
 const expirationRules = [
-    (v) => !v || new Date(v) >= new Date() || 'La fecha de caducidad debe ser en el futuro',
+    (v) => !v || v >= new Date().toISOString().slice(0, 10) || 'La fecha debe ser en el futuro o igual a la fecha actual',
 ];
 
 const passwordVisible = ref(false);
 
-const form = ref(null); // Crear referencia al formulario
+const formFunc = ref(null); // Crear referencia al formulario
 const roomDialog = ref(false);
 const deleteDialog = ref(false);
 const playerDialog = ref(false);
 const copySnackbar = ref(false);
+const toDate = new Date().toISOString().slice(0, 10);
 
 const rooms = computed(() => roomStore.rooms);
 const expandedRooms = ref([]);
@@ -174,7 +175,7 @@ const editedRoom = ref({
     roomNumber: null,
     roomName: null,
     password: null,
-    expiration: null,
+    expiration: toDate,
     players: [],
     status: null,
     quickStart: false,
@@ -184,7 +185,7 @@ const defaultRoom = {
     roomNumber: null,
     roomName: '',
     password: '',
-    expiration: null,
+    expiration: toDate,
     players: [],
     status: null,
     quickStart: false,
@@ -246,9 +247,9 @@ function closeDelete() {
 }
 
 async function save() {
-    const isValid = form.value.validate(); // Validamos todos los campos
+    const { valid } = await formFunc.value.validate(); // Validamos todos los campos
 
-    if (isValid) {
+    if (valid) {
         if (editedIndex.value > -1) {
             await roomStore.updateRoom(editedRoom.value);
         } else {

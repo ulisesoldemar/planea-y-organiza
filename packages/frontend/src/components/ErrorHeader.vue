@@ -12,8 +12,8 @@
             {{ props.errorDescription }}
         </p>
 
-        <router-link to="/">
-          <v-btn class="mt-15" color="primary">Regresar al inicio</v-btn>
+        <router-link :to="errorRoute">
+          <v-btn class="mt-15" color="primary">Regresar</v-btn>
         </router-link>
 
     </div>
@@ -35,5 +35,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  errorRoute: {
+    type: String,
+    required: true,
+  }
 })
 </script>

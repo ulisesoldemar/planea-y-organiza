@@ -9,10 +9,10 @@
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
                         <v-btn color="primary" dark class="mb-2" v-bind="props">
-                            Agregar sujeto
+                            Nuevo sujeto
                         </v-btn>
                         <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom">
-                            Aceptar
+                            Agregar
                         </v-btn>
                     </template>
                     <v-card class="pa-2">
@@ -77,9 +77,9 @@
         <template v-slot:item.actions="{ item }">
             <v-container v-if="!enabledCheckbox">
                 <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
-                <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
+                <v-icon size="small" class="me-2" @click="deletePlayer(item.raw)">mdi-delete</v-icon>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon>
+                <!-- <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon> -->
             </v-container>
             <v-container v-else>
                 <v-checkbox v-model="selected" :value="item.raw._id" @click:append="selected.push(item.raw._id)"></v-checkbox>
@@ -207,6 +207,7 @@ const closeDelete = () => {
 
 const save = async () => {
     const { valid } = await formFunc.value.validate();
+    console.log(valid);
 
     if (valid) {
         if (editedIndex.value > -1) {

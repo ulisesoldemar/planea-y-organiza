@@ -1,38 +1,64 @@
 <template>
-    <div class="justify-center h-screen d-flex align-center">
-        <div class="mb-4 text-center">
-            <h1 class="text-h1">
-                {{ props.errorCode }}
-            </h1>
-            <h5 class="mb-1 text-h5">
-                {{ props.errorTitle }}
-            </h5>
-            <p class="text-sm">
-                {{ props.errorDescription }}
-            </p>
-
-            <router-link to="/">
-                <v-btn class="mt-15" color="primary">Regresar al inicio</v-btn>
-            </router-link>
-
-        </div>
-    </div>
-</template>
-  
-<script setup>
-const props = defineProps({
-    errorCode: {
+    <v-menu
+      v-model="dateMenu"
+      :close-on-content-click="false"
+      :nudge-right="40"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+      max-width="290px"
+    >
+      <template v-slot:activator="{on}">
+        <v-text-field
+          :label="label"
+          prepend-inner-icon="event"
+          readonly
+          hide-details
+          :value="dateValue"
+          v-on="on"
+          @focus="focusDate"
+          @blur="blurDate"
+        ></v-text-field>
+      </template>
+      <v-date-picker
+        locale="en-in"
+        v-model="dateValue"
+        no-title
+        @input="dateMenu = false"
+      ></v-date-picker>
+    </v-menu>
+  </template>
+  <script>
+  export default {
+    data() {
+      return {
+        dateMenu: false,
+        dateValue: null,
+      };
+    },
+    props: {
+      label: {
         type: String,
         required: true,
+      },
     },
-    errorTitle: {
-        type: String,
-        required: true,
+    methods: {
+      focusDate() {
+        setTimeout(() => {
+          if (!this.dateMenu) {
+            this.dateMenu = true;
+          }
+        }, 200);
+      },
+      blurDate() {
+        setTimeout(() => {
+          if (this.dateMenu) {
+            this.dateMenu = false;
+          }
+        }, 200);
+      },
     },
-    errorDescription: {
-        type: String,
-        required: true,
-    },
-})
-</script>
-  
+  };
+  </script>
