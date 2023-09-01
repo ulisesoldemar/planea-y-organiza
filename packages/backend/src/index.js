@@ -2,6 +2,7 @@ const express = require('express');
 const routes = require('./routes');
 const cors = require('cors')
 const connectToDatabase = require('./database');
+const logger = require('./logger');
 
 const http = require('http');
 const socketIo = require('socket.io');
@@ -58,7 +59,7 @@ async function startServer() {
     await connectToDatabase();
 
     server.listen(port, () => {
-        console.log(`Server listening at http://localhost:${port}`);
+        logger.info(`Server listening at http://localhost:${port}`);
     });
 }
 

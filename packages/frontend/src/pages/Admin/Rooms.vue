@@ -52,7 +52,7 @@
                     </v-card-actions>
                 </v-card>
                 <v-dialog v-model="playerDialog" max-width="auto">
-                    <PlayerCrud :enabled-checkbox="true" :room-number="room.roomNumber"></PlayerCrud>
+                    <PlayerCrud :enabled-checkbox="true" :room-number="room.roomNumber" :external-dialog="playerDialog"></PlayerCrud>
                 </v-dialog>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3">

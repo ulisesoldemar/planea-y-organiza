@@ -30,13 +30,13 @@ const uploadScore = errorHandler(withTransaction(async (req, res, session) => {
 const fetchScore = errorHandler(async (req, res) => {
     const { playerId } = req.params;
 
-    const score = await score.findOne({ player: playerId }).exec();
+    const player = await Player.findById(playerId).populate('scores').exec();
 
-    if (!room) {
+    if (!player) {
         throw new HttpError(404, 'Score no encontrada');
     }
 
-    return room;
+    return player.scores;
 });
 
 module.exports = {

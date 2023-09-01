@@ -1,6 +1,9 @@
 <template>
     <AdminLayout>
-        <Result v-if="scores.length > 0" :patterns="scores[0].patterns"/>
+        <v-btn>
+            Open
+            <Result v-if="scores.length > 0" :results="scores" player-name="Ulises Ortega"/>
+        </v-btn>
     </AdminLayout>
 </template>
 
@@ -11,13 +14,16 @@ import Result from '@/components/Admin/Result.vue';
 
 import { onMounted, computed } from 'vue';
 import { useScores } from '@/stores/scores';
+import { ref } from 'vue';
 
 const scoreStore = useScores();
 
+const dialog = ref(false);
+
 onMounted(async () => {
-    await scoreStore.listResults();
+    await scoreStore.fetchResult("64ef67d1a601626d3c351986");
 });
 
-const scores = computed(() => scoreStore.scores);
+const scores = computed(() => scoreStore.currentScores);
 
 </script>

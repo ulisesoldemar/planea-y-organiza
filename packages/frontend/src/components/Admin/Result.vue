@@ -1,39 +1,89 @@
 <template>
-    <v-card :title="props.date" :subtitle="props.date">
-        <canvas ref="canvas" width="1280" height="720"></canvas>
-    </v-card>
+    <v-dialog v-model="dialog" activator="parent" width="auto">
+        <v-toolbar flat class="rounded-t-lg">
+            <v-toolbar-title>{{ playerName }}</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-col cols="2">
+                <v-text-field v-model="currentDate" type="date"></v-text-field>
+            </v-col>
+        </v-toolbar>
+        <v-card v-if="currentResult">
+            <v-table fixed-header>
+                <thead>
+                    <tr>
+                        <th class="text-left">
+                            Tiempo
+                        </th>
+                        <th class="text-left">
+                            Distancia
+                        </th>
+                        <th class="text-left">
+                            Puntaje
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ currentResult.time }}</td>
+                        <td>{{ currentResult.distance }}</td>
+                        <td>{{ currentResult.score }}</td>
+                    </tr>
+                </tbody>
+            </v-table>
+            <v-divider></v-divider>
+            <canvas ref="canvasRef" width="1280" height="720"></canvas>
+        </v-card>
+        <v-card v-else>
+            <v-card-text>Sin datos</v-card-text>
+        </v-card>
+    </v-dialog>
 </template>
   
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
+
+const dialog = ref(false);
+const canvasRef = ref(null);
 
 const props = defineProps({
-    _id: String,
-    date: Date,
-    time: Number,
-    distance: Number,
-    distancePerSection: Array,
-    transitions: Array,
-    patterns: Array,
-    score: Number,
+    playerName: String,
+    results: Array,
 });
 
-const canvas = ref(null);
+const currentDate = ref(null);
 
 onMounted(() => {
-    drawLines();
+    const firstDate = new Date(props.results.slice(-1)[0].date).toISOString().substring(0, 10); // Se obtiene la ultima prueba
+    currentDate.value = firstDate;
+})
+
+const currentResult = computed(() => {
+    return props.results.find(result => result.date.substring(0, 10) === currentDate.value); // Se filtra el resultado por fecha
 });
 
-function drawLines() {
-    const ctx = canvas.value.getContext('2d');
-    console.log(props.patterns)
+// Con este watch evito que se inicialice la referencia al canvas como null
+watch(canvasRef, (val) => {
+    if (val) {
+        canvasRef.value = val;
+        drawPatterns();
+    }
+});
+
+function drawPatterns() {
+    if (!canvasRef.value) {
+        return;
+    }
+
+    const canvas = canvasRef.value;
+    const ctx = canvas.getContext('2d');
+    const patterns = currentResult.value.patterns;
 
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'yellow';
 
-    for (let i = 0; i < props.patterns.length; ++i) {
-        const points = props.patterns[i];
+    for (let i = 0; i < patterns.length; ++i) {
+        const points = patterns[i];
         // Dibuja líneas entre los puntos
         for (let j = 0; j < points.length - 1; ++j) {
             // Dibujar linea
@@ -64,8 +114,5 @@ function drawLines() {
   
 <style>
 /* Estilos opcionales para el canvas */
-canvas {
-    border: 1px solid black;
-}
 </style>
   

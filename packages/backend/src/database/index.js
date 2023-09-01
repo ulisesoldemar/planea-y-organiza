@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logger = require('../logger');
 // mongoose.Promise = global.Promise;
 
 async function connectToDatabase() {
@@ -14,9 +15,9 @@ async function connectToDatabase() {
         await mongoose.connect(connectionString, {
             serverSelectionTimeoutMS: 5000
         });
-        console.log('Connected to database');
+        logger.info('Connected to database');
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 }
 

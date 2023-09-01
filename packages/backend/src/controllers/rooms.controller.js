@@ -17,7 +17,7 @@ const createRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomName, password, expiration, maxTime, quickStart } = req.body;
 
     if (!password) {
-        throw new HttpError(400, 'Bad request');
+        throw new HttpError(422, 'No password');
     }
 
     const adminDoc = req.adminDoc;
@@ -103,13 +103,13 @@ const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) =
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     const playerDoc = await Player.findOne({ _id: playerId });
 
     if (!playerDoc) {
-        throw new HttpError(422, `Jugador ${playerId} no existe`);
+        throw new HttpError(404, `Jugador ${playerId} no existe`);
     }
 
     if (playerDoc.roomNumber === roomNumber) {
@@ -131,7 +131,7 @@ const addPlayersToRoom = errorHandler(withTransaction(async (req, res, session) 
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     // Buscar los jugadores por sus IDs
@@ -171,7 +171,7 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     const playerDoc = await Player.findOne({ email });
