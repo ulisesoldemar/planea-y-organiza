@@ -8,7 +8,10 @@ const userAdminSchema = new Schema({
     email: { type: String, unique: true },
     password: { type: String, select: false },
     username: { type: String, unique: true },
+    superAdmin: { type: Boolean, required: true},
 });
+
+//superAdmin: 1 => SuperAdmin    ||    superAdmin: 0 => normal admin
 
 const UserAdmin = model('UserAdmin', userAdminSchema);
 

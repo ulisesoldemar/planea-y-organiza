@@ -16,7 +16,8 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         secondSurName: req.body.secondSurName,
         email: req.body.email,
         username: req.body.username,
-        password: await argon2.hash(req.body.password)
+        password: await argon2.hash(req.body.password),
+        superAdmin: 1,
     });
     const refreshTokenDoc = new RefreshToken({
         owner: userDoc.id,

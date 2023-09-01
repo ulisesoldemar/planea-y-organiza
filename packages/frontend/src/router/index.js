@@ -10,11 +10,12 @@ import Rooms from '@/pages/Admin/Rooms.vue';
 import Room from '@/components/Admin/Room.vue';
 import Players from '@/pages/Admin/Players.vue';
 import Results from '@/pages/Admin/Results.vue';
+import Admins from '@/pages/Admin/Admins.vue';
 
+//Players
 import Instructions from '@/pages/Players/Instructions.vue';
 import JoinRoom from '@/pages/Players/JoinRoom.vue';
 import PlayerSignup from '@/pages/Players/Signup.vue';
-
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
 
@@ -82,6 +83,15 @@ const adminRoutes = [
         component: Results,
         meta: {
             title: 'Resultados',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/admins',
+        name: 'admins',
+        component: Admins,
+        meta: {
+            title: 'Admins',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
