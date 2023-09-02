@@ -5,8 +5,9 @@ import { api } from '@/api';
 export const useScores = defineStore('scores', {
     state: () => ({
         adminStore: useAdmins(),
-        currentScores: [],
+        playerName: '',
         scores: [],
+        loading: false,
     }),
 
     getters: {
@@ -29,17 +30,21 @@ export const useScores = defineStore('scores', {
         },
 
         async fetchResult(playerId) {
-            await api.get(`/api/admin/scores/${playerId}`, {
+            this.loading = true;
+            return api.get(`/api/admin/scores/${playerId}`, {
                 headers: {
                     Authorization: `Bearer ${this.adminStore.accessToken}`
                 }
             })
             .then((res) => {
-                console.log(res.data);
-                this.currentScores = res.data;
+                this.loading = false;
+                this.playerName = res.data.playerName;
+                this.scores = res.data.scores;
+                return res;
             })
             .catch((err) => {
                 console.log(err);
+                // throw err;
             })
         }
     }

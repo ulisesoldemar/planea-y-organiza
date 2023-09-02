@@ -1,13 +1,17 @@
 <template>
-    <v-dialog v-model="dialog" activator="parent" width="auto">
-        <v-toolbar flat class="rounded-t-lg">
-            <v-toolbar-title>{{ playerName }}</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-col cols="2">
-                <v-text-field v-model="currentDate" type="date"></v-text-field>
-            </v-col>
-        </v-toolbar>
+    <AdminLayout>
+        <v-overlay :model-value="loading" class="align-center justify-center">
+            <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
+        </v-overlay>
         <v-card v-if="currentResult">
+            <v-card-title>{{ scoreStore.playerName }}</v-card-title>
+            <v-card-actions>
+                <v-col cols="2">
+                    <v-select label="Fecha de la prueba" v-model="currentResultId" :items="scores" item-title="date"
+                        item-value="_id">
+                    </v-select>
+                </v-col>
+            </v-card-actions>
             <v-table fixed-header>
                 <thead>
                     <tr>
@@ -36,29 +40,44 @@
         <v-card v-else>
             <v-card-text>Sin datos</v-card-text>
         </v-card>
-    </v-dialog>
+    </AdminLayout>
 </template>
   
 <script setup>
+import AdminLayout from '@/layouts/AdminLayout.vue';
+
+import { useRoute, useRouter } from 'vue-router'
 import { ref, watch, computed, onMounted } from 'vue';
+import { useScores } from '@/stores/scores';
 
-const dialog = ref(false);
+const route = useRoute();
+const router = useRouter();
+const scoreStore = useScores();
 const canvasRef = ref(null);
+const loading = computed(() => scoreStore.loading);
+const currentResult = ref(null);
+const currentResultId = ref(null);
 
-const props = defineProps({
-    playerName: String,
-    results: Array,
+const scores = computed(() => scoreStore.scores);
+
+onMounted(async () => {
+    if (route.params.id) {
+        scoreStore.fetchResult(route.params.id)
+            .then((res) => {
+                if (res.data.scores.length > 0) {
+                    currentResultId.value = res.data.scores.slice(-1)[0]._id; // Asignar la ultima prueba como valor por defecto
+                }
+            })
+            .catch((err) => {
+
+            });
+    }
 });
 
-const currentDate = ref(null);
-
-onMounted(() => {
-    const firstDate = new Date(props.results.slice(-1)[0].date).toISOString().substring(0, 10); // Se obtiene la ultima prueba
-    currentDate.value = firstDate;
-})
-
-const currentResult = computed(() => {
-    return props.results.find(result => result.date.substring(0, 10) === currentDate.value); // Se filtra el resultado por fecha
+watch(currentResultId, (newId) => {
+    if (newId) {
+        currentResult.value = scores.value.find(score => score._id === newId); // Filtrar por el nuevo id
+    }
 });
 
 // Con este watch evito que se inicialice la referencia al canvas como null
@@ -110,9 +129,6 @@ function drawPatterns() {
         ctx.fill();
     }
 }
+
 </script>
-  
-<style>
-/* Estilos opcionales para el canvas */
-</style>
   

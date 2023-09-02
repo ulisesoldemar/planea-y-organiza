@@ -19,6 +19,9 @@ import PlayerSignup from '@/pages/Players/Signup.vue';
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
 
+// Results
+import ResultView from '@/pages/Admin/ResultView.vue'
+
 import ErrorHeader from '@/components/ErrorHeader.vue';
 
 const adminRoutes = [
@@ -81,6 +84,15 @@ const adminRoutes = [
         path: '/results',
         name: 'results',
         component: Results,
+        meta: {
+            title: 'Resultados',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/results/:id',
+        component: ResultView,
+        name: 'ResultView',
         meta: {
             title: 'Resultados',
             requiresAuth: true, // Indica que esta ruta requiere autenticación

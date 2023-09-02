@@ -89,11 +89,11 @@
                                         :rules="expirationRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="5"
+                                    <v-slider v-model="editedRoom.testTime" class="align-center" max="60" min="2"
                                         hide-details>
                                         <template v-slot:append>
-                                            <v-text-field v-model="editedRoom.maxTime" hide-details single-line
-                                                density="compact" type="number" style="width: 70px" max="60" min="5"></v-text-field>
+                                            <v-text-field v-model="editedRoom.testTime" hide-details single-line
+                                                density="compact" type="number" style="width: 70px" max="60" min="2"></v-text-field>
                                         </template>
                                     </v-slider>
                                 </v-col>
@@ -185,7 +185,7 @@ const editedRoom = ref({
     roomName: null,
     password: null,
     expiration: null,
-    maxTime: 30,
+    testTime: 30,
     players: [],
     status: null,
     quickStart: false,

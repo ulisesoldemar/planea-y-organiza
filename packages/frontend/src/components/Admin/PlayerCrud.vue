@@ -79,11 +79,12 @@
                 <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
                 <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <v-btn @click="fetchScore(item.raw._id)">
-                    <v-icon>mdi-eye</v-icon>
-                    <Result v-if="currentScores.length > 0" :results="currentScores"
-                        :player-name="`${item.raw.firstName} ${item.raw.surName} ${item.raw.secondSurName || ''}`" />
-                </v-btn>
+                <router-link :to="{
+                    name: 'ResultView',
+                    params: { id: item.raw._id },
+                }">
+                    Resultados
+                </router-link>
                 <!-- <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon> -->
             </v-container>
             <v-container v-else>
@@ -95,17 +96,12 @@
 </template>
   
 <script setup>
-import Result from './Result.vue';
-
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
-import { useScores } from '@/stores/scores';
 import { ref, watch, computed, defineProps, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
-const scoreStore = useScores();
-const currentScores = computed(() => scoreStore.currentScores);
 
 const formFunc = ref(null)
 
@@ -141,6 +137,7 @@ const headers = [
 const players = computed(() => playerStore.players);
 
 const editedIndex = ref(-1);
+
 const editedPlayer = ref({
     id: null,
     firstName: '',
@@ -151,6 +148,7 @@ const editedPlayer = ref({
     age: null,
     addedAt: null,
 });
+
 const defaultPlayer = {
     id: null,
     firstName: '',
@@ -229,10 +227,6 @@ const save = async () => {
         close();
     }
 };
-
-const fetchScore = async (_id) => {
-    await scoreStore.fetchResult(_id);
-}
 
 const nameRules = [
     v => !!v || 'Este campo es obligatorio',
