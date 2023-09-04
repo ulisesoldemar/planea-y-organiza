@@ -20,6 +20,10 @@ router.get('/:adminUserId', controllers.admins.getAdminUser);
 router.post('/', middlewares.verifyAccessToken, controllers.admins.createAdminUser);
 // Update
 router.patch('/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updateAdminUser);
+// Update password
+router.patch('/password/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updatePassword);
+// Update Avatar
+router.patch('/avatar/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updateAvatar);
 // Delete
 router.delete('/:adminUserId', middlewares.verifyAccessToken, controllers.admins.deleteAdminUser);
 

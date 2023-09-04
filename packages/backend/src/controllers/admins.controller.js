@@ -1,4 +1,5 @@
 const { errorHandler } = require("../util");
+const avatarColors = require("../util/colors");
 const UserAdmin = require("../models/admin.model");
 const { HttpError } = require("../error");
 const mongoose = require("mongoose");
@@ -33,6 +34,9 @@ const listAdminUsers = errorHandler(async (req, res) => {
 });
 
 const createAdminUser = errorHandler(async (req, res) => {
+    const randomColorIndex = Math.floor(Math.random() * avatarColors.length);
+    const randomColor = avatarColors[randomColorIndex];
+
     const newAdminUser = new UserAdmin({
         firstName: req.body.firstName || null,
         surName: req.body.surName,
@@ -41,6 +45,7 @@ const createAdminUser = errorHandler(async (req, res) => {
         password: await argon2.hash(req.body.password),
         username: req.body.username,
         superAdmin: 0,
+        avatarColor: randomColor,
     });
 
     await newAdminUser.save();
@@ -48,10 +53,10 @@ const createAdminUser = errorHandler(async (req, res) => {
 })
 
 //Obtener datos de un Admin en específico
-const getAdminUser = errorHandler( async (req, res) => {
+const getAdminUser = errorHandler(async (req, res) => {
     const adminUserId = req.params.adminUserId;
     const adminUser = await UserAdmin.findById(adminUserId).exec();
-    if(!adminUser){
+    if (!adminUser) {
         throw new HttpError(404, 'Admin User not found');
     }
     return adminUser;
@@ -60,7 +65,7 @@ const getAdminUser = errorHandler( async (req, res) => {
 // Actualizar los datos de un Admin
 const updateAdminUser = errorHandler(async (req, res) => {
     const adminUserId = req.params.adminUserId;
-    const {firstName, surName, secondSurName, email, password, username} = req.body;
+    const { firstName, surName, secondSurName, email, password, username } = req.body;
 
     // Uso de transacción para actualizar los datos del jugador
     const session = await mongoose.startSession();
@@ -68,9 +73,9 @@ const updateAdminUser = errorHandler(async (req, res) => {
     let updatedAdmin;
 
     try {
-        if(!req.body.password){
+        if (!req.body.password) {
             updatedAdmin = await UserAdmin.findByIdAndUpdate(
-                adminUserId, 
+                adminUserId,
                 {
                     $set: {
                         firstName,
@@ -88,7 +93,7 @@ const updateAdminUser = errorHandler(async (req, res) => {
                 req.body,
                 { new: true, session }).exec();
         }
-        
+
         if (!updatedAdmin) {
             throw new HttpError(404, 'updatedAdmin not found on update');
         }
@@ -102,6 +107,81 @@ const updateAdminUser = errorHandler(async (req, res) => {
         session.endSession();
         throw error;
     }
+});
+
+const updatePassword = errorHandler(async (req, res) => {
+    const adminUserId = req.params.adminUserId;
+    // Verifica si se proporciona una nueva contraseña en el cuerpo de la solicitud
+    if (!req.body.password) {
+        throw new HttpError(404, 'Nueva contraseña no proporcionada');
+    }
+
+    const newPassword = await argon2.hash(req.body.password);
+
+    // Uso de transacción para actualizar la contraseña
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const updatedPassword = await UserAdmin.findByIdAndUpdate(
+            adminUserId,
+            { password: newPassword },
+            { new: true, session }).exec();
+
+        if (!updatedPassword) {
+            throw new HttpError(404, 'Admin not found on updatePassword');
+        }
+
+        await session.commitTransaction();
+
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
+});
+
+
+const updateAvatar = errorHandler(async (req, res) => {
+    const adminUserId = req.params.adminUserId;
+
+    // const bkColor = req.body.avatar.avatarColor._value;
+    // const textColor = req.body.avatar.avatarText._value;
+
+    const newColors = {
+        bkColor: req.body.avatar.avatarColor._value,
+        textColor: req.body.avatar.avatarText._value
+    }
+
+    console.log(newColors);
+
+    // Verifica si se proporciona el dato
+    if (!req.body.avatar) {
+        throw new HttpError(404, 'Color no proporcionado');
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const updatedColor = await UserAdmin.findByIdAndUpdate(
+            adminUserId,
+            {$set: { 'avatarColor.bkColor' : newColors.bkColor, 'avatarColor.textColor' : newColors.textColor }},
+            {new: true, session}).exec();
+        
+        if(!updatedColor){
+            throw new HttpError(404, 'Admin not found on UpdateColor');
+        }
+
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    }
+
+    session.endSession();
 });
 
 // Eliminar un jugador
@@ -142,6 +222,7 @@ module.exports = {
     getAdminUser,
     updateAdminUser,
     deleteAdminUser,
-
+    updatePassword,
+    updateAvatar,
 
 };

@@ -1,8 +1,8 @@
 <template>
     <v-data-table-server :headers="headers" :items="results" :sort-by="[{ key: 'firstName', order: 'asc' }]" 
-        class="elevation-1 rounded-lg pb-3">
+        class="elevation-1 rounded pb-3">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t-lg">
+            <v-toolbar flat class="rounded">
                 <v-toolbar-title>Resultados</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>

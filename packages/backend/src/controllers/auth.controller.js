@@ -8,8 +8,12 @@ const {
     validateRefreshToken,
     verifyPassword } = require("../util");
 const { HttpError } = require('../error');
+const avatarColors = require('../util/colors');
 
 const signup = errorHandler(withTransaction(async (req, res, session) => {
+    const randomColorIndex = Math.floor(Math.random() * avatarColors.length);
+    const randomColor = avatarColors[randomColorIndex];
+    
     const userDoc = new UserAdmin({
         firstName: req.body.firstName,
         surName: req.body.surName,
@@ -18,7 +22,10 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         username: req.body.username,
         password: await argon2.hash(req.body.password),
         superAdmin: 1,
+        avatarColor: randomColor, 
     });
+    console.log(userDoc);
+
     const refreshTokenDoc = new RefreshToken({
         owner: userDoc.id,
         ownerModel: 'UserAdmin',

@@ -1,14 +1,14 @@
 <template>
     <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="players.length" class="pb-3 rounded-lg elevation-1">
+        :items-length="players.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t-lg">
+            <v-toolbar flat class="rounded">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" dark class="mb-2" v-bind="props">
+                        <v-btn color="primary" dark class="mr-4" v-bind="props" variant="outlined">
                             Agregar sujeto
                         </v-btn>
                         <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom">

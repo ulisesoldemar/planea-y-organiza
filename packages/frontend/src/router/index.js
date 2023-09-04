@@ -11,6 +11,7 @@ import Room from '@/components/Admin/Room.vue';
 import Players from '@/pages/Admin/Players.vue';
 import Results from '@/pages/Admin/Results.vue';
 import Admins from '@/pages/Admin/Admins.vue';
+import AccountSettings from '@/pages/Admin/AccountSettings.vue';
 
 //Players
 import Instructions from '@/pages/Players/Instructions.vue';
@@ -22,7 +23,9 @@ import Test from '@/pages/Test.vue';
 // Results
 import ResultView from '@/pages/Admin/ResultView.vue'
 
+//General
 import ErrorHeader from '@/components/ErrorHeader.vue';
+
 
 const adminRoutes = [
     {
@@ -104,6 +107,15 @@ const adminRoutes = [
         component: Admins,
         meta: {
             title: 'Admins',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/account-settings',
+        name: 'accountSettings',
+        component: AccountSettings,
+        meta: {
+            title: 'accountSettings',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },

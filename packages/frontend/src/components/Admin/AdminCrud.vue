@@ -1,8 +1,8 @@
 <template>
     <v-data-table :headers="headers" :items="admins" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="admins.length" class="pb-3 rounded-lg elevation-1">
+        :items-length="admins.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t-lg">
+            <v-toolbar flat class="rounded">
                 <v-toolbar-title>Administradores</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>

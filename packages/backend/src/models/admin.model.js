@@ -9,6 +9,10 @@ const userAdminSchema = new Schema({
     password: { type: String, select: false },
     username: { type: String, unique: true },
     superAdmin: { type: Boolean, required: true},
+    avatarColor: {
+        bkColor: { type: String, required: false},
+        textColor: { type: String, required: false},
+    },
 });
 
 //superAdmin: 1 => SuperAdmin    ||    superAdmin: 0 => normal admin

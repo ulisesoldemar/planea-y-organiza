@@ -11,6 +11,8 @@ export const useAdmins = defineStore('admin', {
 
     getters: {
         fullName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`,
+        initials: (state) => `${state.userData.firstName[0].toUpperCase()}${state.userData.surName[0].toUpperCase()}`,
+        avatar: state => state.userData.avatarColor,
         refreshToken: state => state.token.refreshToken,
         accessToken: state => state.token.accessToken,
         id: state => state.userData._id,
@@ -92,6 +94,7 @@ export const useAdmins = defineStore('admin', {
                 const userDataResponse = await api.get('/api/admin/me', { headers });
 
                 if (userDataResponse.status >= 200 && userDataResponse.status < 300) {
+                    console.log(userDataResponse.data);
                     this.userData = userDataResponse.data;
                 } else {
                     throw new Error('Error al obtener los datos del usuario');
@@ -121,6 +124,62 @@ export const useAdmins = defineStore('admin', {
                 }
             } catch (error) {
                 await this.handleError(this.fetchNewAccessToken, error);
+            }
+        },
+
+        async updateAdmin(formData) {
+            try {
+                const response = await api.patch(`/api/admin/${formData._id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    // ... tu código para manejar la actualización exitosa ...
+                } else {
+                    throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
+            }
+        },
+
+        async updatePassword(adminId, password) {
+            try {
+                console.log(password);
+                const response = await api.patch(`/api/admin/password/${adminId}`, {password: password}, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    // ... tu código para manejar la actualización exitosa ...
+                } else {
+                    throw new Error(`Error al actualizar el password: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
+            }
+        },
+
+        async updateColor(adminId, colors) {
+            try {
+                console.log(colors);
+                const response = await api.patch(`/api/admin/avatar/${adminId}`, {avatar: colors}, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    // ... tu código para manejar la actualización exitosa ...
+                } else {
+                    throw new Error(`Error al actualizar el color: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
             }
         },
 
