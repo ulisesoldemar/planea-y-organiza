@@ -1,4 +1,4 @@
-const { errorHandler } = require("../util");
+const { errorHandler, withTransaction } = require("../util");
 const avatarColors = require("../util/colors");
 const UserAdmin = require("../models/admin.model");
 const { HttpError } = require("../error");
@@ -144,45 +144,31 @@ const updatePassword = errorHandler(async (req, res) => {
 });
 
 
-const updateAvatar = errorHandler(async (req, res) => {
-    const adminUserId = req.params.adminUserId;
+const updateAvatar = errorHandler(withTransaction(async (req, res, session) => {
+    const _id = req.params.adminUserId;
 
-    // const bkColor = req.body.avatar.avatarColor._value;
-    // const textColor = req.body.avatar.avatarText._value;
-
-    const newColors = {
-        bkColor: req.body.avatar.avatarColor._value,
-        textColor: req.body.avatar.avatarText._value
+    const newColor = {
+        avatarColor: {
+            bkColor: req.body.avatar.bkColor._value,
+            textColor: req.body.avatar.textColor._value
+        }
     }
-
-    console.log(newColors);
 
     // Verifica si se proporciona el dato
     if (!req.body.avatar) {
         throw new HttpError(404, 'Color no proporcionado');
     }
 
-    const session = await mongoose.startSession();
-
-    try {
-        session.startTransaction();
-
-        const updatedColor = await UserAdmin.findByIdAndUpdate(
-            adminUserId,
-            {$set: { 'avatarColor.bkColor' : newColors.bkColor, 'avatarColor.textColor' : newColors.textColor }},
-            {new: true, session}).exec();
-        
-        if(!updatedColor){
-            throw new HttpError(404, 'Admin not found on UpdateColor');
-        }
-
-    } catch (error) {
-        await session.abortTransaction();
-        throw error;
+    const updatedColor = await UserAdmin.findOneAndUpdate(
+        { _id },
+        { $set: newColor},
+        {new: true}
+    ).session(session).exec();
+    
+    if(!updatedColor){
+        throw new HttpError(404, 'Admin not found on UpdateColor');
     }
-
-    session.endSession();
-});
+}));
 
 // Eliminar un jugador
 const deleteAdminUser = errorHandler(async (req, res) => {

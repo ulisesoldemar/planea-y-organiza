@@ -24,8 +24,7 @@ const signup = errorHandler(withTransaction(async (req, res, session) => {
         superAdmin: 1,
         avatarColor: randomColor, 
     });
-    console.log(userDoc);
-
+    
     const refreshTokenDoc = new RefreshToken({
         owner: userDoc.id,
         ownerModel: 'UserAdmin',

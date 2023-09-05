@@ -46,8 +46,8 @@
                         <v-form>
                             <v-row class="text-center">
                                 <v-col cols="12" sm="12" md="12">
-                                    <v-avatar :color="avatarColor" size="90">
-                                        <span class="text-h3" :style="{color : avatarText}">{{ adminStore.initials }}</span>
+                                    <v-avatar :color="bkColor" size="90">
+                                        <span class="text-h3" :style="{color : textColor}">{{ adminStore.initials }}</span>
                                     </v-avatar>
                                 </v-col>
                             </v-row>
@@ -117,8 +117,8 @@ const colorDialog = ref(false);
 const formFunc = ref(null);
 const formPass = ref(null);
 const changedColor = ref('');
-const avatarColor = ref(adminStore.avatar.bkColor);
-const avatarText =  ref(adminStore.avatar.textColor);
+const bkColor = ref(adminStore.avatar.bkColor);
+const textColor =  ref(adminStore.avatar.textColor);
 const password = ref('');
 const visible = ref (false);
 const loading = ref(false);
@@ -175,12 +175,12 @@ async function savePassword() {
 
 async function saveColor() {
     //Cambiar el color del texto dependiendo del color de fondo
-    avatarText.value = isDarkColor(changedColor.value) ? '#262626' : '#F1F1F1';
-    avatarColor.value = changedColor.value;
+    textColor.value = isDarkColor(changedColor.value) ? '#262626' : '#F1F1F1';
+    bkColor.value = changedColor.value;
     colorDialog.value = false;
 
     //Guardar el color en la base de datos
-    await adminStore.updateColor(editedAdmin.value._id, { avatarColor, avatarText});
+    await adminStore.updateColor(editedAdmin.value._id, { bkColor, textColor});
 
 }
 
@@ -219,6 +219,6 @@ const passwordRules = [
 ];
 
 // watch(changedColor, () => {
-//     avatarText.value = isDarkColor(avatarColor.value) ? '#262626' : '#F1F1F1';
+//     textColor.value = isDarkColor(bkColor.value) ? '#262626' : '#F1F1F1';
 // });
 </script>

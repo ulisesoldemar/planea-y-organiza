@@ -72,6 +72,7 @@ export const useAdmins = defineStore('admin', {
                 const refreshToken = this.refreshToken;
 
                 await api.post('/api/auth/logout', { refreshToken });
+                await this.router.push({ name: 'login' });
 
                 this.token = null;
                 localStorage.clear();
@@ -79,7 +80,6 @@ export const useAdmins = defineStore('admin', {
                 this.isAuthenticated = false;
                 this.userData = {};
 
-                this.router.push({ name: 'login' });
             } catch (error) {
                 await this.handleError(this.logout, error);
             }
@@ -94,7 +94,6 @@ export const useAdmins = defineStore('admin', {
                 const userDataResponse = await api.get('/api/admin/me', { headers });
 
                 if (userDataResponse.status >= 200 && userDataResponse.status < 300) {
-                    console.log(userDataResponse.data);
                     this.userData = userDataResponse.data;
                 } else {
                     throw new Error('Error al obtener los datos del usuario');
@@ -166,7 +165,6 @@ export const useAdmins = defineStore('admin', {
 
         async updateColor(adminId, colors) {
             try {
-                console.log(colors);
                 const response = await api.patch(`/api/admin/avatar/${adminId}`, {avatar: colors}, {
                     headers: {
                         Authorization: `Bearer ${this.accessToken}`
@@ -174,7 +172,7 @@ export const useAdmins = defineStore('admin', {
                 });
 
                 if (response.status === 200) {
-                    // ... tu código para manejar la actualización exitosa ...
+                    this.userData.avatarColor = colors; 
                 } else {
                     throw new Error(`Error al actualizar el color: ${response.statusText}`);
                 }
