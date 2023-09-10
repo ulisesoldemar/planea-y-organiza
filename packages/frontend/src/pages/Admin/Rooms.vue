@@ -74,35 +74,35 @@
                         <v-container>
                             <v-row>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-text-field v-model="editedRoom.roomName" label="Nombre de la sala"
+                                    <v-text-field color="primary" v-model="editedRoom.roomName" label="Nombre de la sala"
                                         :rules="nameRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-text-field v-model="editedRoom.password" :label="`${passwordLabel}`"
+                                    <v-text-field color="primary" v-model="editedRoom.password" :label="`${passwordLabel}`"
                                         :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
                                         :type="passwordVisible ? 'text' : 'password'"
                                         @click:append-inner="passwordVisible = !passwordVisible" :rules="passwordRules"
                                         required></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-text-field v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
+                                    <v-text-field color="primary" v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
                                         :rules="expirationRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-slider v-model="editedRoom.testTime" class="align-center" max="60" min="2"
+                                    <v-slider color="primary" v-model="editedRoom.testTime" class="align-center" max="60" min="2"
                                         hide-details>
                                         <template v-slot:append>
-                                            <v-text-field v-model="editedRoom.testTime" hide-details single-line
+                                            <v-text-field color="primary" v-model="editedRoom.testTime" hide-details single-line
                                                 density="compact" type="number" style="width: 70px" max="60" min="2"></v-text-field>
                                         </template>
                                     </v-slider>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="6">
-                                    <v-select v-model="editedRoom.status" label="Estado"
+                                    <v-select color="primary" v-model="editedRoom.status" label="Estado"
                                         :items="['Open', 'Closed']"></v-select>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="4">
-                                    <v-checkbox v-model="editedRoom.quickStart" label="Inicio rápido"></v-checkbox>
+                                    <v-checkbox color="primary" v-model="editedRoom.quickStart" label="Inicio rápido"></v-checkbox>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -110,10 +110,10 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue-darken-1" variant="text" @click="close">
+                        <v-btn color="primary" variant="text" @click="close">
                             Cancelar
                         </v-btn>
-                        <v-btn color="blue-darken-1" variant="text" @click="save">
+                        <v-btn color="primary" variant="text" @click="save">
                             Guardar
                         </v-btn>
                     </v-card-actions>
@@ -125,8 +125,8 @@
                 <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
-                    <v-btn color="blue-darken-1" variant="text" @click="deleteRoomConfirm">OK</v-btn>
+                    <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
+                    <v-btn color="primary" variant="text" @click="deleteRoomConfirm">OK</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>

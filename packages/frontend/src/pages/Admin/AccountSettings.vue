@@ -8,24 +8,24 @@
                         <v-form ref="formFunc" @submit.prevent="">
                             <v-row>
                                 <v-col cols="12" sm="6" md="4">
-                                    <v-text-field v-model="editedAdmin.firstName" label="Nombre" :rules="nameRules"></v-text-field>
+                                    <v-text-field color="primary" v-model="editedAdmin.firstName" label="Nombre" :rules="nameRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="4">
-                                    <v-text-field v-model="editedAdmin.surName" :rules="nameRules"
+                                    <v-text-field color="primary" v-model="editedAdmin.surName" :rules="nameRules"
                                         label="Primer apellido"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="4">
-                                    <v-text-field v-model="editedAdmin.secondSurName" :rules="SecSurnameRules"
+                                    <v-text-field color="primary" v-model="editedAdmin.secondSurName" :rules="SecSurnameRules"
                                         label="Segundo apellido"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" sm="6" md="6">
-                                    <v-text-field v-model="editedAdmin.email" :rules="emailRules"
+                                    <v-text-field color="primary" v-model="editedAdmin.email" :rules="emailRules"
                                         label="Correo electrónico"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="6">
-                                    <v-text-field v-model="editedAdmin.username" :rules="usernameRules"
+                                    <v-text-field color="primary" v-model="editedAdmin.username" :rules="usernameRules"
                                         label="Nombre de usuario"></v-text-field>
                                 </v-col>
                             </v-row>
@@ -68,10 +68,10 @@
                     <v-color-picker v-model="changedColor" hide-inputs show-swatches class="mb-8" style="margin-left: 90px; margin-right: 90px;"></v-color-picker>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue-darken-1" variant="text" @click="colorDialog = false">
+                        <v-btn color="primary" variant="text" @click="colorDialog = false">
                             Cerrar
                         </v-btn>
-                        <v-btn color="blue-darken-1" variant="text" @click="saveColor">
+                        <v-btn color="primary" variant="text" @click="saveColor">
                             Guardar
                         </v-btn>
                     </v-card-actions>

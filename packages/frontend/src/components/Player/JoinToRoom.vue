@@ -6,12 +6,12 @@
                 <v-form ref="form" @submit.prevent="createRoom">
                     <v-row>
                         <v-col cols="12">
-                            <v-text-field v-model="formData.roomNumber" label="Número de sala" type="number"></v-text-field>
+                            <v-text-field color="primary" v-model="formData.roomNumber" label="Número de sala" type="number"></v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
                         <v-col cols="12">
-                            <v-text-field v-model="formData.roomName" label="Código de Acceso"></v-text-field>
+                            <v-text-field color="primary" v-model="formData.roomName" label="Código de Acceso"></v-text-field>
                         </v-col>
                     </v-row>
                     

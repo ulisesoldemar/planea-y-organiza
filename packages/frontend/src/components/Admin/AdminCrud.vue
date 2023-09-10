@@ -22,27 +22,27 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.firstName" label="Nombre(s)"
+                                            <v-text-field color="primary" v-model="editedAdmin.firstName" label="Nombre(s)"
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.surName" label="Primer apellido"
+                                            <v-text-field color="primary" v-model="editedAdmin.surName" label="Primer apellido"
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.secondSurName" :rules="SecSurnameRules"
+                                            <v-text-field color="primary" v-model="editedAdmin.secondSurName" :rules="SecSurnameRules"
                                                 label="Segundo apellido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.email" label="Email"
+                                            <v-text-field color="primary" v-model="editedAdmin.email" label="Email"
                                                 :rules="emailRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.username" label="Nombre de usuario"
+                                            <v-text-field color="primary" v-model="editedAdmin.username" label="Nombre de usuario"
                                                 :rules="usernameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedAdmin.password" :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                                            <v-text-field color="primary" v-model="editedAdmin.password" :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                                             :type="visible ? 'text' : 'password'" :label="passwordLabel"
                                             @click:append-inner="visible = !visible" :rules="passwordRules"
                                             ></v-text-field>
@@ -54,8 +54,8 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="save">Aceptar</v-btn>
+                                <v-btn color="primary" variant="text" @click="close">Cancelar</v-btn>
+                                <v-btn color="primary" variant="text" @click="save">Aceptar</v-btn>
                             </v-card-actions>
                         </v-form>
                     </v-card>
@@ -65,8 +65,8 @@
                         <v-card-title class="text-h5">¿Seguro que quieres eliminar al administrador?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click="deleteAdminConfirm">OK</v-btn>
+                            <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="deleteAdminConfirm">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>

@@ -16,19 +16,19 @@
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="seenResults.firstName" label="Nombre(s)"></v-text-field>
+                                        <v-text-field color="primary" v-model="seenResults.firstName" label="Nombre(s)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="seenResults.surName" label="Primer apellido"></v-text-field>
+                                        <v-text-field color="primary" v-model="seenResults.surName" label="Primer apellido"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="seenResults.secondSurName" label="Segundo apellido"></v-text-field>
+                                        <v-text-field color="primary" v-model="seenResults.secondSurName" label="Segundo apellido"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="seenResults.email" label="Email"></v-text-field>
+                                        <v-text-field color="primary" v-model="seenResults.email" label="Email"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="seenResults.results" label="Resultados"></v-text-field>
+                                        <v-text-field color="primary" v-model="seenResults.results" label="Resultados"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -36,7 +36,7 @@
 
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click=" close ">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click=" close ">Cancelar</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -45,8 +45,8 @@
                         <v-card-title class="text-h5">Estas seguro de que deseas eliminar este resultado?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click=" closeDelete ">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click=" deleteUserConfirm ">OK</v-btn>
+                            <v-btn color="primary" variant="text" @click=" closeDelete ">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click=" deleteUserConfirm ">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>

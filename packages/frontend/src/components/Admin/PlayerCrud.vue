@@ -25,27 +25,27 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)"
+                                            <v-text-field color="primary" v-model="editedPlayer.firstName" label="Nombre(s)"
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.surName" label="Primer apellido"
+                                            <v-text-field color="primary" v-model="editedPlayer.surName" label="Primer apellido"
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
+                                            <v-text-field color="primary" v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
                                                 label="Segundo apellido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.email" label="Email"
+                                            <v-text-field color="primary" v-model="editedPlayer.email" label="Email"
                                                 :rules="emailRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.phone" label="Teléfono"
+                                            <v-text-field color="primary" v-model="editedPlayer.phone" label="Teléfono"
                                                 :rules="phoneRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.age" label="Edad" type="number"
+                                            <v-text-field color="primary" v-model="editedPlayer.age" label="Edad" type="number"
                                                 :rules="ageRules" min="18"></v-text-field>
                                         </v-col>
                                     </v-row>
@@ -55,19 +55,19 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="save">Aceptar</v-btn>
+                                <v-btn color="primary" variant="text" @click="close">Cancelar</v-btn>
+                                <v-btn color="primary" variant="text" @click="save">Aceptar</v-btn>
                             </v-card-actions>
                         </v-form>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
+                    <v-card class="pa-2">
                         <v-card-title class="text-h5">¿Seguro que quieres eliminar al sujeto?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click="deletePlayerConfirm">OK</v-btn>
+                            <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="deletePlayerConfirm">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
@@ -75,16 +75,28 @@
             </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
-            <v-container v-if="!enabledCheckbox">
-                <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
-                <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
+            <v-container v-if="!enabledCheckbox" class="text-center">
+                <!-- <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon> -->
+                <!-- <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon> -->
+                <v-btn variant="flat" density="comfortable" class="me-2" icon="mdi-pencil" size="small" @click="editPlayer(item.raw)"><v-icon color="primary"></v-icon>
+                </v-btn>
+                <v-btn variant="flat" density="comfortable" class="me-2" icon="mdi-delete" size="small" @click="deletePlayer(item.raw, item.index)"><v-icon color="primary"></v-icon></v-btn>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <router-link :to="{
-                    name: 'ResultView',
-                    params: { id: item.raw._id },
-                }">
+                <v-btn
+                    :to="{
+                        name: 'ResultView',
+                        params: { id: item.raw._id },
+                    }"
+                    density="comfortable"
+                    class="text-none"
+                    prepend-icon="mdi-archive-search"
+                    variant="flat"
+                    >
+                    <template v-slot:prepend>
+                        <v-icon color="primary"></v-icon>
+                    </template>
                     Resultados
-                </router-link>
+                </v-btn>
                 <!-- <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon> -->
             </v-container>
             <v-container v-else>
@@ -131,7 +143,7 @@ const headers = [
     { title: 'Teléfono', key: 'phone' },
     { title: 'Edad', key: 'age' },
     { title: 'Agregado el', key: 'addedAt' },
-    { title: 'Acciones', key: 'actions' },
+    { title: 'Acciones', key: 'actions', align: 'center' },
 ];
 
 const players = computed(() => playerStore.players);
