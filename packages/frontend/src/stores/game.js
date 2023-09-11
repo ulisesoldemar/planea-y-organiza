@@ -8,7 +8,7 @@ export const useGame = defineStore('game', {
         isGameComplete: false,
         quickStart: false,
         gameStarted: false,
-        maxTime: 0,
+        maxTime: useStorage('maxTime', 0),
         connectionStatus: useStorage('connectionStatus', []),
         playerData: useStorage('playerData', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
@@ -31,8 +31,8 @@ export const useGame = defineStore('game', {
                 const response = await api.post('/api/game/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
-                    const { roomNumber, maxTime, roomStatus, quickStart, player, accessToken, refreshToken } = response.data;
-                    if (roomStatus === 'Closed') {
+                    const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
+                    if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
                         return;
                     }
                     this.token = { accessToken, refreshToken };
@@ -64,7 +64,7 @@ export const useGame = defineStore('game', {
                     }
                 });
                 if (response.status >= 200 && response.status < 300) {
-                    
+
                 } else {
                     throw new Error('Error al actualizar los datos. Inténtalo de nuevo más tarde');
                 }
