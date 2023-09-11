@@ -12,7 +12,7 @@ export const useAdminUsers = defineStore('adminUsers', {
     },
     actions: {
         async handleError(caller, error) {
-            this.adminStore.handleError(caller, error)
+            console.log(error);
         },
 
         async listAdminUsers(){
@@ -50,6 +50,9 @@ export const useAdminUsers = defineStore('adminUsers', {
                 }
 
             } catch(error){
+                if (error.response.status === 409) {
+                    throw new Error('Dato ya usado');
+                }
                 await this.handleError(this.listAdminUsers, error);
             }
         },
@@ -68,6 +71,9 @@ export const useAdminUsers = defineStore('adminUsers', {
                     throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
                 }
             } catch (error) {
+                if (error.response.status === 409) {
+                    throw new Error('Dato ya usado');
+                }
                 await this.handleError(this.listAdminUsers, error);
             }
         },
