@@ -7,7 +7,7 @@ const roomSchema = new Schema({
     password: { type: String, required: true, minLength: 6 },
     createdAt: { type: Date, default: Date.now }, // Fecha de creación de la sala
     expiration: { type: Date, default: null }, // Fecha de caducidad de la sala (opcional)
-    maxTime: { type: Number, default: 300 }, // Tiempo que durara la prueba
+    maxTime: { type: Number, default: 5 }, // Tiempo que durara la prueba en minutos
     players: [{ type: Schema.Types.ObjectId, ref: 'Player' }], // Registro de los jugadores que se unieron a la sala
     quickStart: { type: Boolean, default: false }, // Con este campo, se permite iniciar la partida inmediatamente sin necesidad de que el admin la inicie
     status: { type: String, default: 'Open', enum: ['Open', 'Closed', 'Running'] }, // Estado de la partida
