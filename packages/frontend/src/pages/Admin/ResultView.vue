@@ -1,6 +1,6 @@
 <template>
     <AdminLayout>
-        <v-overlay :model-value="loading" class="align-center justify-center">
+        <v-overlay :model-value="loading" class="justify-center align-center">
             <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
         </v-overlay>
         <v-card v-if="currentResult">
@@ -100,9 +100,11 @@ function drawPatterns() {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'yellow';
-
     for (let i = 0; i < patterns.length; ++i) {
         const points = patterns[i];
+        if (points.length === 0) {
+            continue;
+        }
         // Dibuja líneas entre los puntos
         for (let j = 0; j < points.length - 1; ++j) {
             // Dibujar linea
