@@ -17,7 +17,17 @@ const me = errorHandler(async (req, res) => {
 // Actualizar los datos del administrador
 const updateAdminData = errorHandler(async (req, res) => {
     const updates = req.body; // Los datos a actualizar se esperan en el cuerpo de la solicitud
-    const userDoc = await UserAdmin.findByIdAndUpdate(req.userId, updates, { new: true }).exec();
+    const userDoc = await UserAdmin
+        .findByIdAndUpdate(req.userId, updates, { new: true })
+        .catch((err) => {
+            if (err.code === 11000 || err.code === 11001) {
+                if (err.message.includes('username_1')) {
+                    throw new HttpError(409, 'Nombre de usuario en uso');
+                } else if (err.message.includes('email_1')) {
+                    throw new HttpError(409, 'Correo en uso');
+                }
+            }
+        });
 
     if (!userDoc) {
         throw new HttpError(404, 'User not found');
@@ -48,7 +58,17 @@ const createAdminUser = errorHandler(async (req, res) => {
         avatarColor: randomColor,
     });
 
-    await newAdminUser.save();
+    await newAdminUser
+        .save()
+        .catch((err) => {
+            if (err.code === 11000 || err.code === 11001) {
+                if (err.message.includes('username_1')) {
+                    throw new HttpError(409, 'Nombre de usuario en uso');
+                } else if (err.message.includes('email_1')) {
+                    throw new HttpError(409, 'Correo en uso');
+                }
+            }
+        });
     return newAdminUser;
 })
 
@@ -105,7 +125,13 @@ const updateAdminUser = errorHandler(async (req, res) => {
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        throw error;
+        if (error.code === 11000 || error.code === 11001) {
+            if (error.message.includes('username_1')) {
+                throw new HttpError(409, 'Nombre de usuario en uso');
+            } else if (error.message.includes('email_1')) {
+                throw new HttpError(409, 'Correo en uso');
+            }
+        }
     }
 });
 
@@ -161,11 +187,11 @@ const updateAvatar = errorHandler(withTransaction(async (req, res, session) => {
 
     const updatedColor = await UserAdmin.findOneAndUpdate(
         { _id },
-        { $set: newColor},
-        {new: true}
+        { $set: newColor },
+        { new: true }
     ).session(session).exec();
-    
-    if(!updatedColor){
+
+    if (!updatedColor) {
         throw new HttpError(404, 'Admin not found on UpdateColor');
     }
 }));
