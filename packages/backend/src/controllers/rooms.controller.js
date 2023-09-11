@@ -192,12 +192,13 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const accessToken = createAccessToken(playerDoc.id);
 
     const { id, firstName, surName, secondSurName, age, phone } = playerDoc;
-    const { quickStart } = roomDoc;
+    const { maxTime, status, expiration, quickStart } = roomDoc;
 
     return {
         roomNumber,
-        maxTime: roomDoc.maxTime,
-        roomStatus: roomDoc.status,
+        maxTime,
+        status,
+        expiration,
         quickStart,
         player: { id, firstName, surName, secondSurName, email, age, phone },
         accessToken,
