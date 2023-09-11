@@ -53,6 +53,11 @@ io.on('connection', (socket) => {
     });
 
     // Manejar otros eventos aquí...
+    socket.on('room:username', (data) => {
+        console.log(data);
+
+        io.emit('room:userJoined', data);
+    });
 });
 
 async function startServer() {

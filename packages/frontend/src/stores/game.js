@@ -33,7 +33,7 @@ export const useGame = defineStore('game', {
                 if (response.status >= 200 && response.status < 300) {
                     const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
                     if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
-                        return;
+                        return true;
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
