@@ -50,6 +50,7 @@
                                     </v-row>
 
                                 </v-container>
+                                <p v-if="errorMsg">{{ errorMsg }}</p>
                             </v-card-text>
 
                             <v-card-actions>
@@ -96,6 +97,7 @@ const visible = ref(false);
 const selected = ref([]);
 const dialog = ref(false);
 const dialogDelete = ref(false);
+const errorMsg = ref('');
 
 const props = defineProps({
     enabledCheckbox: Boolean,
@@ -195,15 +197,19 @@ const closeDelete = () => {
 
 const save = async () => {
     const { valid } = await formFunc.value.validate();
-
     if (valid) {
-        if (editedIndex.value > -1) {
-            await adminUsrStore.updateAdminUser(editedAdmin.value);
-        } else {
-            await adminUsrStore.createAdminUser(editedAdmin.value).catch(e => console.error(e));
+        try {
+
+            if (editedIndex.value > -1) {
+                await adminUsrStore.updateAdminUser(editedAdmin.value);
+            } else {
+                await adminUsrStore.createAdminUser(editedAdmin.value).catch(e => console.error(e));
+            }
+            await adminUsrStore.listAdminUsers();
+            close();
+        } catch (err) {
+            errorMsg.value = err.message;
         }
-        await adminUsrStore.listAdminUsers();
-        close();
     }
 };
 
@@ -220,18 +226,19 @@ const SecSurnameRules = [
 const emailRules = [
     v => !!v || 'Este campo es obligatorio',
     v => /.+@.+\..+/.test(v) || 'Ingrese una dirección de correo electrónico válida',
+    () => errorMsg.value.length === 0 || 'El correo ya esta en uso',
 ];
 
 const usernameRules = [v => !!v || 'Este campo es obligatorio'];
 
 const passwordRules = [
-  (v) => {
-    if (editedIndex.value > -1) {
-      return (v.length >= 1 && v.length <= 6) ? 'La contraseña debe tener al menos 6 caracteres': true;
-    } else {
-      return v ? (v.length >= 6 ? true : 'La contraseña debe tener al menos 6 caracteres') : 'Este campo es obligatorio';
-    }
-  },
+    (v) => {
+        if (editedIndex.value > -1) {
+            return (v.length >= 1 && v.length <= 6) ? 'La contraseña debe tener al menos 6 caracteres' : true;
+        } else {
+            return v ? (v.length >= 6 ? true : 'La contraseña debe tener al menos 6 caracteres') : 'Este campo es obligatorio';
+        }
+    },
 ];
 
 </script>
