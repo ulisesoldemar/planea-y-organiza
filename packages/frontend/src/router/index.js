@@ -19,11 +19,13 @@ import JoinRoom from '@/pages/Players/JoinRoom.vue';
 import PlayerSignup from '@/pages/Players/Signup.vue';
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
+import ThankYou from '@/pages/Players/ThankYou.vue';
 
 // Results
 import ResultView from '@/pages/Admin/ResultView.vue'
 
 //General
+import Welcome from '@/pages/Welcome.vue';
 import ErrorHeader from '@/components/ErrorHeader.vue';
 
 
@@ -157,9 +159,28 @@ const playerRoutes = [
             requiresConnected: false, // Indica que se debe estar conectado
         },
     },
+    {
+        path: '/thank-you',
+        name: 'ThankYou',
+        component: ThankYou,
+        props: true,
+        meta: {
+            title: 'Thank You',
+            requiresConnected: false,
+        }
+
+    }
 ];
 
 const genericRoutes = [
+    {
+        path: '/welcome',
+        name: 'Welcome',
+        component: Welcome,
+        meta: {
+            title: 'Welcome',
+        }
+    },
     {
         path: '/test',
         name: 'test',

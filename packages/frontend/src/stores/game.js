@@ -86,6 +86,11 @@ export const useGame = defineStore('game', {
                 .catch(async (err) => {
                     await this.handleError('uploadScore', err);
                 });
+        },
+
+        gameOver() {
+            this.router.push('ThankYou', { params: { isTimeOver: this.isTimeOver } });
+            localStorage.clear();
         }
     },
 });

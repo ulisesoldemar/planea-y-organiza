@@ -85,6 +85,7 @@ export default class PlayScene extends BaseScene {
             score: finalScore,
         });
         this.scene.stop();
+        this.gameStore.gameOver();
     }
 
     addZeros(num) {
