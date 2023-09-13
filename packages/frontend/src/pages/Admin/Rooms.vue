@@ -38,7 +38,7 @@
                         <v-spacer></v-spacer>
 
                         <v-btn size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
-                            variant="text" icon="mdi-play"></v-btn>
+                            @click="roomStore.startGame(room.roomNumber)" variant="text" icon="mdi-play"></v-btn>
 
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-pencil"
                             @click="editRoom(room, index)"></v-btn>

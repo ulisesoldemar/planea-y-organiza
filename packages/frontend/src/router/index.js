@@ -166,7 +166,7 @@ const playerRoutes = [
         props: true,
         meta: {
             title: 'Thank You',
-            requiresConnected: false,
+            requiresConnected: true,
         }
 
     }

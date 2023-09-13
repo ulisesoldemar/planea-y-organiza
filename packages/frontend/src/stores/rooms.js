@@ -136,6 +136,13 @@ export const useRooms = defineStore('room', {
             } catch (error) {
                 await this.handleError(this.addPlayersToRoom, error);
             }
+        },
+
+        startGame(roomNumber) {
+            if (!socket.connected) {
+                socket.connect();
+            }
+            socket.emit('startGame', roomNumber.toString());
         }
     },
 });

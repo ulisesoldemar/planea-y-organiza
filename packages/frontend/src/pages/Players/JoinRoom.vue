@@ -31,30 +31,15 @@
             </v-form>
         </v-card>
     </div>
-
-    <div v-show="showLoading" class="loading-page">
-        <v-progress-circular
-        color="primary"
-        indeterminate
-        :size="79"
-        :width="7"
-        ></v-progress-circular>
+    <div v-if="showLoading" class="loading-page">
+        <v-progress-circular color="primary" indeterminate :size="79" :width="7"></v-progress-circular>
         <p class="mt-10 mb-10">Esperando a que el administrador inicie la tarea ...</p>
-        <div class="center-content">
-        <v-chip v-for="item in usersJoined" class="ma-2" color="primary">
-            {{ item }}
-        </v-chip>
-        </div>
     </div>
 </template>
 
 <script setup>
 import { useGame } from "@/stores/game";
 import { ref, watch } from "vue";
-import Loading from "@/components/Loading.vue";
-import { io } from "socket.io-client";
-
-const backendUrl = process.env.VUE_APP_BACKEND_URL;
 
 const formFunction = ref(false);
 const loading = ref(false);
@@ -63,10 +48,23 @@ const gameStore = useGame();
 
 const showLoading = ref(false);
 
+watch(() => gameStore.started, (newValue) => {
+    if (!newValue) {
+        showLoading.value = true;
+    }
+});
+
+
 const formData = ref({
     roomNumber: null,
     email: null,
     password: null
+});
+
+watch(formData, () => {
+    roomNumberErrors.value = roomNumberRules.map(rule => rule(formData.roomNumber)).filter(error => !!error);
+    emailErrors.value = emailRules.map(rule => rule(formData.email)).filter(error => !!error);
+    passwordErrors.value = passwordRules.map(rule => rule(formData.password)).filter(error => !!error);
 });
 
 const visible = ref(false);
@@ -89,49 +87,20 @@ const emailErrors = ref([]);
 const passwordErrors = ref([]);
 const errorMessage = ref(""); // Initialize error message as empty
 
-watch(formData, () => {
-    roomNumberErrors.value = roomNumberRules.map(rule => rule(formData.roomNumber)).filter(error => !!error);
-    emailErrors.value = emailRules.map(rule => rule(formData.email)).filter(error => !!error);
-    passwordErrors.value = passwordRules.map(rule => rule(formData.password)).filter(error => !!error);
-});
-
 async function handleJoin() {
-    if (roomNumberErrors.value.length === 0 && emailErrors.value.length === 0 && passwordErrors.value.length === 0) {
-        loading.value = true;
-        const roomStatus = await gameStore.joinRoom(formData.value)
-            .then(loading.value = false)
+    if ((roomNumberErrors.value.length + emailErrors.value.length + passwordErrors.value.length) === 0) {
+        showLoading.value = true;
+        await gameStore
+            .joinRoom(formData.value)
             .catch(error => errorMessage.value = error.message);
-
-        if(roomStatus){
-            console.log("Sala cerrada", formData.value.email);
-            showLoading.value = true;
-            
-            socket.emit('room:username', formData.value.email);
-        }
     }
 
 }
 
-
-/**
- *  Socket.io
- */
- const usersJoined = ref([]); 
- const socket = io(backendUrl);
-
- socket.on('connect', () => {
-    console.log('Conectado al Servidor'); 
- });
-
- socket.on('room:userJoined', (data) => {
-    console.log('New User Joined', data);
-    usersJoined.value.push(data);
- })
-
 </script>
 
 <style>
-.body{
+.body {
     padding: 0px;
     margin: 0px;
 }
@@ -146,8 +115,7 @@ async function handleJoin() {
     background-color: #f5f5f5;
 }
 
-.center-content{
+.center-content {
     flex-direction: row !important;
 }
-
 </style>

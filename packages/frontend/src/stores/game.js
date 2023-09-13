@@ -33,7 +33,7 @@ export const useGame = defineStore('game', {
                 if (response.status >= 200 && response.status < 300) {
                     const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
                     if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
-                        return true;
+                        return false;
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
@@ -41,11 +41,24 @@ export const useGame = defineStore('game', {
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
                     this.quickStart = quickStart;
-                    socket.connect();
-                    socket.on('gameStarted', () => {
-                        this.connectionStatus = true;
-                    });
-                    this.router.push('player-signup');
+                    if (this.quickStart) {
+                        this.gameStarted = true;
+                        this.router.push('player-signup');
+                    } else {
+                        if (!socket.connected) {
+                            socket.connect();
+                        }
+                        const joinData = {
+                            roomNumber: roomNumber,
+                            playerId: this.playerData.id,
+                            playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
+                        }
+                        socket.emit('joinRoom', joinData);
+                        socket.on('gameStarted', () => {
+                            this.gameStarted = true;
+                            this.router.push('player-signup');
+                        });
+                    }
                 }
             } catch (error) {
                 if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -89,7 +102,7 @@ export const useGame = defineStore('game', {
         },
 
         gameOver() {
-            this.router.push('ThankYou', { params: { isTimeOver: this.isTimeOver } });
+            this.router.push('thank-you', { params: { isTimeOver: this.isTimeOver } });
             localStorage.clear();
         }
     },
