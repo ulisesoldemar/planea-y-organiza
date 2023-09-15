@@ -5,9 +5,14 @@ const { default: mongoose } = require('mongoose');
 
 const listScores = errorHandler(async (req, res) => {
     const adminId = req.userId; // Usamos el ID del admin del token
-    const scores = await Score
-        .find() // Filtrar por el ID del admin creador
-        .exec();
+    const players = await Player.find({ admin: adminId }).populate('scores').exec();
+    const scores = [];
+    
+    players.forEach((player) => {
+        if (player.scores && player.scores.length > 0) {
+            scores.push(...player.scores);
+        }
+    });
 
     return scores;
 });
@@ -24,6 +29,7 @@ const uploadScore = errorHandler(withTransaction(async (req, res, session) => {
     const newScore = new Score(req.body);
     await newScore.save({ session });
     playerDoc.scores.push(newScore);
+    playerDoc.canPlay = false;
     await playerDoc.save({ session });
 
 }));
@@ -40,6 +46,10 @@ const fetchScore = errorHandler(async (req, res) => {
 
     if (!player) {
         throw new HttpError(404, 'Score no encontrada');
+    }
+
+    if (player.admin.toString() !== req.userId) {
+        throw new HttpError(403, 'Forbidden');
     }
 
     return {

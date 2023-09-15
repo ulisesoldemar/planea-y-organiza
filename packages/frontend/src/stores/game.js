@@ -46,13 +46,14 @@ export const useGame = defineStore('game', {
                         this.router.push('player-signup');
                     } else {
                         if (!socket.connected) {
+                            socket.io.opts.query = { token: this.token.accessToken };
                             socket.connect();
                         }
                         const joinData = {
                             roomNumber: roomNumber,
                             playerId: this.playerData.id,
                             playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
-                        }
+                        };
                         socket.emit('joinRoom', joinData);
                         socket.on('gameStarted', () => {
                             this.gameStarted = true;
