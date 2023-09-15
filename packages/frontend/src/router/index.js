@@ -6,12 +6,18 @@ import { useGame } from "@/stores/game";
 // Admin
 import Login from '@/pages/Admin/Login.vue';
 import Dashboard from '@/pages/Admin/Dashboard.vue'
-import Rooms from '@/pages/Admin/Rooms.vue';
-import Room from '@/components/Admin/Room.vue';
-import Players from '@/pages/Admin/Players.vue';
-import Results from '@/pages/Admin/Results.vue';
-import Admins from '@/pages/Admin/Admins.vue';
 import AccountSettings from '@/pages/Admin/AccountSettings.vue';
+// Rooms
+import Rooms from '@/pages/Admin/Rooms.vue';
+import RoomView from '@/pages/Admin/RoomView.vue';
+import Room from '@/components/Admin/Room.vue';
+// Players
+import Players from '@/pages/Admin/Players.vue';
+import Admins from '@/pages/Admin/Admins.vue';
+// Results
+import Results from '@/pages/Admin/Results.vue';
+import ResultView from '@/pages/Admin/ResultView.vue'
+
 
 //Players
 import Instructions from '@/pages/Players/Instructions.vue';
@@ -20,9 +26,6 @@ import PlayerSignup from '@/pages/Players/Signup.vue';
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
 import ThankYou from '@/pages/Players/ThankYou.vue';
-
-// Results
-import ResultView from '@/pages/Admin/ResultView.vue'
 
 //General
 import Welcome from '@/pages/Welcome.vue';
@@ -104,6 +107,15 @@ const adminRoutes = [
         }
     },
     {
+        path: '/room/:roomNumber',
+        component: RoomView,
+        name: 'RoomView',
+        meta: {
+            title: 'Sala',
+            requiresAuth: true,
+        }
+    },
+    {
         path: '/admins',
         name: 'admins',
         component: Admins,
@@ -156,7 +168,7 @@ const playerRoutes = [
         component: Game,
         meta: {
             title: 'Game',
-            requiresConnected: false, // Indica que se debe estar conectado
+            requiresConnected: true, // Indica que se debe estar conectado
         },
     },
     {

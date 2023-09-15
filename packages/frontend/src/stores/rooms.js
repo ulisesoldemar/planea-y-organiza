@@ -6,6 +6,7 @@ export const useRooms = defineStore('room', {
     state: () => ({
         adminStore: useAdmins(),
         rooms: [],
+        currentRoom: {},
     }),
     getters: {
         createdAt: state => index => { return new Date(state.rooms[index].createdAt).toLocaleDateString('es-MX') },
@@ -107,6 +108,8 @@ export const useRooms = defineStore('room', {
                 if (response.status >= 200 && response.status < 300) {
                     const roomData = response.data;
                     console.log('Datos de la sala:', roomData);
+                    this.currentRoom = roomData;
+                    this.joinRoom(roomNumber);
                 } else {
                     throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
                 }
@@ -128,7 +131,6 @@ export const useRooms = defineStore('room', {
 
         async addPlayersToRoom(roomNumber, playerIds) {
             try {
-                console.log(playerIds)
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
@@ -140,9 +142,26 @@ export const useRooms = defineStore('room', {
 
         startGame(roomNumber) {
             if (!socket.connected) {
+                // Se agrega el query de auth
+                socket.io.opts.query = { token: this.adminStore.accessToken };
                 socket.connect();
             }
             socket.emit('startGame', roomNumber.toString());
+        },
+
+        joinRoom(roomNumber) {
+            if (!socket.connected) {
+                socket.io.opts.query = { token: this.adminStore.accessToken };
+                socket.connect();
+            }
+            const joinData = {
+                roomNumber: roomNumber,
+                adminName: this.adminStore.fullName,
+            };
+            socket.emit('adminJoined', joinData);
+            socket.on('updateUsersList', (data) => {
+                this.currentRoom.usersInRoom = data;
+            });
         }
     },
 });

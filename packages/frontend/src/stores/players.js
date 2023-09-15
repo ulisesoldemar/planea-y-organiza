@@ -33,7 +33,6 @@ export const usePlayers = defineStore('players', {
 
                 if (response.status === 200) {
                     this.players = response.data;
-                    console.log(this.players)
                     // ... tu código para manejar la lista de jugadores ...
                 } else {
                     throw new Error(`Error al obtener la lista de jugadores: ${response.statusText}`);

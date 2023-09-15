@@ -110,7 +110,7 @@
 <script setup>
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
-import { ref, watch, computed, defineProps, onMounted, nextTick } from 'vue';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();

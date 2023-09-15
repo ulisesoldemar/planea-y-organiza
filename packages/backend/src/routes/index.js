@@ -5,6 +5,6 @@ const gameRouter = require('./game.router');
 
 router.use('/auth', authRouter);
 router.use('/admin', adminsRouter);
-router.use('/game/', gameRouter);
+router.use('/game', gameRouter);
 
 module.exports = router;

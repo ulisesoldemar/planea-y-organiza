@@ -3,7 +3,12 @@
         <v-row dense>
             <v-col cols="12" sm="6" md="4" lg="3" v-for="(room, index) in rooms" :key="room.roomNumber">
                 <v-card>
-                    <v-card-title class="surface-variant" v-text="`${room.roomName || room.roomNumber}`"></v-card-title>
+                    <router-link :to="{
+                        name: 'RoomView',
+                        params: { roomNumber: room.roomNumber }
+                    }">
+                        <v-card-title class="surface-variant" v-text="`${room.roomName || room.roomNumber}`"></v-card-title>
+                    </router-link>
                     <v-card-subtitle class="surface-variant"
                         v-text="`Sala creada el: ${roomStore.createdAt(index)}`"></v-card-subtitle>
                     <v-expand-transition>
@@ -44,16 +49,13 @@
                             @click="editRoom(room, index)"></v-btn>
 
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-account-plus"
-                            @click="playerDialog = true" :disabled="room.status === 'Running'"></v-btn>
+                            @click="playerDialog = true; currentRoomNumber = room.roomNumber" :disabled="room.status === 'Running'"></v-btn>
 
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"
                             @click="deleteRoom(room, index)" :disabled="room.status === 'Running'"></v-btn>
 
                     </v-card-actions>
                 </v-card>
-                <v-dialog v-model="playerDialog" max-width="auto">
-                    <PlayerCrud :enabled-checkbox="true" :room-number="room.roomNumber" :external-dialog="playerDialog"></PlayerCrud>
-                </v-dialog>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3">
                 <v-card class="d-flex flex-column align-center" height="134" @click="defaultRoom = null; roomDialog = true">
@@ -85,15 +87,16 @@
                                         required></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
-                                    <v-text-field color="primary" v-model="editedRoom.expiration" label="Fecha de caducidad" type="date"
-                                        :rules="expirationRules"></v-text-field>
+                                    <v-text-field color="primary" v-model="editedRoom.expiration" label="Fecha de caducidad"
+                                        type="date" :rules="expirationRules"></v-text-field>
                                 </v-col>
                                 <v-col cols="8" sm="6" md="8">
                                     <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="2"
                                         hide-details>
                                         <template v-slot:append>
                                             <v-text-field v-model="editedRoom.maxTime" hide-details single-line
-                                                density="compact" type="number" style="width: 70px" max="60" min="2"></v-text-field>
+                                                density="compact" type="number" style="width: 70px" max="60"
+                                                min="2"></v-text-field>
                                         </template>
                                     </v-slider>
                                 </v-col>
@@ -102,7 +105,8 @@
                                         :items="['Open', 'Closed']"></v-select>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="4">
-                                    <v-checkbox color="primary" v-model="editedRoom.quickStart" label="Inicio rápido"></v-checkbox>
+                                    <v-checkbox color="primary" v-model="editedRoom.quickStart"
+                                        label="Inicio rápido"></v-checkbox>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -119,6 +123,9 @@
                     </v-card-actions>
                 </v-card>
             </v-form>
+        </v-dialog>
+        <v-dialog v-model="playerDialog" max-width="auto">
+            <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog" />
         </v-dialog>
         <v-dialog v-model="deleteDialog" maxWidth="500px">
             <v-card>
@@ -177,6 +184,7 @@ const copySnackbar = ref(false);
 
 const rooms = computed(() => roomStore.rooms);
 const expandedRooms = ref([]);
+const currentRoomNumber = ref('');
 
 const editedIndex = ref(-1);
 
@@ -222,6 +230,12 @@ watch(deleteDialog, (val) => {
     }
 });
 
+watch(playerDialog, (val) => {
+    if (!val) {
+        closePlayerAdd();
+    } 
+});
+
 function editRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
@@ -246,6 +260,13 @@ function close() {
     nextTick(() => {
         editedRoom.value = { ...defaultRoom };
         editedIndex.value = -1;
+    });
+}
+
+function closePlayerAdd() {
+    playerDialog.value = false;
+    nextTick(() => {
+        currentRoomNumber.value = '';
     });
 }
 
