@@ -181,6 +181,10 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
         throw new HttpError(401, 'Usuario o contraseña no válidos');
     }
 
+    if (!playerDoc.canPlay) {
+        throw new HttpError(403, 'No tienes acceso a esta sala');
+    }
+
     const refreshTokenDoc = new RefreshToken({
         owner: playerDoc.id,
         ownerModel: 'Player',
