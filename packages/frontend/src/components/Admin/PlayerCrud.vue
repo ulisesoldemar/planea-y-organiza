@@ -8,10 +8,10 @@
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" dark class="mr-4" v-bind="props" variant="outlined">
-                            Agregar sujeto
+                        <v-btn color="primary" dark class="mr-4" v-bind="props">
+                            Agregar nuevo
                         </v-btn>
-                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom">
+                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom" variant="outlined">
                             Aceptar
                         </v-btn>
                     </template>

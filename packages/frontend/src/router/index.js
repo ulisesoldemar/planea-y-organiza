@@ -260,7 +260,7 @@ router.beforeEach((to, from, next) => {
     const requiresConnected = to.matched.some(record => record.meta.requiresConnected);
     // Si la ruta requiere autenticación y el usuario no está autenticado, redirige al inicio de sesión
     if (requiresAuth && !adminStore.isAuthenticated) {
-        next({ name: 'login' });
+        next({ name: 'Welcome' });
     } else if (requiresConnected && !gameStore.connected) {
         next({ name: 'join-room' });
     } else {

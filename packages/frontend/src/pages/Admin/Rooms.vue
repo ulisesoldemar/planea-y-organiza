@@ -29,6 +29,18 @@
                                 <v-list-item title="Sujetos invitados"
                                     :subtitle="room.players.length.toString()"></v-list-item>
                                 <v-list-item title="Estado" :subtitle="room.status"></v-list-item>
+                                <!-- <v-list-item title="Sujetos en la sala">
+                                    <v-list-item-subtitle>
+                                        <v-row>
+                                            <v-col  cols="auto">
+                                                <v-chip v-for="item in usersJoined" class="ma-1" color="indigo" text-color="white" prepend-icon="mdi-account-circle">
+                                                    {{ item }}
+                                                </v-chip>
+                                            </v-col>
+                                        </v-row>
+                                    </v-list-item-subtitle>
+                                </v-list-item> -->
+
                             </v-list>
                         </div>
                     </v-expand-transition>
@@ -42,14 +54,28 @@
                         </v-btn>
                         <v-spacer></v-spacer>
 
-                        <v-btn size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
-                            @click="roomStore.startGame(room.roomNumber)" variant="text" icon="mdi-play"></v-btn>
+                        <!-- <v-btn size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
+                            @click="roomStore.startGame(room.roomNumber)" variant="text" icon="mdi-play"></v-btn> -->
+
+                        <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
+                                @click="roomStore.startGame(room.roomNumber)" variant="text" icon="mdi-play">
+                                </v-btn>
+                            </template>
+                            <span>Iniciar Tarea</span>
+                        </v-tooltip>
 
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-pencil"
                             @click="editRoom(room, index)"></v-btn>
 
-                        <v-btn size="small" color="surface-variant" variant="text" icon="mdi-account-plus"
-                            @click="playerDialog = true; currentRoomNumber = room.roomNumber" :disabled="room.status === 'Running'"></v-btn>
+                            <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text" icon="mdi-account-plus"
+                                @click="playerDialog = true; currentRoomNumber = room.roomNumber" :disabled="room.status === 'Running'"></v-btn>
+                                </template>
+                            <span>Invitar sujetos</span>
+                        </v-tooltip>
 
                         <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"
                             @click="deleteRoom(room, index)" :disabled="room.status === 'Running'"></v-btn>

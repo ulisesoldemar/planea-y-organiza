@@ -17,9 +17,9 @@ export default class GameStartDialogScene extends Phaser.Scene {
         // Texto con una fuente adecuada
         const titleText = this.add.text(
             this.cameras.main.centerX,
-            this.cameras.main.centerY - 40,
+            this.cameras.main.centerY - 60,
             'Bienvenido',
-            { fontFamily: 'Arial', fontSize: '36px', fill: '#000' } // Cambia la fuente y el tamaño
+            { fontFamily: 'Roboto', fontSize: '36px', fill: '#000', fontWeight: '700'} // Cambia la fuente y el tamaño
         );
         titleText.setOrigin(0.5);
 
@@ -27,30 +27,48 @@ export default class GameStartDialogScene extends Phaser.Scene {
             this.cameras.main.centerX,
             this.cameras.main.centerY,
             '¿Estás listo para comenzar la tarea?',
-            { fontFamily: 'Arial', fontSize: '24px', fill: '#000', align: 'center', wordWrap: { width: 250 } } // Cambia la fuente y el tamaño
+            { fontFamily: 'Roboto', fontSize: '24px', fill: '#000', align: 'center', wordWrap: { width: 450 } } // Cambia la fuente y el tamaño
         );
         messageText.setOrigin(0.5);
 
         // Botón de Play (círculo)
+        const alignButtonY = this.cameras.main.centerY + 80;
         const playButton = this.add.graphics();
-        playButton.fillStyle(0x00ff00, 1); // Color verde
-        playButton.fillCircle(this.cameras.main.centerX, this.cameras.main.centerY + 40, 30);
+        playButton.fillStyle(0x6634C3, 1); // Color verde
+        playButton.fillCircle(this.cameras.main.centerX, alignButtonY, 30);
 
         // Triángulo dentro del círculo
         const triangle = new Phaser.Geom.Triangle(
             this.cameras.main.centerX - 10,
-            this.cameras.main.centerY + 40 - 15,
+            alignButtonY + 5, // Ajusta la coordenada Y para moverlo más hacia abajo
             this.cameras.main.centerX + 10,
-            this.cameras.main.centerY + 40 - 15,
+            alignButtonY + 5, // Ajusta la coordenada Y para moverlo más hacia abajo
             this.cameras.main.centerX,
-            this.cameras.main.centerY + 40 + 15
+            alignButtonY + 25 // Ajusta la coordenada Y para moverlo más hacia abajo
+        );
+        const playtriangle = this.add.graphics();    
+        playtriangle.depth=100;
+        playtriangle.fillStyle(0x000000, 1); // Color blanco
+        playtriangle.fillTriangle(triangle);
+
+
+        // Agregar una imagen como botón
+        const playButtonImage = this.add.image(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY + 80,
+            'Boton-Phaser' // Reemplaza con el nombre de tu imagen
         );
 
-        playButton.fillStyle(0xffffff, 1); // Color blanco
-        playButton.fillTriangle(triangle);
+        // Hacer que la imagen sea interactiva como un botón
+        playButtonImage.setInteractive();
+
+        // Agregar un evento al hacer clic en la imagen
+        playButtonImage.on('pointerdown', () => {
+            this.scene.start('PlayScene'); // Cambiar a la escena principal del juego
+        });
 
         // Agregar un evento al botón de Play
-        playButton.setInteractive(new Phaser.Geom.Circle(this.cameras.main.centerX, this.cameras.main.centerY + 40, 30), Phaser.Geom.Circle.Contains);
+        playButton.setInteractive(new Phaser.Geom.Circle(this.cameras.main.centerX, alignButtonY, 30), Phaser.Geom.Circle.Contains);
         playButton.on('pointerdown', () => {
             this.scene.start('PlayScene'); // Cambiar a la escena principal del juego
         });
