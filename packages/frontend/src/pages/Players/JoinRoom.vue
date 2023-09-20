@@ -92,7 +92,10 @@ async function handleJoin() {
         showLoading.value = true;
         await gameStore
             .joinRoom(formData.value)
-            .catch(error => errorMessage.value = error.message);
+            .catch((error) => {
+                showLoading.value = false;
+                errorMessage.value = error.message
+            });
     }
 
 }

@@ -62,8 +62,13 @@ export const useGame = defineStore('game', {
                     }
                 }
             } catch (error) {
-                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-                    throw new Error('Credenciales de acceso no válidas');
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 401:
+                            throw new Error('Credenciales de acceso no válidas');
+                        case 403:
+                            throw new Error('Esta sala no permite el acceso');
+                    }
                 } else {
                     await this.handleError('joinRoom', error);
                 }

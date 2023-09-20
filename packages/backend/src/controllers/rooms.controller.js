@@ -184,6 +184,10 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     if (!playerDoc.canPlay) {
         throw new HttpError(403, 'No tienes acceso a esta sala');
     }
+    
+    if (Date.now() > Date.parse(roomDoc.expiration) || roomDoc.status === 'Closed') {
+        throw new HttpError(403, 'Esta sala no permite el acceso');
+    }
 
     const refreshTokenDoc = new RefreshToken({
         owner: playerDoc.id,
