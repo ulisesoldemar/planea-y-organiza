@@ -48,10 +48,15 @@
                     <v-divider></v-divider>
 
                     <v-card-actions>
-                        <v-btn @click="toggleExpansion(index)"
-                            :icon="expandedRooms[index] ? 'mdi-information-off' : 'mdi-information'"
-                            color="surface-variant">
-                        </v-btn>
+                        <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" @click="toggleExpansion(index)"
+                                    :icon="expandedRooms[index] ? 'mdi-information-off' : 'mdi-information'"
+                                    color="surface-variant">
+                                </v-btn>
+                            </template>
+                            <span>Información</span>
+                        </v-tooltip>
                         <v-spacer></v-spacer>
 
                         <!-- <v-btn size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
@@ -59,27 +64,40 @@
 
                         <v-tooltip location="bottom center" origin="auto">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" size="small" :color="room.status === 'Running' ? 'success' : 'surface-variant'"
-                                @click="roomStore.startGame(room.roomNumber)" variant="text" icon="mdi-play">
+                                <v-btn v-bind="props" size="small"
+                                    :color="room.status === 'Running' ? 'success' : 'surface-variant'"
+                                    :disabled="room.status === 'Closed'" @click="roomStore.startGame(room.roomNumber)"
+                                    variant="text" icon="mdi-play">
                                 </v-btn>
                             </template>
                             <span>Iniciar Tarea</span>
                         </v-tooltip>
 
-                        <v-btn size="small" color="surface-variant" variant="text" icon="mdi-pencil"
-                            @click="editRoom(room, index)"></v-btn>
-
-                            <v-tooltip location="bottom center" origin="auto">
+                        <v-tooltip location="bottom center" origin="auto">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text" icon="mdi-account-plus"
-                                @click="playerDialog = true; currentRoomNumber = room.roomNumber" :disabled="room.status === 'Running'"></v-btn>
-                                </template>
+                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text"
+                                    icon="mdi-account-plus"
+                                    @click="playerDialog = true; currentRoomNumber = room.roomNumber"
+                                    :disabled="room.status === 'Closed'"></v-btn>
+                            </template>
                             <span>Invitar sujetos</span>
                         </v-tooltip>
 
-                        <v-btn size="small" color="surface-variant" variant="text" icon="mdi-delete"
-                            @click="deleteRoom(room, index)" :disabled="room.status === 'Running'"></v-btn>
+                        <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text" icon="mdi-pencil"
+                                    @click="editRoom(room, index)"></v-btn>
+                            </template>
+                            <span>Editar sala</span>
+                        </v-tooltip>
 
+                        <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text" icon="mdi-delete"
+                                    @click="deleteRoom(room, index)" :disabled="room.status === 'Running'"></v-btn>
+                            </template>
+                            <span>Eliminar sala</span>
+                        </v-tooltip>
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -259,7 +277,7 @@ watch(deleteDialog, (val) => {
 watch(playerDialog, (val) => {
     if (!val) {
         closePlayerAdd();
-    } 
+    }
 });
 
 function editRoom(room, index) {

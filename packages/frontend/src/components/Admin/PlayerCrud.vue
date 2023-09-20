@@ -11,7 +11,8 @@
                         <v-btn color="primary" dark class="mr-4" v-bind="props">
                             Agregar nuevo
                         </v-btn>
-                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom" variant="outlined">
+                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom"
+                            variant="outlined">
                             Aceptar
                         </v-btn>
                     </template>
@@ -29,12 +30,12 @@
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field color="primary" v-model="editedPlayer.surName" label="Primer apellido"
-                                                :rules="nameRules"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.surName"
+                                                label="Primer apellido" :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field color="primary" v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
-                                                label="Segundo apellido"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.secondSurName"
+                                                :rules="SecSurnameRules" label="Segundo apellido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-text-field color="primary" v-model="editedPlayer.email" label="Email"
@@ -45,8 +46,8 @@
                                                 :rules="phoneRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field color="primary" v-model="editedPlayer.age" label="Edad" type="number"
-                                                :rules="ageRules" min="18"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.age" label="Edad"
+                                                type="number" :rules="ageRules" min="18"></v-text-field>
                                         </v-col>
                                     </v-row>
 
@@ -78,20 +79,26 @@
             <v-container v-if="!enabledCheckbox" class="text-center">
                 <!-- <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon> -->
                 <!-- <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon> -->
-                <v-btn variant="flat" density="comfortable" class="me-2" icon="mdi-pencil" size="small" @click="editPlayer(item.raw)"><v-icon color="primary"></v-icon>
-                </v-btn>
-                <v-btn variant="flat" density="comfortable" class="me-2" icon="mdi-delete" size="small" @click="deletePlayer(item.raw, item.index)"><v-icon color="primary"></v-icon></v-btn>
+                <v-tooltip location="bottom center" origin="auto">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-pencil"
+                            size="small" @click="editPlayer(item.raw)"><v-icon color="primary"></v-icon>
+                        </v-btn>
+                    </template>
+                    <span>Editar sujeto</span>
+                </v-tooltip>
+                <v-tooltip location="bottom center" origin="auto">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-delete" size="small"
+                            @click="deletePlayer(item.raw, item.index)"><v-icon color="primary"></v-icon></v-btn>
+                    </template>
+                    <span>Eliminar sujeto</span>
+                </v-tooltip>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <v-btn
-                    :to="{
-                        name: 'ResultView',
-                        params: { id: item.raw._id },
-                    }"
-                    density="comfortable"
-                    class="text-none"
-                    prepend-icon="mdi-archive-search"
-                    variant="flat"
-                    >
+                <v-btn :to="{
+                    name: 'ResultView',
+                    params: { id: item.raw._id },
+                }" density="comfortable" class="text-none" prepend-icon="mdi-archive-search" variant="flat">
                     <template v-slot:prepend>
                         <v-icon color="primary"></v-icon>
                     </template>
