@@ -4,7 +4,7 @@ const { startExpressServer, socketServer } = require('./src/server');
 
 async function main() {
     await startExpressServer();
-    socketServer.listen(3001);
+    socketServer.listen(process.env.WS_PORT);
 }
 
 main();
