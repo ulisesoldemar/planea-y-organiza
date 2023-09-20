@@ -89,8 +89,9 @@
                 </v-tooltip>
                 <v-tooltip location="bottom center" origin="auto">
                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-delete" size="small"
-                            @click="deletePlayer(item.raw, item.index)"><v-icon color="primary"></v-icon></v-btn>
+                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-delete"
+                            size="small" @click="deletePlayer(item.raw, item.index)"><v-icon
+                                color="primary"></v-icon></v-btn>
                     </template>
                     <span>Eliminar sujeto</span>
                 </v-tooltip>
@@ -129,10 +130,12 @@ const props = defineProps({
     roomNumber: String,
 });
 
+const emit = defineEmits(['close'])
+
 const selected = ref([]);
 
 async function addPlayersToRoom() {
-    await roomStore.addPlayersToRoom(props.roomNumber, selected.value);
+    await roomStore.addPlayersToRoom(props.roomNumber, selected.value).then(emit('close'));
 }
 
 onMounted(async () => {

@@ -26,8 +26,6 @@
                                             "No expira" }}
                                     </v-list-item-subtitle>
                                 </v-list-item>
-                                <v-list-item title="Sujetos invitados"
-                                    :subtitle="room.players.length.toString()"></v-list-item>
                                 <v-list-item title="Estado" :subtitle="room.status"></v-list-item>
                                 <!-- <v-list-item title="Sujetos en la sala">
                                     <v-list-item-subtitle>
@@ -169,7 +167,8 @@
             </v-form>
         </v-dialog>
         <v-dialog v-model="playerDialog" max-width="auto">
-            <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog" />
+            <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog"
+                @close="playerDialog = false" />
         </v-dialog>
         <v-dialog v-model="deleteDialog" maxWidth="500px">
             <v-card>
