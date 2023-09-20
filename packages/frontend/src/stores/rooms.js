@@ -107,7 +107,6 @@ export const useRooms = defineStore('room', {
 
                 if (response.status >= 200 && response.status < 300) {
                     const roomData = response.data;
-                    console.log('Datos de la sala:', roomData);
                     this.currentRoom = roomData;
                     this.joinRoom(roomNumber);
                 } else {
@@ -160,6 +159,7 @@ export const useRooms = defineStore('room', {
             };
             socket.emit('adminJoined', joinData);
             socket.on('updateUsersList', (data) => {
+                console.log(data);
                 this.currentRoom.usersInRoom = data;
             });
         }

@@ -184,7 +184,7 @@
         <v-snackbar v-model="copySnackbar" timeout="2000">
             Número de sala copiado
             <template v-slot:actions>
-                <v-btn color="blue" variant="text" @click="snackbar = false">
+                <v-btn color="blue" variant="text" @click="copySnackbar = false">
                     Cerrar
                 </v-btn>
             </template>
