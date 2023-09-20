@@ -100,7 +100,7 @@
                 </v-card>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3">
-                <v-card class="d-flex flex-column align-center" height="134" @click="defaultRoom = null; roomDialog = true">
+                <v-card class="d-flex flex-column align-center" height="134" @click="createRoom()">
                     <v-row align="center" justify="center">
                         <v-icon color="grey
                         " icon="mdi-plus-circle-outline" size="64"></v-icon>
@@ -109,8 +109,8 @@
             </v-col>
         </v-row>
         <v-dialog v-model="roomDialog" width="auto">
-            <v-form ref="form">
-                <v-card>
+            <v-card class="pa-2">
+                <v-form ref="form" @submit.prevent="">
                     <v-card-title>
                         <span class="text-h5">{{ formTitle }}</span>
                     </v-card-title>
@@ -163,8 +163,8 @@
                             Guardar
                         </v-btn>
                     </v-card-actions>
-                </v-card>
-            </v-form>
+                </v-form>
+            </v-card>
         </v-dialog>
         <v-dialog v-model="playerDialog" max-width="auto">
             <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog"
@@ -286,6 +286,12 @@ function editRoom(room, index) {
     roomDialog.value = true;
 }
 
+function createRoom() {
+    editedIndex.value = -1;
+    editedRoom.value = { ...defaultRoom };
+    roomDialog.value = true;
+}
+
 async function deleteRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
@@ -298,13 +304,13 @@ async function deleteRoomConfirm() {
     closeDelete();
 }
 
-function close() {
+const close = () => {
     roomDialog.value = false;
     nextTick(() => {
         editedRoom.value = { ...defaultRoom };
         editedIndex.value = -1;
     });
-}
+};
 
 function closePlayerAdd() {
     playerDialog.value = false;
@@ -322,7 +328,7 @@ function closeDelete() {
 }
 
 async function save() {
-    const isValid = form.value.validate(); // Validamos todos los campos
+    const { isValid } = await form.value.validate(); // Validamos todos los campos
 
     if (isValid) {
         if (editedIndex.value > -1) {
