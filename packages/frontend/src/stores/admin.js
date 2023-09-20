@@ -67,6 +67,9 @@ export const useAdmins = defineStore('admin', {
 
                 this.isAuthenticated = false;
                 this.userData = {};
+                if (socket.connected) {
+                    socket.disconnect();
+                }
 
             } catch (error) {
                 await this.handleError(this.logout, error);
