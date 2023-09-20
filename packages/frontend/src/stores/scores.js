@@ -6,12 +6,16 @@ export const useScores = defineStore('scores', {
     state: () => ({
         adminStore: useAdmins(),
         playerName: '',
-        scores: [],
+        localStores: [],
         loading: false,
     }),
 
     getters: {
-
+        scores: (state) => {
+            return state.localStores.map((score) => {
+                return { ...score, date: new Date(score.date).toLocaleDateString('es-MX').toString() };
+            });
+        },
     },
 
     actions: {
@@ -21,12 +25,12 @@ export const useScores = defineStore('scores', {
                     Authorization: `Bearer ${this.adminStore.accessToken}`
                 }
             })
-            .then((res) => {
-                this.scores = res.data;
-            })
-            .catch((err) => {
-                console.log(err)
-            });
+                .then((res) => {
+                    this.localStores = res.data;
+                })
+                .catch((err) => {
+                    console.log(err)
+                });
         },
 
         async fetchResult(playerId) {
@@ -36,16 +40,16 @@ export const useScores = defineStore('scores', {
                     Authorization: `Bearer ${this.adminStore.accessToken}`
                 }
             })
-            .then((res) => {
-                this.loading = false;
-                this.playerName = res.data.playerName;
-                this.scores = res.data.scores;
-                return res;
-            })
-            .catch((err) => {
-                console.log(err);
-                // throw err;
-            })
+                .then((res) => {
+                    this.loading = false;
+                    this.playerName = res.data.playerName;
+                    this.localStores = res.data.scores;
+                    return res;
+                })
+                .catch((err) => {
+                    console.log(err);
+                    // throw err;
+                })
         }
     }
 });

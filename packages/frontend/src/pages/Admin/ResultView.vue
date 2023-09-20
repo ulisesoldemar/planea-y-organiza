@@ -8,7 +8,7 @@
             <v-card-text>
                 <v-row>
                     <v-col cols="12" md="3" sm="12">
-                        <v-card class="ml-2 my-2">
+                        <v-card class="my-2 ml-2">
 
 
                             <v-select color="primary" label="Busca por fecha de la prueba" v-model="currentResultId"
@@ -88,7 +88,7 @@ const { name } = useDisplay();
 
 
 const heightScreen = computed(() => {
-    
+
     console.log("name: ", name.value);
 
     switch (name.value) {
@@ -122,6 +122,7 @@ onMounted(async () => {
 watch(currentResultId, (newId) => {
     if (newId) {
         currentResult.value = scores.value.find(score => score._id === newId); // Filtrar por el nuevo id
+        drawPatterns();
     }
 });
 
@@ -193,7 +194,7 @@ canvas {
     display: none;
 }
 
-.title-data{
+.title-data {
     margin-bottom: 16px;
     color: #424242;
     font-weight: 700 !important;
