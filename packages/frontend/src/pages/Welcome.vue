@@ -97,8 +97,6 @@ const textAlign = computed(() => {
   return styles;
 });
 
-console.log(mdAndUp.value);
-
 </script>
   
 <style scoped>
