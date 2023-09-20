@@ -8,7 +8,7 @@ const logger = require('../logger');
 const app = express();
 const port = process.env.PORT || 3000;
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN.split(','),
     credentials: true,
 };
 
