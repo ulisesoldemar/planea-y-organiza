@@ -10,7 +10,7 @@
                         <v-card-title class="surface-variant" v-text="`${room.roomName || room.roomNumber}`"></v-card-title>
                     </router-link>
                     <v-card-subtitle class="surface-variant"
-                        v-text="`Sala creada el: ${roomStore.createdAt(index)}`"></v-card-subtitle>
+                        v-text="`Sala creada el: ${roomStore.formatDate(room.createdAt)}`"></v-card-subtitle>
                     <v-expand-transition>
                         <div v-if="expandedRooms[index]">
                             <v-list class="bg-transparent">
@@ -22,7 +22,7 @@
                                 </v-list-item>
                                 <v-list-item title="Fecha de caducidad">
                                     <v-list-item-subtitle>
-                                        {{ room.expiration ? roomStore.expiresAt(index) :
+                                        {{ room.expiration ? roomStore.formatDate(room.expiration) :
                                             "No expira" }}
                                     </v-list-item-subtitle>
                                 </v-list-item>
@@ -108,33 +108,35 @@
                 </v-card>
             </v-col>
         </v-row>
-        <v-dialog v-model="roomDialog" width="auto">
-            <v-card class="pa-2">
-                <v-form ref="form" @submit.prevent="">
+        <v-dialog v-model="roomDialog" width="auto" max-width="700">
+            <v-form ref="form" @submit.prevent="">
+                <v-card class="pa-2">
                     <v-card-title>
                         <span class="text-h5">{{ formTitle }}</span>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="6" md="12">
                                     <v-text-field color="primary" v-model="editedRoom.roomName" label="Nombre de la sala"
                                         :rules="nameRules"></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="6" md="12">
                                     <v-text-field color="primary" v-model="editedRoom.password" :label="`${passwordLabel}`"
                                         :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
                                         :type="passwordVisible ? 'text' : 'password'"
-                                        @click:append-inner="passwordVisible = !passwordVisible" :rules="passwordRules"
+                                        @click:append-inner="passwordVisible = !passwordVisible"
+                                        :rules="editedIndex < 0 ? createPasswordRules : editPasswordRules"
                                         required></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="6" md="12">
                                     <v-text-field color="primary" v-model="editedRoom.expiration" label="Fecha de caducidad"
-                                        type="date" :rules="expirationRules"></v-text-field>
+                                        type="date" :rules="expirationRules" :value="expirationDate"
+                                        :min="new Date().toISOString().substring(0, 10)"></v-text-field>
                                 </v-col>
-                                <v-col cols="8" sm="6" md="8">
+                                <v-col cols="12" sm="6" md="12">
                                     <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="2"
-                                        hide-details>
+                                        label="Tiempo de la tarea" hide-details>
                                         <template v-slot:append>
                                             <v-text-field v-model="editedRoom.maxTime" hide-details single-line
                                                 density="compact" type="number" style="width: 70px" max="60"
@@ -163,8 +165,8 @@
                             Guardar
                         </v-btn>
                     </v-card-actions>
-                </v-form>
-            </v-card>
+                </v-card>
+            </v-form>
         </v-dialog>
         <v-dialog v-model="playerDialog" max-width="auto">
             <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog"
@@ -208,9 +210,13 @@ const nameRules = [
     (v) => v && v.length <= 50 || 'El nombre de la sala debe tener 50 caracteres o menos',
 ];
 
-const passwordRules = [
+const createPasswordRules = [
     (v) => !!v || 'La contraseña es requerida',
     (v) => v && v.length >= 6 || 'La contraseña debe tener al menos 6 caracteres',
+];
+
+const editPasswordRules = [
+    (v) => !v || v.length >= 6 || 'La contraseña debe tener al menos 6 caracteres',
 ];
 
 const expirationRules = [
@@ -261,6 +267,13 @@ const passwordLabel = computed(() => {
     return editedIndex.value === -1 ? 'Contraseña*' : 'Nueva contraseña (dejar en blanco para no cambiarla)'
 });
 
+const expirationDate = computed(() => {
+    if (editedRoom.value.expiration) {
+        return editedRoom.value.expiration.substring(0, 10);
+    }
+    return '';
+})
+
 watch(roomDialog, (val) => {
     if (!val) {
         close();
@@ -282,6 +295,7 @@ watch(playerDialog, (val) => {
 function editRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
+    console.log(editedRoom.value)
     editedRoom.value.password = null;
     roomDialog.value = true;
 }
@@ -293,6 +307,7 @@ function createRoom() {
 }
 
 async function deleteRoom(room, index) {
+    console.log(index)
     editedIndex.value = index;
     editedRoom.value = { ...room };
     deleteDialog.value = true;
@@ -328,9 +343,9 @@ function closeDelete() {
 }
 
 async function save() {
-    const { isValid } = await form.value.validate(); // Validamos todos los campos
+    const { valid } = await form.value.validate(); // Validamos todos los campos
 
-    if (isValid) {
+    if (valid) {
         if (editedIndex.value > -1) {
             await roomStore.updateRoom(editedRoom.value);
         } else {
@@ -341,6 +356,7 @@ async function save() {
 }
 
 const toggleExpansion = (index) => {
+    console.log(rooms.value[index])
     expandedRooms.value[index] = !expandedRooms.value[index];
 };
 

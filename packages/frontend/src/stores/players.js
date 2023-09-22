@@ -16,7 +16,7 @@ export const usePlayers = defineStore('players', {
             }
             return '';
         },
-        addedAt: state => index => { return new Date(state.players[index].addedAt).toLocaleDateString('es-MX') },
+        addedAt: state => index => { return new Date(state.players[index].addedAt).toLocaleDateString('es-MX', { timeZone: 'UTC' }) },
     },
     actions: {
         async handleError(caller, error) {
@@ -97,7 +97,7 @@ export const usePlayers = defineStore('players', {
                 await this.handleError(this.listPlayers, error);
             }
         },
-        
+
         // ... otras acciones ...
     },
 });

@@ -9,8 +9,9 @@ export const useRooms = defineStore('room', {
         currentRoom: {},
     }),
     getters: {
-        createdAt: state => index => { return new Date(state.rooms[index].createdAt).toLocaleDateString('es-MX') },
-        expiresAt: state => index => { return new Date(state.rooms[index].expiration).toLocaleDateString('es-MX') },
+        formatDate: state => date => {
+            return new Date(date).toLocaleDateString('es-MX', { timeZone: 'UTC' }).substring(0, 10);
+        },
     },
     actions: {
         async handleError(actionName, error) {
@@ -64,7 +65,6 @@ export const useRooms = defineStore('room', {
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala eliminada con éxito');
-                    await this.listRooms();
                 } else {
                     throw new Error(`Error al eliminar la sala: ${response.statusText}`);
                 }

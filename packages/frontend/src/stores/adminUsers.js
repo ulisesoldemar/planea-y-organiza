@@ -8,48 +8,54 @@ export const useAdminUsers = defineStore('adminUsers', {
         adminUsers: [],
     }),
     getters: {
-        addedAt: state => index => { return new Date(state.adminUsers[index].addedAt).toLocaleDateString('es-MX') },
+        addedAt: state => index => {
+            const fullDate = new Date(state.adminUsers[index].addedAt);
+            const day = String(fullDate.getDate()).padStart(2, '0');
+            const month = String(fullDate.getMonth() + 1).padStart(2, '0');
+            const year =  String(fullDate.getFullYear());
+            return `${day}/${month}/${year}`;
+        },
     },
     actions: {
         async handleError(caller, error) {
             console.log(error);
         },
 
-        async listAdminUsers(){
-            try{
+        async listAdminUsers() {
+            try {
                 const response = await api.get('api/admin/', {
-                    headers:{
+                    headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
-                
-                if (response.status === 200){
+
+                if (response.status === 200) {
                     this.adminUsers = response.data;
                 } else {
                     throw new Error(`Error al obtener la lista de administradores: ${response.statusText}`)
                 }
 
-            } catch(error){
+            } catch (error) {
                 await this.handleError(this.listAdminUsers, error);
             }
 
         },
 
-        async createAdminUser(formData){
-            try{
+        async createAdminUser(formData) {
+            try {
                 const response = await api.post('api/admin/', formData, {
-                    headers:{
+                    headers: {
                         Authorization: `Bearer ${this.adminStore.accessToken}`
                     }
                 });
-                
-                if (response.status === 200){
+
+                if (response.status === 200) {
                     this.adminUsers.push(response.data);
                 } else {
                     throw new Error(`Error al obtener la lista de administradores: ${response.statusText}`)
                 }
 
-            } catch(error){
+            } catch (error) {
                 if (error.response.status === 409) {
                     throw new Error('Dato ya usado');
                 }
@@ -78,7 +84,7 @@ export const useAdminUsers = defineStore('adminUsers', {
             }
         },
 
-        async deleteAdminUser(adminUserId){
+        async deleteAdminUser(adminUserId) {
             try {
                 const response = await api.delete(`/api/admin/${adminUserId}`, {
                     headers: {

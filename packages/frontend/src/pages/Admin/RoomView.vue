@@ -22,36 +22,39 @@
                                 <v-icon icon="mdi-content-copy"></v-icon>
                             </template>
                         </v-list-item>
-                        
+
                         <v-row>
                             <v-col cols="12" md="6">
-                                <v-list-item title="Fecha de creación" :subtitle="createdAt"></v-list-item>
+                                <v-list-item title="Fecha de creación" :subtitle="roomStore.formatDate(currentRoom.createdAt)"></v-list-item>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-list-item title="Fecha de expiración" :subtitle="expiresAt"></v-list-item>
+                                <v-list-item title="Fecha de expiración" :subtitle="roomStore.formatDate(currentRoom.expiration)"></v-list-item>
                             </v-col>
                         </v-row>
-                        <v-list-item title="Tiempo maximo de la prueba:" :subtitle="currentRoom.maxTime + ' min'"></v-list-item>
+                        <v-list-item title="Tiempo maximo de la prueba:"
+                            :subtitle="currentRoom.maxTime + ' min'"></v-list-item>
                         <v-list-item title="Inicio rapido" :subtitle="currentRoom.quickStart"></v-list-item>
                         <v-list-item title="Configuración de la sala" :subtitle="currentRoom.status"></v-list-item>
-<!--         
+                        <!--         
                         <div class="text-h6">Tiempo maximo de la prueba:</div>
                         <div class="text-subtitle-1"> {{ currentRoom.maxTime }} min</div> -->
-                        
+
                         <div class="pa-2 my-3"></div>
                         <h3 class="pa-2 my-2"> Jugadores </h3>
                         <v-divider></v-divider>
                         <v-row>
                             <v-col>
                                 <v-list-item subtitle="Invitados"></v-list-item>
-                                <v-chip prepend-icon="mdi-account-circle" v-for="player in currentRoom.players" color="grey700" class="ma-2">
+                                <v-chip prepend-icon="mdi-account-circle" v-for="player in currentRoom.players"
+                                    color="grey700" class="ma-2">
                                     {{ player }}
                                 </v-chip>
                             </v-col>
                             <v-divider class="ma-4" inset vertical></v-divider>
                             <v-col>
                                 <v-list-item subtitle="En la sala"></v-list-item>
-                                <v-chip prepend-icon="mdi-account-circle" v-for="player in currentRoom.usersInRoom" color="primary" class="ma-2">
+                                <v-chip prepend-icon="mdi-account-circle" v-for="player in currentRoom.usersInRoom"
+                                    color="primary" class="ma-2">
                                     {{ player }}
                                 </v-chip>
                             </v-col>
@@ -86,8 +89,6 @@ const roomStore = useRooms();
 const route = useRoute();
 const router = useRouter();
 const currentRoom = computed(() => roomStore.currentRoom);
-const createdAt = computed(() => { return new Date(currentRoom.value.createdAt).toLocaleDateString('es-MX') });
-const expiresAt = computed(() => { return new Date(currentRoom.value.expiration).toLocaleDateString('es-MX') });
 
 onMounted(async () => {
     if (route.params.roomNumber) {
@@ -105,7 +106,7 @@ const copyText = (roomNumber) => {
 </script>
 
 <style scoped>
-.room-title{
+.room-title {
     color: #424242;
     /*font-weight: 500 !important;*/
     margin-right: 15px;
