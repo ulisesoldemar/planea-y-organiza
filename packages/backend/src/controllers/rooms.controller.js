@@ -14,7 +14,7 @@ const listRooms = errorHandler(async (req, res) => {
 });
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomName, password, expiration, maxTime, quickStart } = req.body;
+    const { roomName, password, expiration, maxTime, status, quickStart } = req.body;
 
     if (!password) {
         throw new HttpError(422, 'No password');
@@ -31,6 +31,7 @@ const createRoom = errorHandler(withTransaction(async (req, res, session) => {
         expiration: expiration || null,
         maxTime: maxTime,
         quickStart: quickStart || false,
+        status: status || 'Open',
         admin: adminDoc,
     });
 
