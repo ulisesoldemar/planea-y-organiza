@@ -2,13 +2,20 @@
     <AdminLayout title="Salas">
         <v-row dense>
             <v-col cols="12" sm="6" md="4" lg="3" v-for="(room, index) in rooms" :key="room.roomNumber">
-                <v-card>
-                    <router-link :to="{
-                        name: 'RoomView',
-                        params: { roomNumber: room.roomNumber }
-                    }">
-                        <v-card-title class="surface-variant" v-text="`${room.roomName || room.roomNumber}`"></v-card-title>
-                    </router-link>
+                <v-card preppend>
+                    <v-btn :to="{
+                            name: 'RoomView',
+                            params: { roomNumber: room.roomNumber }
+                        }"
+                        variant="text"
+                        color="primary"
+                        class="ma-2"
+                        prepend-icon="mdi-link-variant"
+                        density="comfortable"
+                        size="large"
+                    >
+                    {{room.roomName || room.roomNumber}}
+                    </v-btn>
                     <v-card-subtitle class="surface-variant"
                         v-text="`Sala creada el: ${roomStore.formatDate(room.createdAt)}`"></v-card-subtitle>
                     <v-expand-transition>
@@ -234,6 +241,8 @@ const copySnackbar = ref(false);
 const rooms = computed(() => roomStore.rooms);
 const expandedRooms = ref([]);
 const currentRoomNumber = ref('');
+
+console.log(rooms);
 
 const editedIndex = ref(-1);
 
