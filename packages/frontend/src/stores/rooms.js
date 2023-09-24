@@ -6,6 +6,7 @@ export const useRooms = defineStore('room', {
     state: () => ({
         adminStore: useAdmins(),
         rooms: [],
+        currentPlayers: [],
         currentRoom: {},
     }),
     getters: {
@@ -136,6 +137,48 @@ export const useRooms = defineStore('room', {
                 await api.post('/api/admin/rooms/add-players-to-room', { roomNumber, playerIds }, { headers })
             } catch (error) {
                 await this.handleError(this.addPlayersToRoom, error);
+            }
+        },
+
+        async removePlayerFromRoom(roomNumber, playerId) {
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/remove-player-from-room', { roomNumber, playerId }, { headers })
+            } catch (error) {
+                await this.handleError(this.removePlayerFromRoom, error);
+            }
+        },
+
+        async removePlayersFromRoom(roomNumber, playerIds) {
+            console.log(playerIds)
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/remove-players-from-room', { roomNumber, playerIds }, { headers })
+            } catch (error) {
+                await this.handleError(this.removePlayersFromRoom, error);
+            }
+        },
+
+        async fetchRoomPlayers(roomNumber) {
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+
+                const response = await api.get(`/api/admin/rooms/${roomNumber}/players`, { headers });
+
+                if (response.status >= 200 && response.status < 300) {
+                    const players = response.data;
+                    this.currentPlayers = players;
+                } else {
+                    throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError('fetchRoomPlayers', error);
             }
         },
 

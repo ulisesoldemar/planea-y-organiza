@@ -98,6 +98,19 @@ const fetchRoom = errorHandler(async (req, res) => {
     return room;
 });
 
+const fetchRoomPlayers = errorHandler(async (req, res) => {
+    const { roomNumber } = req.params;
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const players = await Player.find({ _id: { $in: roomDoc.players } });
+
+    return players;
+});
+
 const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
 
     const { roomNumber, playerId } = req.body;
@@ -167,6 +180,60 @@ const addPlayersToRoom = errorHandler(withTransaction(async (req, res, session) 
     return roomDoc;
 }));
 
+const removePlayerFromRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, playerId } = req.body;
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const playerDoc = await Player.findById(playerId);
+
+    if (!playerDoc) {
+        throw new HttpError(404, 'Jugador no encontrado');
+    }
+
+    if (playerDoc.roomNumber !== roomNumber) {
+        throw new HttpError(422, 'Jugador no está en la sala');
+    } else {
+        playerDoc.roomNumber = null;
+        await playerDoc.save({ session });
+    }
+
+    roomDoc.players.pull(playerDoc);
+    await roomDoc.save({ session });
+
+    return roomDoc;
+}));
+
+const removePlayersFromRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, playerIds } = req.body;
+
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const existingPlayerIds = roomDoc.players.map(player => player.toString());
+
+    // Filtrar jugadores que están en la sala y que se pueden eliminar
+    const playersToDeleteIds = playerIds.filter(playerId => existingPlayerIds.includes(playerId));
+
+    if (playersToDeleteIds.length === 0) {
+        throw new HttpError(422, 'Ningún jugador para eliminar encontrado en la sala');
+    }
+
+    // Actualizar el arreglo 'players' en el documento de Room
+    roomDoc.players = roomDoc.players.filter(playerId => !playersToDeleteIds.includes(playerId.toString()));
+
+    await roomDoc.save({ session });
+
+    return roomDoc;
+}));
+
+
 const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber, email, password } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
@@ -185,7 +252,7 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     if (!playerDoc.canPlay) {
         throw new HttpError(403, 'No tienes acceso a esta sala');
     }
-    
+
     if (Date.now() > Date.parse(roomDoc.expiration) || roomDoc.status === 'Closed') {
         throw new HttpError(403, 'Esta sala no permite el acceso');
     }
@@ -218,8 +285,11 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 module.exports = {
     createRoom,
     listRooms,
+    fetchRoomPlayers,
     addPlayerToRoom,
     addPlayersToRoom,
+    removePlayerFromRoom,
+    removePlayersFromRoom,
     joinRoom,
     deleteRoom,
     updateRoom,

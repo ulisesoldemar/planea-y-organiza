@@ -33,7 +33,10 @@
                                             "No expira" }}
                                     </v-list-item-subtitle>
                                 </v-list-item>
+                                <v-list-item title="Tiempo de la tarea" :subtitle="`${room.maxTime} minutos`"></v-list-item>
                                 <v-list-item title="Estado" :subtitle="room.status"></v-list-item>
+                                <v-list-item title="Inicio rápido"
+                                    :subtitle="room.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
                                 <!-- <v-list-item title="Sujetos en la sala">
                                     <v-list-item-subtitle>
                                         <v-row>
@@ -86,6 +89,16 @@
                                     :disabled="room.status === 'Closed'"></v-btn>
                             </template>
                             <span>Invitar sujetos</span>
+                        </v-tooltip>
+
+                        <v-tooltip location="bottom center" origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" size="small" color="surface-variant" variant="text"
+                                    icon="mdi-account-minus"
+                                    @click="removePlayerDialog = true; currentRoomNumber = room.roomNumber"
+                                    :disabled="room.status === 'Closed'"></v-btn>
+                            </template>
+                            <span>Eliminar sujetos de la sala</span>
                         </v-tooltip>
 
                         <v-tooltip location="bottom center" origin="auto">
@@ -179,6 +192,10 @@
             <PlayerCrud :enabled-checkbox="true" :room-number="currentRoomNumber" :external-dialog="playerDialog"
                 @close="playerDialog = false" />
         </v-dialog>
+        <v-dialog v-model="removePlayerDialog" max-width="auto">
+            <RemovePlayers :room-number="currentRoomNumber" :external-dialog="removePlayerDialog"
+                @close="removePlayerDialog = false" />
+        </v-dialog>
         <v-dialog v-model="deleteDialog" maxWidth="500px">
             <v-card>
                 <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
@@ -204,6 +221,7 @@
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import PlayerCrud from '@/components/Admin/PlayerCrud.vue';
+import RemovePlayers from '@/components/Admin/RemovePlayers.vue';
 import { useRooms } from '@/stores/rooms';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
@@ -236,6 +254,7 @@ const form = ref(null); // Crear referencia al formulario
 const roomDialog = ref(false);
 const deleteDialog = ref(false);
 const playerDialog = ref(false);
+const removePlayerDialog = ref(false);
 const copySnackbar = ref(false);
 
 const rooms = computed(() => roomStore.rooms);
@@ -347,6 +366,13 @@ function closeDelete() {
     deleteDialog.value = false;
     nextTick(() => {
         editedRoom.value = { ...defaultRoom };
+        editedIndex.value = -1;
+    });
+}
+
+function closeRemovePlayer() {
+    removePlayerDialog.value = false;
+    nextTick(() => {
         editedIndex.value = -1;
     });
 }
