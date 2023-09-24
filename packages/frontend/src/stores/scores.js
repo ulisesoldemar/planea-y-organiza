@@ -13,7 +13,11 @@ export const useScores = defineStore('scores', {
     getters: {
         scores: (state) => {
             return state.localStores.map((score) => {
-                return { ...score, date: new Date(score.date).toLocaleDateString('es-MX', { timeZone: 'UTC' }).toString() };
+                return { ...score, date: new Date(score.date).toLocaleDateString('es-MX', { timeZone: 'UTC' }).toString(), 
+                            distancePerSection: score.distancePerSection.map((section, index) => {
+                                return `Sección ${index + 1}: ${section}, \n`;
+                            }) 
+                };
             });
         },
     },
