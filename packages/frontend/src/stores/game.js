@@ -32,6 +32,8 @@ export const useGame = defineStore('game', {
 
                 if (response.status >= 200 && response.status < 300) {
                     const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
+                    console.log('Entro status 200')
+                    
                     if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
                         return false;
                     }
@@ -41,20 +43,25 @@ export const useGame = defineStore('game', {
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
                     this.quickStart = quickStart;
+
+                    const joinData = {
+                        roomNumber: roomNumber,
+                        playerId: this.playerData.id,
+                        playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
+                    };
+
+                    console.log(joinData);
+
+                    if (!socket.connected) {
+                        socket.io.opts.query = { token: this.token.accessToken };
+                        socket.connect();
+                    }
+                    socket.emit('joinRoom', joinData);
+                    
                     if (this.quickStart) {
                         this.gameStarted = true;
                         this.router.push('player-signup');
                     } else {
-                        if (!socket.connected) {
-                            socket.io.opts.query = { token: this.token.accessToken };
-                            socket.connect();
-                        }
-                        const joinData = {
-                            roomNumber: roomNumber,
-                            playerId: this.playerData.id,
-                            playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
-                        };
-                        socket.emit('joinRoom', joinData);
                         socket.on('gameStarted', () => {
                             this.gameStarted = true;
                             this.router.push('player-signup');
