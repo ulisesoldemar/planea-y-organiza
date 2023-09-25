@@ -14,8 +14,9 @@ const io = socketIo(server, {
     }
 });
 
-const usersByRoom = {};
-const admins = {};
+const users = new Map();
+const rooms = new Map();
+const admins = new Map();
 
 io.use((socket, next) => {
     // Validacion de credenciales
@@ -34,54 +35,30 @@ io.use((socket, next) => {
     logger.info(`Nuevo cliente conectado: ${socket.id}`);
 
     socket.on('joinRoom', (data) => {
-        
+
         const roomNumber = data.roomNumber.toString();
         socket.join(roomNumber);
 
-        //Registrar la sala si no existe
-        if (!usersByRoom[roomNumber]) {
-            usersByRoom[roomNumber] = [];
-        }
-
-        //Registrar al usuario en la sala si no esta en ella
-        //Buscar al usuario
-        const index = usersByRoom[roomNumber].findIndex(user => user.id === socket.id);
-
-        if( index == -1){
-            usersByRoom[roomNumber].push({
+        if (users[roomNumber]) {
+            users[roomNumber].push({
                 id: socket.id,
                 name: data.playerName
             });
+        } else {
+            users[roomNumber] = [{
+                id: socket.id,
+                name: data.playerName
+            }];
         }
 
-        //const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomNumber) || []);
-
-        io.to(roomNumber).emit('updateUsersList', usersByRoom[roomNumber]);
-        logger.info(`${data.playerName} se unio a ${roomNumber}`);
-        logger.info(`Jugador ${data.playerName} se unio a ${data.roomNumber.toString()}`);
+        io.to(roomNumber).emit('updateUsersList', users[roomNumber]);
+        logger.info(`Jugador ${data.playerName} se unio a ${roomNumber}`);
     });
 
     socket.on('adminJoined', (data) => {
         const roomNumber = data.roomNumber.toString();
         socket.join(roomNumber);
-        
-        //Registrar la sala si no existe
-        if (!usersByRoom[roomNumber]) {
-            usersByRoom[roomNumber] = [];
-        }
-        
-        //Registrar al usuario en la sala si no esta en ella
-        const index = usersByRoom[roomNumber].findIndex(user => user.id === socket.id);
-
-        if( index == -1){
-            usersByRoom[roomNumber].push({
-                id: socket.id,
-                name: data.adminName
-            });
-        }
-        //const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomNumber) || []);
-
-        io.to(roomNumber).emit('updateUsersList', usersByRoom[roomNumber]);
+        io.to(roomNumber).emit('updateUsersList', users[roomNumber]);
         logger.info(`Administrador ${data.adminName} se unio a ${data.roomNumber.toString()}`);
     });
 
@@ -89,48 +66,19 @@ io.use((socket, next) => {
         io.to(roomNumber).emit('gameStarted');
     });
 
-    socket.on('disconnecting', () => {
-        // Accede a la sala a la que estaba unido el usuario
-        const roomNumber = Array.from(socket.rooms)[1];
-
-        // // Abandonar la sala
-        // socket.leave(roomNumber);
-    
-        // // Actualiza la lista de usuarios en la sala
-        // const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomNumber) || []);
-        // io.to(roomNumber).emit('updateUsersList', usersInRoom);
-    
-        // logger.info(`Usuario desconectado de la sala ${roomNumber}`);
-
-        //Buscar al usuario 
-        const index = usersByRoom[roomNumber].findIndex(user => user.id === socket.id);
-
-        //Si lo encuentra lo elimina de la lista
-        if(index != -1){
-            usersByRoom[roomNumber].splice(index, 1);
-
-            console.log('Usuario desconectado con el ID:', socket.id);
-            console.log('Se desconecto del room', roomNumber);
-            //Actualizar los usuarios
-            io.to(roomNumber).emit('updateUsersList', usersByRoom[roomNumber]);
-
-            //Eliminar la sala si ya no hay usuarios en ella
-            if(usersByRoom[roomNumber].length == 0){
-                console.log('No hay usuarios en la sala, se eliminara');
-                delete usersByRoom[roomNumber];
+    socket.on('disconnect', () => {
+        logger.info(`Cliente desconectado: ${socket.id}`);
+        for (const [roomNumber, userList] of Object.entries(users)) {
+            const index = userList.findIndex(user => user.id === socket.id);
+            if (index !== -1) {
+                userList.splice(index, 1);
+                io.to(roomNumber).emit('updateUsersList', userList);
+                logger.info(`Jugador desconectado de la sala ${roomNumber}`);
+                break;
             }
         }
-
     });
-
-    socket.on("disconnect", () => {
-        // socket.rooms.size === 0
-    });
-
-    // socket.on('room:username', (data) => {
-    //     logger.info(data);
-    //     io.emit('room:userJoined', data);
-    // });
+    
 });
 
 module.exports = server;

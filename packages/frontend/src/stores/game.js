@@ -57,6 +57,10 @@ export const useGame = defineStore('game', {
                         socket.connect();
                     }
                     socket.emit('joinRoom', joinData);
+                    socket.on('disconnect', () => { 
+                        console.log('Se desconecto')
+                        this.connectionStatus = false;
+                    });
                     
                     if (this.quickStart) {
                         this.gameStarted = true;

@@ -203,7 +203,11 @@ export const useRooms = defineStore('room', {
             socket.emit('adminJoined', joinData);
             socket.on('updateUsersList', (data) => {
                 console.log(data);
-                this.currentRoom.usersInRoom = data.map(item => item.name);
+                if (data) {
+                    this.currentRoom.usersInRoom = data.map(user => user.name);
+                } else {
+                    data = [];
+                }
             });
         }
     },
