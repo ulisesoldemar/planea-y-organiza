@@ -1,2 +1,10 @@
 require('dotenv').config();
-require('./src')();
+
+const { startExpressServer, socketServer } = require('./src/server');
+
+async function main() {
+    await startExpressServer();
+    socketServer.listen(process.env.WS_PORT);
+}
+
+main();

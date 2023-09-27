@@ -1,5 +1,5 @@
 <template>
-    <div class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
+    <div v-if="!showLoading" class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
         <v-card class="px-12 py-8 mx-auto" elevation="8" width="550" max-width="550" rounded="lg">
             <v-card-title class="mb-4 text-center">
                 Acceder al juego
@@ -31,6 +31,10 @@
             </v-form>
         </v-card>
     </div>
+    <div v-if="showLoading" class="loading-page">
+        <v-progress-circular color="primary" indeterminate :size="79" :width="7"></v-progress-circular>
+        <p class="mt-10 mb-10">Esperando a que el administrador inicie la tarea ...</p>
+    </div>
 </template>
 
 <script setup>
@@ -42,10 +46,25 @@ const loading = ref(false);
 
 const gameStore = useGame();
 
+const showLoading = ref(false);
+
+watch(() => gameStore.started, (newValue) => {
+    if (!newValue) {
+        showLoading.value = true;
+    }
+});
+
+
 const formData = ref({
     roomNumber: null,
     email: null,
     password: null
+});
+
+watch(formData, () => {
+    roomNumberErrors.value = roomNumberRules.map(rule => rule(formData.roomNumber)).filter(error => !!error);
+    emailErrors.value = emailRules.map(rule => rule(formData.email)).filter(error => !!error);
+    passwordErrors.value = passwordRules.map(rule => rule(formData.password)).filter(error => !!error);
 });
 
 const visible = ref(false);
@@ -68,19 +87,38 @@ const emailErrors = ref([]);
 const passwordErrors = ref([]);
 const errorMessage = ref(""); // Initialize error message as empty
 
-watch(formData, () => {
-    roomNumberErrors.value = roomNumberRules.map(rule => rule(formData.roomNumber)).filter(error => !!error);
-    emailErrors.value = emailRules.map(rule => rule(formData.email)).filter(error => !!error);
-    passwordErrors.value = passwordRules.map(rule => rule(formData.password)).filter(error => !!error);
-});
-
 async function handleJoin() {
-    if (roomNumberErrors.value.length === 0 && emailErrors.value.length === 0 && passwordErrors.value.length === 0) {
-        loading.value = true;
-        gameStore.joinRoom(formData.value)
-            .then(loading.value = false)
-            .catch(error => errorMessage.value = error.message)
+    if ((roomNumberErrors.value.length + emailErrors.value.length + passwordErrors.value.length) === 0) {
+        showLoading.value = true;
+        await gameStore
+            .joinRoom(formData.value)
+            .catch((error) => {
+                showLoading.value = false;
+                errorMessage.value = error.message
+            });
     }
 
 }
+
 </script>
+
+<style>
+.body {
+    padding: 0px;
+    margin: 0px;
+}
+
+.loading-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.center-content {
+    flex-direction: row !important;
+}
+</style>

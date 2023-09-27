@@ -6,10 +6,13 @@ export const useRooms = defineStore('room', {
     state: () => ({
         adminStore: useAdmins(),
         rooms: [],
+        currentPlayers: [],
+        currentRoom: {},
     }),
     getters: {
-        createdAt: state => index => { return new Date(state.rooms[index].createdAt).toLocaleDateString('es-MX') },
-        expiresAt: state => index => { return new Date(state.rooms[index].expiration).toLocaleDateString('es-MX') },
+        formatDate: state => date => {
+            return new Date(date).toLocaleDateString('es-MX', { timeZone: 'UTC' }).substring(0, 10);
+        },
     },
     actions: {
         async handleError(actionName, error) {
@@ -63,7 +66,6 @@ export const useRooms = defineStore('room', {
 
                 if (response.status >= 200 && response.status < 300) {
                     console.log('Sala eliminada con éxito');
-                    await this.listRooms();
                 } else {
                     throw new Error(`Error al eliminar la sala: ${response.statusText}`);
                 }
@@ -106,7 +108,13 @@ export const useRooms = defineStore('room', {
 
                 if (response.status >= 200 && response.status < 300) {
                     const roomData = response.data;
-                    console.log('Datos de la sala:', roomData);
+                    this.currentRoom = roomData;
+                    this.currentRoom.players = this.currentRoom.players.map(player => ({
+                        _id: player._id,
+                        fullName: `${player.firstName} ${player.surName}`
+                    }));
+                    console.log(this.currentRoom);
+                    this.joinRoom(roomNumber);
                 } else {
                     throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
                 }
@@ -128,7 +136,6 @@ export const useRooms = defineStore('room', {
 
         async addPlayersToRoom(roomNumber, playerIds) {
             try {
-                console.log(playerIds)
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,
                 };
@@ -136,6 +143,77 @@ export const useRooms = defineStore('room', {
             } catch (error) {
                 await this.handleError(this.addPlayersToRoom, error);
             }
+        },
+
+        async removePlayerFromRoom(roomNumber, playerId) {
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/remove-player-from-room', { roomNumber, playerId }, { headers })
+            } catch (error) {
+                await this.handleError(this.removePlayerFromRoom, error);
+            }
+        },
+
+        async removePlayersFromRoom(roomNumber, playerIds) {
+            console.log(playerIds)
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+                await api.post('/api/admin/rooms/remove-players-from-room', { roomNumber, playerIds }, { headers })
+            } catch (error) {
+                await this.handleError(this.removePlayersFromRoom, error);
+            }
+        },
+
+        async fetchRoomPlayers(roomNumber) {
+            try {
+                const headers = {
+                    Authorization: `Bearer ${this.adminStore.accessToken}`,
+                };
+
+                const response = await api.get(`/api/admin/rooms/${roomNumber}/players`, { headers });
+
+                if (response.status >= 200 && response.status < 300) {
+                    const players = response.data;
+                    this.currentPlayers = players;
+                } else {
+                    throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError('fetchRoomPlayers', error);
+            }
+        },
+
+        startGame(roomNumber) {
+            if (!socket.connected) {
+                // Se agrega el query de auth
+                socket.io.opts.query = { token: this.adminStore.accessToken };
+                socket.connect();
+            }
+            socket.emit('startGame', roomNumber.toString());
+        },
+
+        joinRoom(roomNumber) {
+            if (!socket.connected) {
+                socket.io.opts.query = { token: this.adminStore.accessToken };
+                socket.connect();
+            }
+            const joinData = {
+                roomNumber: roomNumber,
+                adminName: this.adminStore.fullName,
+            };
+            socket.emit('adminJoined', joinData);
+            socket.on('updateUsersList', (data) => {
+                console.log(data);
+                if (data) {
+                    this.currentRoom.usersInRoom = data.map(user => user.name);
+                } else {
+                    data = [];
+                }
+            });
         }
     },
 });

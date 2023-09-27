@@ -8,7 +8,7 @@ export const useGame = defineStore('game', {
         isGameComplete: false,
         quickStart: false,
         gameStarted: false,
-        maxTime: 0,
+        maxTime: useStorage('maxTime', 0),
         connectionStatus: useStorage('connectionStatus', []),
         playerData: useStorage('playerData', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
@@ -31,9 +31,11 @@ export const useGame = defineStore('game', {
                 const response = await api.post('/api/game/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
-                    const { roomNumber, maxTime, roomStatus, quickStart, player, accessToken, refreshToken } = response.data;
-                    if (roomStatus === 'Closed') {
-                        return;
+                    const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
+                    console.log('Entro status 200')
+                    
+                    if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
+                        return false;
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
@@ -41,15 +43,43 @@ export const useGame = defineStore('game', {
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
                     this.quickStart = quickStart;
-                    socket.connect();
-                    socket.on('gameStarted', () => {
-                        this.connectionStatus = true;
+
+                    const joinData = {
+                        roomNumber: roomNumber,
+                        playerId: this.playerData.id,
+                        playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
+                    };
+
+                    console.log(joinData);
+
+                    if (!socket.connected) {
+                        socket.io.opts.query = { token: this.token.accessToken };
+                        socket.connect();
+                    }
+                    socket.emit('joinRoom', joinData);
+                    socket.on('disconnect', () => { 
+                        console.log('Se desconecto')
+                        this.connectionStatus = false;
                     });
-                    this.router.push('player-signup');
+                    
+                    if (this.quickStart) {
+                        this.gameStarted = true;
+                        this.router.push('player-signup');
+                    } else {
+                        socket.on('gameStarted', () => {
+                            this.gameStarted = true;
+                            this.router.push('player-signup');
+                        });
+                    }
                 }
             } catch (error) {
-                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-                    throw new Error('Credenciales de acceso no válidas');
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 401:
+                            throw new Error('Credenciales de acceso no válidas');
+                        case 403:
+                            throw new Error('Esta sala no permite el acceso');
+                    }
                 } else {
                     await this.handleError('joinRoom', error);
                 }
@@ -64,7 +94,7 @@ export const useGame = defineStore('game', {
                     }
                 });
                 if (response.status >= 200 && response.status < 300) {
-                    
+
                 } else {
                     throw new Error('Error al actualizar los datos. Inténtalo de nuevo más tarde');
                 }
@@ -86,6 +116,11 @@ export const useGame = defineStore('game', {
                 .catch(async (err) => {
                     await this.handleError('uploadScore', err);
                 });
+        },
+
+        gameOver() {
+            this.router.push('thank-you', { params: { isTimeOver: this.isTimeOver } });
+            localStorage.clear();
         }
     },
 });

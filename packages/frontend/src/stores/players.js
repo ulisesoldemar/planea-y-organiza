@@ -16,7 +16,7 @@ export const usePlayers = defineStore('players', {
             }
             return '';
         },
-        addedAt: state => index => { return new Date(state.players[index].addedAt).toLocaleDateString('es-MX') },
+        addedAt: state => index => { return new Date(state.players[index].addedAt).toLocaleDateString('es-MX', { timeZone: 'UTC' }) },
     },
     actions: {
         async handleError(caller, error) {
@@ -33,7 +33,6 @@ export const usePlayers = defineStore('players', {
 
                 if (response.status === 200) {
                     this.players = response.data;
-                    console.log(this.players)
                     // ... tu código para manejar la lista de jugadores ...
                 } else {
                     throw new Error(`Error al obtener la lista de jugadores: ${response.statusText}`);
@@ -98,7 +97,7 @@ export const usePlayers = defineStore('players', {
                 await this.handleError(this.listPlayers, error);
             }
         },
-        
+
         // ... otras acciones ...
     },
 });

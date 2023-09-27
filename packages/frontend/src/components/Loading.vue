@@ -1,20 +1,37 @@
 <template>
-    <div class="loading-page">
-        <div class="loading-spinner"></div>
-        <p class="mt-10">Esperando a que el administrador inicie la prueba...</p>
+  <div class="loading-page">
+    <v-progress-circular
+    color="primary"
+    indeterminate
+    :size="79"
+    :width="7"
+    ></v-progress-circular>
+    <p class="mt-10 mb-10">Esperando a que el administrador inicie la tarea ...</p>
+    <div class="center-content">
+      <v-chip v-for="item in arrayItems" class="ma-2" color="primary">
+        {{ item }}
+      </v-chip>
     </div>
+  </div>
 </template>
-  
-<style>
 
+
+<script setup>
+import { ref, defineProps } from 'vue';
+
+const { items } = defineProps(['items']);
+
+const arrayItems = [];
+
+arrayItems.push(items);
+
+</script>
+
+
+<style>
 .body{
     padding: 0px;
     margin: 0px;
-}
-
-html {
-  overflow-x: hidden;
-  overflow-y: scroll;
 }
 
 .loading-page {
@@ -22,27 +39,13 @@ html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
     width: 100%;
-    background-color: #f9f9f9;
+    height: 100vh;
+    background-color: #f5f5f5;
 }
 
-.loading-spinner {
-    border: 3px solid transparent;
-    border-top: 4px solid #3498db;
-    border-radius: 50%;
-    width: 55px;
-    height: 55px;
-    animation: rotate 1s ease infinite;
+.center-content{
+    flex-direction: row !important;
 }
 
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(1turn);
-  }
-}
 </style>

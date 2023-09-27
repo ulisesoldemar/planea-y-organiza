@@ -4,6 +4,7 @@ const middlewares = require("../middlewares");
 const router = express.Router();
 
 router.use(middlewares.verifyAccessToken);
+// router.use(middlewares.validateAdmin);
 
 // Obtener una lista de jugadores
 router.get('/', controllers.scores.listScores);

@@ -1,17 +1,18 @@
 <template>
     <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="players.length" class="pb-3 rounded-lg elevation-1">
+        :items-length="players.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t-lg">
+            <v-toolbar flat class="rounded">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" dark class="mb-2" v-bind="props">
-                            Agregar sujeto
+                        <v-btn color="primary" dark class="mr-4" v-bind="props">
+                            Agregar nuevo
                         </v-btn>
-                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom">
+                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom"
+                            variant="outlined">
                             Aceptar
                         </v-btn>
                     </template>
@@ -25,28 +26,28 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.firstName" label="Nombre(s)"
+                                            <v-text-field color="primary" v-model="editedPlayer.firstName" label="Nombre(s)"
                                                 :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.surName" label="Primer apellido"
-                                                :rules="nameRules"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.surName"
+                                                label="Primer apellido" :rules="nameRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.secondSurName" :rules="SecSurnameRules"
-                                                label="Segundo apellido"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.secondSurName"
+                                                :rules="SecSurnameRules" label="Segundo apellido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.email" label="Email"
+                                            <v-text-field color="primary" v-model="editedPlayer.email" label="Email"
                                                 :rules="emailRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.phone" label="Teléfono"
+                                            <v-text-field color="primary" v-model="editedPlayer.phone" label="Teléfono"
                                                 :rules="phoneRules"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedPlayer.age" label="Edad" type="number"
-                                                :rules="ageRules" min="18"></v-text-field>
+                                            <v-text-field color="primary" v-model="editedPlayer.age" label="Edad"
+                                                type="number" :rules="ageRules" min="18"></v-text-field>
                                         </v-col>
                                     </v-row>
 
@@ -55,19 +56,19 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="save">Aceptar</v-btn>
+                                <v-btn color="primary" variant="text" @click="close">Cancelar</v-btn>
+                                <v-btn color="primary" variant="text" @click="save">Aceptar</v-btn>
                             </v-card-actions>
                         </v-form>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
+                    <v-card class="pa-2">
                         <v-card-title class="text-h5">¿Seguro que quieres eliminar al sujeto?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue-darken-1" variant="text" @click="deletePlayerConfirm">OK</v-btn>
+                            <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="deletePlayerConfirm">OK</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
@@ -75,14 +76,40 @@
             </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
-            <v-container v-if="!enabledCheckbox">
-                <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon>
-                <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon>
+            <v-container v-if="!enabledCheckbox" class="text-center">
+                <!-- <v-icon size="small" class="me-2" @click="editPlayer(item.raw)">mdi-pencil</v-icon> -->
+                <!-- <v-icon size="small" class="me-2" @click="deletePlayer(item.raw, item.index)">mdi-delete</v-icon> -->
+                <v-tooltip location="bottom center" origin="auto">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-pencil"
+                            size="small" @click="editPlayer(item.raw)"><v-icon color="primary"></v-icon>
+                        </v-btn>
+                    </template>
+                    <span>Editar sujeto</span>
+                </v-tooltip>
+                <v-tooltip location="bottom center" origin="auto">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" variant="flat" density="comfortable" class="me-2" icon="mdi-delete"
+                            size="small" @click="deletePlayer(item.raw, item.index)"><v-icon
+                                color="primary"></v-icon></v-btn>
+                    </template>
+                    <span>Eliminar sujeto</span>
+                </v-tooltip>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon>
+                <v-btn :to="{
+                    name: 'ResultView',
+                    params: { id: item.raw._id },
+                }" density="comfortable" class="text-none" prepend-icon="mdi-archive-search" variant="flat">
+                    <template v-slot:prepend>
+                        <v-icon color="primary"></v-icon>
+                    </template>
+                    Resultados
+                </v-btn>
+                <!-- <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon> -->
             </v-container>
             <v-container v-else>
-                <v-checkbox v-model="selected" :value="item.raw._id" @click:append="selected.push(item.raw._id)"></v-checkbox>
+                <v-checkbox v-model="selected" :value="item.raw._id"
+                    @click:append="selected.push(item.raw._id)"></v-checkbox>
             </v-container>
         </template>
     </v-data-table>
@@ -91,7 +118,7 @@
 <script setup>
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
-import { ref, watch, computed, defineProps, onMounted, nextTick } from 'vue';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
@@ -103,10 +130,12 @@ const props = defineProps({
     roomNumber: String,
 });
 
+const emit = defineEmits(['close'])
+
 const selected = ref([]);
 
 async function addPlayersToRoom() {
-    await roomStore.addPlayersToRoom(props.roomNumber, selected.value);
+    await roomStore.addPlayersToRoom(props.roomNumber, selected.value).then(emit('close'));
 }
 
 onMounted(async () => {
@@ -124,12 +153,13 @@ const headers = [
     { title: 'Teléfono', key: 'phone' },
     { title: 'Edad', key: 'age' },
     { title: 'Agregado el', key: 'addedAt' },
-    { title: 'Acciones', key: 'actions' },
+    { title: 'Acciones', key: 'actions', align: 'center' },
 ];
 
 const players = computed(() => playerStore.players);
 
 const editedIndex = ref(-1);
+
 const editedPlayer = ref({
     id: null,
     firstName: '',
@@ -140,6 +170,7 @@ const editedPlayer = ref({
     age: null,
     addedAt: null,
 });
+
 const defaultPlayer = {
     id: null,
     firstName: '',

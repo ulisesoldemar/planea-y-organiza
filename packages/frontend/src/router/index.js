@@ -6,19 +6,31 @@ import { useGame } from "@/stores/game";
 // Admin
 import Login from '@/pages/Admin/Login.vue';
 import Dashboard from '@/pages/Admin/Dashboard.vue'
+import AccountSettings from '@/pages/Admin/AccountSettings.vue';
+// Rooms
 import Rooms from '@/pages/Admin/Rooms.vue';
+import RoomView from '@/pages/Admin/RoomView.vue';
 import Room from '@/components/Admin/Room.vue';
+// Players
 import Players from '@/pages/Admin/Players.vue';
+import Admins from '@/pages/Admin/Admins.vue';
+// Results
 import Results from '@/pages/Admin/Results.vue';
+import ResultView from '@/pages/Admin/ResultView.vue'
 
+
+//Players
 import Instructions from '@/pages/Players/Instructions.vue';
 import JoinRoom from '@/pages/Players/JoinRoom.vue';
 import PlayerSignup from '@/pages/Players/Signup.vue';
-
 import Game from "@/components/Game.vue";
 import Test from '@/pages/Test.vue';
+import ThankYou from '@/pages/Players/ThankYou.vue';
 
+//General
+import Welcome from '@/pages/Welcome.vue';
 import ErrorHeader from '@/components/ErrorHeader.vue';
+
 
 const adminRoutes = [
     {
@@ -85,6 +97,42 @@ const adminRoutes = [
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
+    {
+        path: '/results/:id',
+        component: ResultView,
+        name: 'ResultView',
+        meta: {
+            title: 'Resultados',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/room/:roomNumber',
+        component: RoomView,
+        name: 'RoomView',
+        meta: {
+            title: 'Sala',
+            requiresAuth: true,
+        }
+    },
+    {
+        path: '/admins',
+        name: 'admins',
+        component: Admins,
+        meta: {
+            title: 'Admins',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/account-settings',
+        name: 'accountSettings',
+        component: AccountSettings,
+        meta: {
+            title: 'accountSettings',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
 ]
 
 const playerRoutes = [
@@ -120,12 +168,31 @@ const playerRoutes = [
         component: Game,
         meta: {
             title: 'Game',
-            requiresConnected: false, // Indica que se debe estar conectado
+            requiresConnected: true, // Indica que se debe estar conectado
         },
     },
+    {
+        path: '/thank-you',
+        name: 'ThankYou',
+        component: ThankYou,
+        props: true,
+        meta: {
+            title: 'Thank You',
+            requiresConnected: true,
+        }
+
+    }
 ];
 
 const genericRoutes = [
+    {
+        path: '/welcome',
+        name: 'Welcome',
+        component: Welcome,
+        meta: {
+            title: 'Welcome',
+        }
+    },
     {
         path: '/test',
         name: 'test',
@@ -193,7 +260,7 @@ router.beforeEach((to, from, next) => {
     const requiresConnected = to.matched.some(record => record.meta.requiresConnected);
     // Si la ruta requiere autenticación y el usuario no está autenticado, redirige al inicio de sesión
     if (requiresAuth && !adminStore.isAuthenticated) {
-        next({ name: 'login' });
+        next({ name: 'Welcome' });
     } else if (requiresConnected && !gameStore.connected) {
         next({ name: 'join-room' });
     } else {

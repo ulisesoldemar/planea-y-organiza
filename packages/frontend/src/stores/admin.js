@@ -11,41 +11,31 @@ export const useAdmins = defineStore('admin', {
 
     getters: {
         fullName: (state) => `${state.userData.firstName} ${state.userData.surName} ${state.userData.secondSurName || ''}`,
+        initials: (state) => `${state.userData.firstName[0].toUpperCase()}${state.userData.surName[0].toUpperCase()}`,
+        avatar: state => state.userData.avatarColor,
         refreshToken: state => state.token.refreshToken,
         accessToken: state => state.token.accessToken,
         id: state => state.userData._id,
+        isAccessTokenExpired: (state) => {
+            const now = Date.now() / 1000; // Tiempo actual en segundos
+            console.log(state.token.accessToken)
+            return state.token.accessToken && state.token.accessToken.exp < now;
+        },
     },
 
     actions: {
         async handleError(caller, error) {
-            if (error && error.response) {
-                switch (error.response.status) {
-                    case 419: {
-                        this.fetchNewAccessToken();
-                        caller();
-                        break
-                    }
-                    case 401:
-                        this.router.push('401');
-                        break;
-                    case 403:
-                        this.router.push('403');
-                        break;
-                    case 500:
-                        this.router.push('500');
-                        break;
-                    default:
-                        this.router.push('500');
-                }
-            } else {
-                this.router.push('500');
+            console.log(caller.name, error);
+            if (error.response && error.response.status === 419) {
+                this.fetchNewAccessToken();
+                caller();
             }
         },
 
         async login(formData) {
             try {
-                const response = await api.post('/api/auth/login', formData);
                 localStorage.clear();
+                const response = await api.post('/api/auth/login', formData);
                 if (response.status >= 200 && response.status < 300) {
                     const { id, accessToken, refreshToken } = response.data;
 
@@ -70,14 +60,17 @@ export const useAdmins = defineStore('admin', {
                 const refreshToken = this.refreshToken;
 
                 await api.post('/api/auth/logout', { refreshToken });
+                await this.router.push({ name: 'login' });
 
                 this.token = null;
                 localStorage.clear();
 
                 this.isAuthenticated = false;
                 this.userData = {};
+                if (socket.connected) {
+                    socket.disconnect();
+                }
 
-                this.router.push({ name: 'login' });
             } catch (error) {
                 await this.handleError(this.logout, error);
             }
@@ -121,6 +114,61 @@ export const useAdmins = defineStore('admin', {
                 }
             } catch (error) {
                 await this.handleError(this.fetchNewAccessToken, error);
+            }
+        },
+
+        async updateAdmin(formData) {
+            try {
+                const response = await api.patch(`/api/admin/${formData._id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    // ... tu código para manejar la actualización exitosa ...
+                } else {
+                    throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
+            }
+        },
+
+        async updatePassword(adminId, password) {
+            try {
+                console.log(password);
+                const response = await api.patch(`/api/admin/password/${adminId}`, { password: password }, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    // ... tu código para manejar la actualización exitosa ...
+                } else {
+                    throw new Error(`Error al actualizar el password: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
+            }
+        },
+
+        async updateColor(adminId, colors) {
+            try {
+                const response = await api.patch(`/api/admin/avatar/${adminId}`, { avatar: colors }, {
+                    headers: {
+                        Authorization: `Bearer ${this.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    this.userData.avatarColor = colors;
+                } else {
+                    throw new Error(`Error al actualizar el color: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listAdminUsers, error);
             }
         },
 

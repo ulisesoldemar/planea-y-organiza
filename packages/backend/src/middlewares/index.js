@@ -2,6 +2,7 @@ const { HttpError } = require('../error');
 const { errorHandler } = require("../util");
 const { UserAdmin } = require('../models');
 const jwt = require("jsonwebtoken");
+const logger = require('../logger');
 
 const verifyAccessToken = errorHandler(async (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -15,10 +16,10 @@ const verifyAccessToken = errorHandler(async (req, res, next) => {
         req.userId = decodedToken.userId;
         next();
     } catch (error) {
+        logger.error(error);
         if (error instanceof jwt.TokenExpiredError) {
             throw new HttpError(419, 'Authentication Timeout');
         }
-        throw new HttpError(500, 'Server fail');
     }
 });
 
@@ -34,7 +35,7 @@ const validateAdmin = errorHandler(async (req, res, next) => {
         req.adminDoc = adminDoc;
         next();
     } catch (error) {
-        console.log(error);
+        logger.error(error);
         throw new HttpError(500, 'Server fail');
     }
 });

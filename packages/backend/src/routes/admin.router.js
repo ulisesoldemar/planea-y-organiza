@@ -12,4 +12,19 @@ router.use('/rooms', roomRoutes);
 router.use('/players', playerRoutes);
 router.use('/scores', scoreRoutes);
 
+//Obtener la lista de AdminUsers
+router.get('/', controllers.admins.listAdminUsers);
+router.get('/:adminUserId', controllers.admins.getAdminUser);
+
+//Crear un nuevo admin User
+router.post('/', middlewares.verifyAccessToken, controllers.admins.createAdminUser);
+// Update
+router.patch('/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updateAdminUser);
+// Update password
+router.patch('/password/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updatePassword);
+// Update Avatar
+router.patch('/avatar/:adminUserId', middlewares.verifyAccessToken, controllers.admins.updateAvatar);
+// Delete
+router.delete('/:adminUserId', middlewares.verifyAccessToken, controllers.admins.deleteAdminUser);
+
 module.exports = router;

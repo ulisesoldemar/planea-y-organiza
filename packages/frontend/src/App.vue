@@ -6,5 +6,6 @@
 body {
   height: 100vh;
   margin: 0;
+  background-color: #F4F5FA;
 }
 </style>

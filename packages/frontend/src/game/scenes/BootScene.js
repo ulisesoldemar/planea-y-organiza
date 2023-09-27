@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import ball from '@/game/assets/sprites/ball.png'
 import goal from '@/game/assets/sprites/goal.png'
 import wall from '@/game/assets/sprites/wall.png'
+import playButton from '@/game/assets/sprites/Boton-Phaser.png'
 import coinWav from '@/game/assets/sounds/coin.wav'
 import startWav from '@/game/assets/sounds/start.wav'
 import winWav from '@/game/assets/sounds/win.wav'
@@ -17,6 +18,7 @@ export default class BootScene extends Scene {
     this.load.image('ball', ball)
     this.load.image('goal', goal)
     this.load.image('wall', wall)
+    this.load.image('playButton', playButton)
     this.load.audio('goalSound', coinWav)
     this.load.audio('startSound', startWav)
     this.load.audio('winSound', winWav)

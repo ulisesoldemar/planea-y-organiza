@@ -14,10 +14,10 @@ const listRooms = errorHandler(async (req, res) => {
 });
 
 const createRoom = errorHandler(withTransaction(async (req, res, session) => {
-    const { roomName, password, expiration, maxTime, quickStart } = req.body;
+    const { roomName, password, expiration, maxTime, status, quickStart } = req.body;
 
     if (!password) {
-        throw new HttpError(400, 'Bad request');
+        throw new HttpError(422, 'No password');
     }
 
     const adminDoc = req.adminDoc;
@@ -31,6 +31,7 @@ const createRoom = errorHandler(withTransaction(async (req, res, session) => {
         expiration: expiration || null,
         maxTime: maxTime,
         quickStart: quickStart || false,
+        status: status || 'Open',
         admin: adminDoc,
     });
 
@@ -88,7 +89,9 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
 const fetchRoom = errorHandler(async (req, res) => {
     const { roomNumber } = req.params;
 
-    const room = await Room.findOne({ roomNumber, admin: req.userId }).exec();
+    const room = await Room.findOne({ roomNumber, admin: req.userId })
+    .populate('players', '_id firstName surName')
+    .exec();
 
     if (!room) {
         throw new HttpError(404, 'Room not found');
@@ -97,19 +100,32 @@ const fetchRoom = errorHandler(async (req, res) => {
     return room;
 });
 
+const fetchRoomPlayers = errorHandler(async (req, res) => {
+    const { roomNumber } = req.params;
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const players = await Player.find({ _id: { $in: roomDoc.players } });
+
+    return players;
+});
+
 const addPlayerToRoom = errorHandler(withTransaction(async (req, res, session) => {
 
     const { roomNumber, playerId } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     const playerDoc = await Player.findOne({ _id: playerId });
 
     if (!playerDoc) {
-        throw new HttpError(422, `Jugador ${playerId} no existe`);
+        throw new HttpError(404, `Jugador ${playerId} no existe`);
     }
 
     if (playerDoc.roomNumber === roomNumber) {
@@ -131,7 +147,7 @@ const addPlayersToRoom = errorHandler(withTransaction(async (req, res, session) 
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     // Buscar los jugadores por sus IDs
@@ -166,12 +182,66 @@ const addPlayersToRoom = errorHandler(withTransaction(async (req, res, session) 
     return roomDoc;
 }));
 
+const removePlayerFromRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, playerId } = req.body;
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const playerDoc = await Player.findById(playerId);
+
+    if (!playerDoc) {
+        throw new HttpError(404, 'Jugador no encontrado');
+    }
+
+    if (playerDoc.roomNumber !== roomNumber) {
+        throw new HttpError(422, 'Jugador no está en la sala');
+    } else {
+        playerDoc.roomNumber = null;
+        await playerDoc.save({ session });
+    }
+
+    roomDoc.players.pull(playerDoc);
+    await roomDoc.save({ session });
+
+    return roomDoc;
+}));
+
+const removePlayersFromRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const { roomNumber, playerIds } = req.body;
+
+    const roomDoc = await Room.findOne({ roomNumber });
+
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const existingPlayerIds = roomDoc.players.map(player => player.toString());
+
+    // Filtrar jugadores que están en la sala y que se pueden eliminar
+    const playersToDeleteIds = playerIds.filter(playerId => existingPlayerIds.includes(playerId));
+
+    if (playersToDeleteIds.length === 0) {
+        throw new HttpError(422, 'Ningún jugador para eliminar encontrado en la sala');
+    }
+
+    // Actualizar el arreglo 'players' en el documento de Room
+    roomDoc.players = roomDoc.players.filter(playerId => !playersToDeleteIds.includes(playerId.toString()));
+
+    await roomDoc.save({ session });
+
+    return roomDoc;
+}));
+
+
 const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const { roomNumber, email, password } = req.body;
     const roomDoc = await Room.findOne({ roomNumber });
 
     if (!roomDoc) {
-        throw new HttpError(401, 'Sala no encontrada');
+        throw new HttpError(404, 'Sala no encontrada');
     }
 
     const playerDoc = await Player.findOne({ email });
@@ -179,6 +249,14 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 
     if (!playerDoc || !roomDoc.players.includes(playerDoc._id)) {
         throw new HttpError(401, 'Usuario o contraseña no válidos');
+    }
+
+    if (!playerDoc.canPlay) {
+        throw new HttpError(403, 'No tienes acceso a esta sala');
+    }
+
+    if (Date.now() > Date.parse(roomDoc.expiration) || roomDoc.status === 'Closed') {
+        throw new HttpError(403, 'Esta sala no permite el acceso');
     }
 
     const refreshTokenDoc = new RefreshToken({
@@ -192,12 +270,13 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     const accessToken = createAccessToken(playerDoc.id);
 
     const { id, firstName, surName, secondSurName, age, phone } = playerDoc;
-    const { quickStart } = roomDoc;
+    const { maxTime, status, expiration, quickStart } = roomDoc;
 
     return {
         roomNumber,
-        maxTime: roomDoc.maxTime,
-        roomStatus: roomDoc.status,
+        maxTime,
+        status,
+        expiration,
         quickStart,
         player: { id, firstName, surName, secondSurName, email, age, phone },
         accessToken,
@@ -208,8 +287,11 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 module.exports = {
     createRoom,
     listRooms,
+    fetchRoomPlayers,
     addPlayerToRoom,
     addPlayersToRoom,
+    removePlayerFromRoom,
+    removePlayersFromRoom,
     joinRoom,
     deleteRoom,
     updateRoom,
