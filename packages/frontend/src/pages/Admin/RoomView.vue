@@ -47,7 +47,7 @@
                                 <v-list-item subtitle="Invitados"></v-list-item>
                                 <v-chip prepend-icon="mdi-account-circle" v-for="player in currentRoom.players"
                                     color="grey700" class="ma-2">
-                                    {{ player }}
+                                    {{ player.fullName }}
                                 </v-chip>
                             </v-col>
                             <v-divider class="ma-4" inset vertical></v-divider>

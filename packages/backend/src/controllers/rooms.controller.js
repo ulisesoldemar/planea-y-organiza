@@ -89,7 +89,9 @@ const updateRoom = errorHandler(withTransaction(async (req, res, session) => {
 const fetchRoom = errorHandler(async (req, res) => {
     const { roomNumber } = req.params;
 
-    const room = await Room.findOne({ roomNumber, admin: req.userId }).exec();
+    const room = await Room.findOne({ roomNumber, admin: req.userId })
+    .populate('players', '_id firstName surName')
+    .exec();
 
     if (!room) {
         throw new HttpError(404, 'Room not found');
