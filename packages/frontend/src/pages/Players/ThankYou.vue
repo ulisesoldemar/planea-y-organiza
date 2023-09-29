@@ -1,10 +1,15 @@
 <template>
     <div class="justify-center h-screen d-flex align-center">
         <div class="mb-4 text-center">
-            <h1 class="mb-6 text-h1">
-                {{ isTimeOver ? '¡Tu tiempo ha terminado!' : '¡Buen trabajo! Has ingresado todas las pelotas' }}
+            <h1 class="mb-6 text-h3">
+                
+                <div v-if="isTimeOver">¡Tu tiempo ha terminado!</div>
+                <div v-else> 
+                    <p class="font-weight-bold mb-10">¡Buen trabajo!</p>
+                    Has ingresado todas las pelotas
+                </div>
             </h1>
-            <h2 class="mb-1 text-h2">
+            <h2 class="mb-1 text-h3">
                 ¡Muchas gracias por participar!
             </h2>
             <router-link to="/player-signup">
