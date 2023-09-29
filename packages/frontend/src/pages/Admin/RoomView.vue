@@ -116,14 +116,26 @@ const currentRoom = computed(() => roomStore.currentRoom);
 const notifications = computed(() => roomStore.currentRoom.notifications);
 
 const expiredAt = ref('');
+const currentDate = ref('');
+const isExpired = ref(null);
 
 onMounted(async () => {
     if (route.params.roomNumber) {
         await roomStore.fetchRoomData(route.params.roomNumber);
 
-        expiredAt.value = roomStore.formatDate(currentRoom.value.expiration);
+        if(currentRoom.value.expiration){
+            expiredAt.value = roomStore.formatDate(currentRoom.value.expiration);
+            isExpired.value = new Date() > new Date(currentRoom.value.expiration);
+        } else {
+            expiredAt.value = "No expira";
+            isExpired.value = false;
+        }
+        
     }
 });
+
+
+
 
 const copySnackbar = ref(false);
 
@@ -131,13 +143,6 @@ const copyText = (roomNumber) => {
     navigator.clipboard.writeText(roomNumber);
     copySnackbar.value = true;
 }
-
-const currentDate = new Date().toLocaleDateString('es-MX', { timeZone: 'UTC' }).substring(0, 10);
-
-const isExpired = computed(() => {
-    return currentDate > expiredAt.value;
-});
-
 
 </script>
 
@@ -149,7 +154,7 @@ const isExpired = computed(() => {
 }
 
   .list-notifications {
-    height: calc(100vh - 500px);
+    height: calc(100vh - 200px);
     overflow-y: auto;
     padding-right: 20px;
     padding-top: 20px;
