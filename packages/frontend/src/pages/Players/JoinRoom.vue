@@ -1,6 +1,6 @@
 <template>
     <div v-if="!showLoading" class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
-        <v-card class="px-12 py-8 mx-auto" elevation="8" width="550" max-width="550" rounded="lg">
+        <v-card class="px-12 py-8 mx-5" elevation="8" width="550" max-width="550" rounded="lg">
             <v-card-title class="mb-4 text-center">
                 Acceder al juego
             </v-card-title>

@@ -1,14 +1,11 @@
 <template>
   <div class="justify-center h-screen d-flex align-center" style="background-color: #f5f5f5;">
-    <v-card class="pb-6 mx-auto px-12 pb-12 pt-8" elevation="8" width="448" max-width="448" rounded="lg" >
+    <v-card class="pb-6 px-12 pb-12 pt-8 mx-5" elevation="8" width="448" max-width="448" rounded="lg" >
       <v-img :src="logo" alt="Logo"  class="mb-6 pa-4" style="display: block;
         margin-left: auto;
         margin-right: auto;
         width: 40%;"
       ></v-img>
-      <!-- <div>
-        <img :src="logo" alt="logo"/>
-      </div> -->
 
       <v-form v-model="formFunction" @submit.prevent="">
         <div class="text-subtitle-1 text-medium-emphasis">Nombre de usuario o correo</div>
@@ -32,7 +29,7 @@
 
         <!-- <v-card-text class="text-center">
           <a class="text-decoration-none" href="#" rel="noopener noreferrer" target="_blank">
-            Sign up now <v-icon icon="mdi-chevron-right"></v-icon>
+            Olvidé mi contraseña <v-icon icon="mdi-chevron-right"></v-icon>
           </a>
         </v-card-text> -->
       </v-form>
