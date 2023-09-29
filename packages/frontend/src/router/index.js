@@ -175,7 +175,6 @@ const playerRoutes = [
         path: '/thank-you',
         name: 'ThankYou',
         component: ThankYou,
-        props: true,
         meta: {
             title: 'Thank You',
             requiresConnected: true,

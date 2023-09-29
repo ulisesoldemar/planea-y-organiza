@@ -119,8 +119,8 @@ export const useGame = defineStore('game', {
         },
 
         gameOver() {
-            this.router.push('thank-you', { params: { isTimeOver: this.isTimeOver } });
             localStorage.clear();
+            this.router.push('thank-you');
         }
     },
 });
