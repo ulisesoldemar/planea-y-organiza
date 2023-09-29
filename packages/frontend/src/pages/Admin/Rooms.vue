@@ -261,8 +261,6 @@ const rooms = computed(() => roomStore.rooms);
 const expandedRooms = ref([]);
 const currentRoomNumber = ref('');
 
-console.log(rooms);
-
 const editedIndex = ref(-1);
 
 const editedRoom = ref({
@@ -323,7 +321,6 @@ watch(playerDialog, (val) => {
 function editRoom(room, index) {
     editedIndex.value = index;
     editedRoom.value = { ...room };
-    console.log(editedRoom.value)
     editedRoom.value.password = null;
     roomDialog.value = true;
 }
@@ -335,7 +332,6 @@ function createRoom() {
 }
 
 async function deleteRoom(room, index) {
-    console.log(index)
     editedIndex.value = index;
     editedRoom.value = { ...room };
     deleteDialog.value = true;
@@ -391,7 +387,6 @@ async function save() {
 }
 
 const toggleExpansion = (index) => {
-    console.log(rooms.value[index])
     expandedRooms.value[index] = !expandedRooms.value[index];
 };
 

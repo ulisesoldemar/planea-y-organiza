@@ -207,9 +207,15 @@ export const useRooms = defineStore('room', {
             };
             socket.emit('adminJoined', joinData);
             socket.on('updateUsersList', (data) => {
-                console.log(data);
                 if (data) {
                     this.currentRoom.usersInRoom = data.map(user => user.name);
+                } else {
+                    data = [];
+                }
+            });
+            socket.on('updateNotificationsList', (data) => {
+                if(data){
+                    this.currentRoom.notifications = data;
                 } else {
                     data = [];
                 }

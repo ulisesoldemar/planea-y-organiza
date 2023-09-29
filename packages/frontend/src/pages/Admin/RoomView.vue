@@ -16,7 +16,7 @@
                 <v-row>
                     <v-col cols="12" md="7">
 
-                        <v-list-item title="Número de sala" :subtitle="currentRoom.roomNumber"
+                        <v-list-item class="rounded mb-3 py-2" style="border: solid rgb(217, 217, 217) 1px;" title="Número de sala" :subtitle="currentRoom.roomNumber"
                             @click="copyText(currentRoom.roomNumber)">
                             <template v-slot:append>
                                 <v-icon icon="mdi-content-copy"></v-icon>
@@ -28,14 +28,20 @@
                                 <v-list-item title="Fecha de creación" :subtitle="roomStore.formatDate(currentRoom.createdAt)"></v-list-item>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-list-item title="Fecha de expiración" :subtitle="roomStore.formatDate(currentRoom.expiration)"></v-list-item>
+                                <v-list-item  title="Fecha de expiración">
+                                    <v-list-item-subtitle :style="isExpired ? 'color: #B71C1C' : ''">
+                                        {{ expiredAt }}
+                                        <span v-if="isExpired"> - Expirado </span>
+                                    </v-list-item-subtitle>
+                                </v-list-item>
                             </v-col>
                         </v-row>
                         <v-list-item title="Tiempo maximo de la prueba:"
                             :subtitle="currentRoom.maxTime + ' min'"></v-list-item>
-                        <v-list-item title="Inicio rapido" :subtitle="currentRoom.quickStart"></v-list-item>
+                        <v-list-item title="Inicio rápido"
+                                :subtitle="currentRoom.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
                         <v-list-item title="Configuración de la sala" :subtitle="currentRoom.status"></v-list-item>
-                        <!--         
+                        <!--
                         <div class="text-h6">Tiempo maximo de la prueba:</div>
                         <div class="text-subtitle-1"> {{ currentRoom.maxTime }} min</div> -->
 
@@ -62,8 +68,26 @@
                     </v-col>
                     <v-divider class="ma-2" inset vertical></v-divider>
                     <v-col>
-                        <h3> Notificaciones </h3>
-                    </v-col>
+                        <h3 class="mb-5"> Notificaciones </h3>
+                        <div class="list-notifications">
+                            <div class="d-flex flex-column align-end justify-end">
+                                <v-row v-for="notification in notifications">
+
+                                        <v-card color="indigo" variant="tonal" class="mb-2 text-end rounded-lg rounded-be-0">
+                                            <v-card-item style="padding: 8px 5px 5px 8px;">
+                                                <div class="text-body-2" style="line-height: 1.2 !important;">
+                                                    {{notification.text}}
+                                                </div>
+                                                <div class="text-caption" style="line-height: 1 !important; font-size: 0.68rem !important;">
+                                                    {{ notification.time }}
+                                                </div>
+                                            </v-card-item>
+                                        </v-card>
+
+                                </v-row>
+                            </div>
+                        </div>
+                        </v-col>
                 </v-row>
 
             </v-card-text>
@@ -89,10 +113,15 @@ const roomStore = useRooms();
 const route = useRoute();
 const router = useRouter();
 const currentRoom = computed(() => roomStore.currentRoom);
+const notifications = computed(() => roomStore.currentRoom.notifications);
+
+const expiredAt = ref('');
 
 onMounted(async () => {
     if (route.params.roomNumber) {
         await roomStore.fetchRoomData(route.params.roomNumber);
+
+        expiredAt.value = roomStore.formatDate(currentRoom.value.expiration);
     }
 });
 
@@ -103,6 +132,13 @@ const copyText = (roomNumber) => {
     copySnackbar.value = true;
 }
 
+const currentDate = new Date().toLocaleDateString('es-MX', { timeZone: 'UTC' }).substring(0, 10);
+
+const isExpired = computed(() => {
+    return currentDate > expiredAt.value;
+});
+
+
 </script>
 
 <style scoped>
@@ -111,4 +147,13 @@ const copyText = (roomNumber) => {
     /*font-weight: 500 !important;*/
     margin-right: 15px;
 }
+
+  .list-notifications {
+    height: calc(100vh - 500px);
+    overflow-y: auto;
+    padding-right: 20px;
+    padding-top: 20px;
+    /* overflow-x: hidden; */
+  }
+
 </style>
