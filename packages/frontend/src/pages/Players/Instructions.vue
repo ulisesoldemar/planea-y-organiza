@@ -21,7 +21,7 @@
         </transition>
 
         <v-card-text class="mt-4">
-          <pre class="text-subtitle-1">{{ item.title }}</pre>
+          <p class="text-subtitle-1" style="line-height: 1.5rem;">{{ item.title }}</p>
         </v-card-text>
 
 

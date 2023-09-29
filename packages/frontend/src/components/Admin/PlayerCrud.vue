@@ -2,7 +2,7 @@
     <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
         :items-length="players.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded">
+            <v-toolbar flat class="rounded-t">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>

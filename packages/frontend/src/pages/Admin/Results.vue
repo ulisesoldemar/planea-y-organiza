@@ -3,7 +3,7 @@
         <v-data-table :headers="headers" :items="scores" :sort-by="[{ key: 'date', order: 'asc' }]"
         :items-length="scores.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded">
+            <v-toolbar flat class="rounded-t">
                 <v-toolbar-title>Resultados</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
