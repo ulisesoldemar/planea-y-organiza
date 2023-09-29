@@ -39,7 +39,7 @@ export default class PlayScene extends BaseScene {
 
             // Agregado el evento para trackear cambio de sección
             ball.on('pointerdown', () => {
-                const lastIndex = this.pathTraveled.slice(-1)
+                const lastIndex = this.pathTraveled.slice(-1)[0];
                 const currentIndex = ball.getData('sectionIndex');
                 // Solo se agregan las pelotas cuando se cambia de seccion
                 if (lastIndex !== currentIndex) {
