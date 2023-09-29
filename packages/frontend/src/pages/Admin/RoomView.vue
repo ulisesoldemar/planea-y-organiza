@@ -115,8 +115,9 @@ const router = useRouter();
 const currentRoom = computed(() => roomStore.currentRoom);
 const notifications = computed(() => roomStore.currentRoom.notifications);
 
+console.log(notifications.value);
+
 const expiredAt = ref('');
-const currentDate = ref('');
 const isExpired = ref(null);
 
 onMounted(async () => {
