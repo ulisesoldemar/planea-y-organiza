@@ -23,7 +23,7 @@
                                     <div class="text-h6 title-data ">
                                         Tiempo
                                     </div>
-                                    <div class="text-subtitle-1 ">{{ currentResult.time }}</div>
+                                    <div class="text-subtitle-1 ">{{ currentResult.time }} Segundos</div>
                                 </div>
 
                                 <v-divider class="my-5"></v-divider>
@@ -33,17 +33,20 @@
                                     <div class="text-h6 title-data">
                                         Distancia
                                     </div>
-                                    <div class="text-subtitle-1">{{ currentResult.distance }}</div>
+                                    <div class="text-subtitle-1">{{ currentResult.distance }} Puntos</div>
                                 </div>
 
                                 <v-divider class="my-5"></v-divider>
 
                                 <div class="text-center">
-                                    <v-icon size="x-large" color="primary" icon="mdi-star-circle"></v-icon>
+                                    <v-icon size="x-large" color="primary" icon="mdi-tennis-ball"></v-icon>
                                     <div class="text-h6 title-data">
-                                        Puntaje
+                                        Pelotas ingresadas
                                     </div>
-                                    <div class="text-subtitle-1">{{ currentResult.score }}</div>
+                                    <div class="text-subtitle-1"> Sec 1 <v-icon>mdi-arrow-right-thin</v-icon> 37</div>
+                                    <div class="text-subtitle-1"> Sec 2 <v-icon>mdi-arrow-right-thin</v-icon> 30</div>
+                                    <div class="text-subtitle-1"> Sec 3 <v-icon>mdi-arrow-right-thin</v-icon> 15</div>
+                                    <div class="text-subtitle-1"> Sec 4 <v-icon>mdi-arrow-right-thin</v-icon> 40</div>
                                 </div>
                             </v-card-text>
                         </v-card>
