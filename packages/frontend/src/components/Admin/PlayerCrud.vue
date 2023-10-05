@@ -62,14 +62,13 @@
                         </v-form>
                     </v-card>
                 </v-dialog>
-                <v-dialog v-model="dialogDelete" max-width="500px">
+                <v-dialog v-model="dialogDelete" width="auto">
                     <v-card class="pa-2">
                         <v-card-title class="text-h5">¿Seguro que quieres eliminar al sujeto?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
                             <v-btn color="primary" variant="text" @click="deletePlayerConfirm">OK</v-btn>
-                            <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -251,8 +250,6 @@ const save = async () => {
 };
 
 const nameRules = [
-    v => !!v || 'Este campo es obligatorio',
-    v => (v && v.length >= 2) || 'Ingrese al menos 2 caracteres',
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
 ];
 
@@ -266,13 +263,21 @@ const emailRules = [
 ];
 
 const phoneRules = [
-    v => !!v || 'Este campo es obligatorio',
-    v => /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido',
-];
+    (v) => {
+    if(!v){
+        return true;
+    } else {
+        return /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido';
+    }
+}];
 
 const ageRules = [
-    v => !!v || 'Este campo es obligatorio',
-    v => (v >= 1 && v <= 140) || 'Ingrese una edad válida',
-];
+(v) => {
+    if(!v){
+        return true;
+    } else {
+       return (v >= 1 && v <= 140) ? 'Ingrese una edad válida' : true;
+    }
+}];
 </script>
   
