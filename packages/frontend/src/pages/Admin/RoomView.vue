@@ -37,16 +37,24 @@
                             </v-col>
                         </v-row>
                         <v-list-item title="Tiempo maximo de la prueba:"
-                            :subtitle="currentRoom.maxTime + ' min'"></v-list-item>
+                            :subtitle="currentRoom.maxTime + ' minutos'"></v-list-item>
                         <v-list-item title="Inicio rápido"
                                 :subtitle="currentRoom.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
-                        <v-list-item title="Configuración de la sala" :subtitle="currentRoom.status"></v-list-item>
-                        <!--
-                        <div class="text-h6">Tiempo maximo de la prueba:</div>
-                        <div class="text-subtitle-1"> {{ currentRoom.maxTime }} min</div> -->
+                        <v-list-item title="Estado de la sala" :subtitle="currentRoom.status === 'Open' ? 'Abierta' : 'Cerrada'"></v-list-item>
+                        
+                        <div class="pa-2 my-1"></div>
+                        
+                        <div class="d-flex flex-row-reverse">
+                            <v-list-item title="Iniciar tarea" class="text-center">
+                                <v-btn size="small"
+                                    :color="currentRoom.status === 'Open' ? 'primary' : 'surface-variant'"
+                                    :disabled="currentRoom.status === 'Closed'" @click="roomStore.startGame(currentRoom.roomNumber)"
+                                    variant="outlined" icon="mdi-play">
+                                </v-btn>
+                            </v-list-item>
+                        </div>
 
-                        <div class="pa-2 my-3"></div>
-                        <h3 class="pa-2 my-2"> Jugadores </h3>
+                        <h3 class="pa-2 my-2"> Sujetos </h3>
                         <v-divider></v-divider>
                         <v-row>
                             <v-col>
@@ -115,7 +123,9 @@ const router = useRouter();
 const currentRoom = computed(() => roomStore.currentRoom);
 const notifications = computed(() => roomStore.currentRoom.notifications);
 
-console.log(notifications.value);
+console.log(currentRoom.value);
+
+const status = ref(null);
 
 const expiredAt = ref('');
 const isExpired = ref(null);
