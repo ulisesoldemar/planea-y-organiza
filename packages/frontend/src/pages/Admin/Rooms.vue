@@ -34,7 +34,7 @@
                                     </v-list-item-subtitle>
                                 </v-list-item>
                                 <v-list-item title="Tiempo de la tarea" :subtitle="`${room.maxTime} minutos`"></v-list-item>
-                                <v-list-item title="Estado" :subtitle="room.status"></v-list-item>
+                                <v-list-item title="Estado" :subtitle="room.status === 'Open' ? 'Abierta' : 'Cerrada'"></v-list-item>
                                 <v-list-item title="Inicio rápido"
                                     :subtitle="room.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
                                 <!-- <v-list-item title="Sujetos en la sala">
@@ -155,7 +155,7 @@
                                         :min="new Date().toISOString().substring(0, 10)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="12">
-                                    <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="2"
+                                    <v-slider v-model="editedRoom.maxTime" class="align-center" max="60" min="2" :step="1"
                                         label="Tiempo de la tarea" hide-details>
                                         <template v-slot:append>
                                             <v-text-field v-model="editedRoom.maxTime" hide-details single-line
@@ -166,7 +166,10 @@
                                 </v-col>
                                 <v-col cols="6" sm="6" md="6">
                                     <v-select color="primary" v-model="editedRoom.status" label="Estado"
-                                        :items="['Open', 'Closed']"></v-select>
+                                    :items="[{ text: 'Abierta', value: 'Open' }, { text: 'Cerrada', value: 'Closed' }]"
+                                    item-title="text"
+                                    item-value="value"
+                                    ></v-select>
                                 </v-col>
                                 <v-col cols="6" sm="6" md="4">
                                     <v-checkbox color="primary" v-model="editedRoom.quickStart"
@@ -196,14 +199,13 @@
             <RemovePlayers :room-number="currentRoomNumber" :external-dialog="removePlayerDialog"
                 @close="removePlayerDialog = false" />
         </v-dialog>
-        <v-dialog v-model="deleteDialog" maxWidth="500px">
-            <v-card>
+        <v-dialog v-model="deleteDialog" width="auto">
+            <v-card class="pa-3">
                 <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
                     <v-btn color="primary" variant="text" @click="deleteRoomConfirm">OK</v-btn>
-                    <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>
         </v-dialog>
