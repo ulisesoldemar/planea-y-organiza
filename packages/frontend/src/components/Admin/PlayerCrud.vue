@@ -8,10 +8,13 @@
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" dark class="mr-4" v-bind="props">
+                        <v-btn color="primary" variant="outlined" dark class="mr-4" @click="loadFileDialog()">
+                            Agregar con archivo
+                        </v-btn>
+                        <v-btn color="primary" dark class="mr-4" v-bind="props" variant="outlined">
                             Agregar nuevo
                         </v-btn>
-                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mb-2" @click="addPlayersToRoom"
+                        <v-btn v-if="enabledCheckbox" color="primary" dark class="mr-4" @click="addPlayersToRoom"
                             variant="outlined">
                             Aceptar
                         </v-btn>
@@ -72,6 +75,33 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
+                <!-- DIALOG PARA CARGAR SUJETOS CON ARCHIVO DE EXCEL -->
+                <v-dialog v-model="dialogFile" width="auto" >
+                    <v-card class="pa-4">
+                        <v-card-title class="text-h5">Agregar sujetos con archivo</v-card-title>
+                        <v-card-subtitle class="mb-7">Sube el archivo de Excel con los correos de los sujetos. Agruparlos por fila (uno debajo de otro)</v-card-subtitle>
+                        <v-row>
+                            <v-col>
+                                <v-file-input 
+                                color="primary"
+                                class="mx-5" 
+                                clearable 
+                                accept=".xls, .xlsx" 
+                                label="clic para subir el archivo" 
+                                variant="outlined"
+                                prepend-icon="mdi-microsoft-excel"
+                                v-model="selectedExcelFile"
+                                ></v-file-input>
+                            </v-col>
+                        </v-row>
+                        
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="primary" variant="text" @click="closeFile">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="processFile">OK</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -118,11 +148,12 @@
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
+import readXlsxFile from 'read-excel-file';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
 
-const formFunc = ref(null)
+const formFunc = ref(null);
 
 const props = defineProps({
     enabledCheckbox: Boolean,
@@ -143,6 +174,8 @@ onMounted(async () => {
 
 const dialog = ref(false);
 const dialogDelete = ref(false);
+const dialogFile = ref(false);
+const selectedExcelFile = ref(null);
 
 const headers = [
     { title: 'Nombre(s)', align: 'start', key: 'firstName' },
@@ -183,6 +216,7 @@ const defaultPlayer = {
     addedAt: null,
 };
 
+
 const formTitle = computed(() => {
     return editedIndex.value === -1 ? 'Nuevo Sujeto' : 'Editar Sujeto';
 });
@@ -197,7 +231,13 @@ watch(dialogDelete, (val) => {
     if (!val) {
         closeDelete();
     }
-})
+});
+
+watch(dialogFile, (val) => {
+    if (!val) {
+        closeFile();
+    }
+});
 
 // Methods
 const editPlayer = (player) => {
@@ -235,6 +275,14 @@ const closeDelete = () => {
     });
 };
 
+const closeFile = () => {
+    dialogFile.value = false;
+    nextTick(() => {
+        selectedExcelFile.value = null;
+    });
+};
+
+
 const save = async () => {
     const { valid } = await formFunc.value.validate();
 
@@ -248,6 +296,27 @@ const save = async () => {
         close();
     }
 };
+
+const processFile = async () => {
+    if(selectedExcelFile.value){
+        console.log("Hay archivos en la variable");
+        // Utiliza la función readXlsxFile para leer los datos del archivo Excel
+        readXlsxFile(selectedExcelFile.value)
+        .then((rows) => {
+            // rows contendrá los datos del archivo Excel en forma de matriz
+            // Puedes procesar los datos según tus necesidades
+            console.log(rows);
+        })
+        .catch((error) => {
+            console.error('Error al leer el archivo Excel:', error);
+        });
+    }
+};
+
+const loadFileDialog = () => {
+    dialogFile.value = true;    
+};
+ 
 
 const nameRules = [
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
