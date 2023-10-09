@@ -11,6 +11,7 @@ export const useGame = defineStore('game', {
         maxTime: useStorage('maxTime', 0),
         connectionStatus: useStorage('connectionStatus', []),
         playerData: useStorage('playerData', []),
+        roomNumber: useStorage('roomNumber', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
     }),
 
@@ -33,12 +34,13 @@ export const useGame = defineStore('game', {
                 if (response.status >= 200 && response.status < 300) {
                     const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
                     console.log('Entro status 200')
-                    
+
                     if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
                         return false;
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
+                    this.roomNumber = roomNumber;
                     this.maxTime = maxTime;
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
@@ -57,11 +59,11 @@ export const useGame = defineStore('game', {
                         socket.connect();
                     }
                     socket.emit('joinRoom', joinData);
-                    socket.on('disconnect', () => { 
+                    socket.on('disconnect', () => {
                         console.log('Se desconecto')
                         this.connectionStatus = false;
                     });
-                    
+
                     if (this.quickStart) {
                         this.gameStarted = true;
                         this.router.push('player-signup');
@@ -109,6 +111,11 @@ export const useGame = defineStore('game', {
                     Authorization: `Bearer ${this.token.accessToken}`
                 }
             })
+                .then(async (res) => {
+                    const playerId = this.playerData.id;
+                    const roomNumber = this.roomNumber;
+                    await api.post('/api/game/leave-room', { roomNumber, playerId});
+                })
                 .then(async (res) => {
                     const refreshToken = this.token.refreshToken;
                     await api.post('/api/game/logout', { refreshToken });

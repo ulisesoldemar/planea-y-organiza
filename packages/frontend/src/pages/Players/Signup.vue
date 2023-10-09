@@ -70,7 +70,6 @@ const phoneRules = [
 ];
 
 const ageRules = [
-    v => !!v || 'Este campo es obligatorio',
     v => (v >= 0 && v <= 150) || 'Ingrese una edad válida',
 ];
 

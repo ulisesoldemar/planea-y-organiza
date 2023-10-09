@@ -280,6 +280,28 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
     };
 }));
 
+const leaveRoom = errorHandler(withTransaction(async (req, res, session) => {
+    const {roomNumber, playerId} = req.body;
+    if (!roomNumber) {
+        throw new HttpError(422, 'No room number');
+    }
+
+    const roomDoc = await Room.findOne({ roomNumber });
+    if (!roomDoc) {
+        throw new HttpError(404, 'Sala no encontrada');
+    }
+
+    const playerDoc = await Player.findById(playerId);
+    if (!playerDoc || !roomDoc.players.includes(playerDoc._id)) {
+        throw new HttpError(401, 'Usuario no encontrado');
+    }
+
+    roomDoc.players.pull(playerDoc._id);
+    await roomDoc.save({ session });
+
+    return { message: 'El jugador ha salido de la sala' };
+}));
+
 module.exports = {
     createRoom,
     listRooms,
@@ -289,6 +311,7 @@ module.exports = {
     removePlayerFromRoom,
     removePlayersFromRoom,
     joinRoom,
+    leaveRoom,
     deleteRoom,
     updateRoom,
     fetchRoom,
