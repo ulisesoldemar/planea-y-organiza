@@ -1,6 +1,6 @@
 <template>
     <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="players.length" class="pb-3 rounded elevation-1">
+        :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox" :height="enabledCheckbox ? 600 : 750">
         <template v-slot:top>
             <v-toolbar flat class="rounded-t">
                 <v-toolbar-title>Sujetos</v-toolbar-title>
