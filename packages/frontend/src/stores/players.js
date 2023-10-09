@@ -70,7 +70,11 @@ export const usePlayers = defineStore('players', {
                 });
 
                 if (response.status === 200) {
-                    // ... tu código para manejar la actualización exitosa ...
+                    // Find the index of the item to replace
+                    const index = this.players.findIndex((player) => player._id === response.data._id);
+                    // // Replace the item at the found index
+                    this.players[index] = response.data;
+
                 } else {
                     throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
                 }
@@ -99,5 +103,23 @@ export const usePlayers = defineStore('players', {
         },
 
         // ... otras acciones ...
+        async createPlayersByFile(formData) {
+            try {
+                const response = await api.post('/api/admin/players/file', formData, {
+                    headers: {
+                        Authorization: `Bearer ${this.adminStore.accessToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    this.players = [ ...this.players, ...response.data];
+
+                } else {
+                    throw new Error(`Error al crear los sujetos: ${response.statusText}`);
+                }
+            } catch (error) {
+                await this.handleError(this.listPlayers, error);
+            }
+        },
     },
 });
