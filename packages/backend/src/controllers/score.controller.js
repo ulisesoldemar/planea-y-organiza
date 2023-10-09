@@ -29,7 +29,6 @@ const uploadScore = errorHandler(withTransaction(async (req, res, session) => {
     const newScore = new Score(req.body);
     await newScore.save({ session });
     playerDoc.scores.push(newScore);
-    playerDoc.canPlay = false;
     await playerDoc.save({ session });
 
 }));
