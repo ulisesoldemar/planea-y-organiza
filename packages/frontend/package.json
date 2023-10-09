@@ -15,13 +15,13 @@
     "phaser": "^3.60.0",
     "phaser3-rex-plugins": "^1.60.3",
     "pinia": "^2.1.6",
-    "read-excel-file": "^5.7.1",
     "socket.io-client": "^4.7.2",
     "vue": "^3.2.47",
     "vue-cookies": "^1.8.3",
     "vue-router": "^4.2.4",
     "vue-socket.io": "^3.0.10",
-    "vuetify": "^3.3.3"
+    "vuetify": "^3.3.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@mdi/font": "^7.2.96",

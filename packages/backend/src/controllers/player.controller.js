@@ -33,6 +33,31 @@ const createPlayer = errorHandler(async (req, res) => {
     return newPlayer;
 });
 
+// Crear nuevos jugadores a partir de un archivo de Excel
+const createPlayersByFile = errorHandler(async (req, res) => {
+    const playersData = req.body;
+
+    const adminDoc = req.adminDoc;
+
+    const playersObject = playersData.map((row) => ({
+        firstName: null,
+        surName: null,
+        secondSurName: null,
+        email: row[0] || null,
+        phone: null,
+        age: null,
+        admin: adminDoc,
+    }));
+
+    try{
+        const savedPlayers = await Player.insertMany(playersObject);
+        return savedPlayers;
+    } catch(error){
+        console.error('Error al guardar los jugadores:', error);
+        throw error;
+    }
+});
+
 // Obtener datos de un jugador específico
 const getPlayer = errorHandler(async (req, res) => {
     const playerId = req.params.playerId;
@@ -113,5 +138,6 @@ module.exports = {
     createPlayer,
     getPlayer,
     updatePlayer,
-    deletePlayer
+    deletePlayer,
+    createPlayersByFile
 };

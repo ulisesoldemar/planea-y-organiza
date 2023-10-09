@@ -79,26 +79,30 @@
                 <v-dialog v-model="dialogFile" width="auto" >
                     <v-card class="pa-4">
                         <v-card-title class="text-h5">Agregar sujetos con archivo</v-card-title>
-                        <v-card-subtitle class="mb-7">Sube el archivo de Excel con los correos de los sujetos. Agruparlos por fila (uno debajo de otro)</v-card-subtitle>
+                        <v-card-subtitle class="mb-7">Sube el archivo de Excel con los correos de los sujetos. Ordenalos por fila (uno debajo de otro) como se muestra en la imagen</v-card-subtitle>
                         <v-row>
-                            <v-col>
-                                <v-file-input 
+                            <v-col cols="5">
+                                <v-img :src="excelInstructions" alt="Excel Instructions" style="margin-left: auto; margin-right: auto; width: 60%;"></v-img>
+                            </v-col>
+                            <v-col class=" d-flex align-center" cols="7">
+                                <v-file-input
                                 color="primary"
-                                class="mx-5" 
-                                clearable 
-                                accept=".xls, .xlsx" 
-                                label="clic para subir el archivo" 
+                                class="mx-5"
+                                clearable
+                                accept=".xls, .xlsx"
+                                label="clic para subir el archivo"
                                 variant="outlined"
                                 prepend-icon="mdi-microsoft-excel"
-                                v-model="selectedExcelFile"
+                                v-model="fileInput"
+                                @change="handleFileUpload"
                                 ></v-file-input>
                             </v-col>
                         </v-row>
-                        
+
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="primary" variant="text" @click="closeFile">Cancelar</v-btn>
-                            <v-btn color="primary" variant="text" @click="processFile">OK</v-btn>
+                            <v-btn color="primary" variant="text" @click="saveEmails">OK</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -143,12 +147,13 @@
         </template>
     </v-data-table>
 </template>
-  
+
 <script setup>
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
-import readXlsxFile from 'read-excel-file';
+import { read, utils } from 'xlsx';
+import excelInstructions from '@/assets/images/excelInstructions.png';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
@@ -175,7 +180,8 @@ onMounted(async () => {
 const dialog = ref(false);
 const dialogDelete = ref(false);
 const dialogFile = ref(false);
-const selectedExcelFile = ref(null);
+const fileInput = ref(null);
+const fileEmails = ref([]);
 
 const headers = [
     { title: 'Nombre(s)', align: 'start', key: 'firstName' },
@@ -278,7 +284,7 @@ const closeDelete = () => {
 const closeFile = () => {
     dialogFile.value = false;
     nextTick(() => {
-        selectedExcelFile.value = null;
+        fileInput.value = null;
     });
 };
 
@@ -292,31 +298,43 @@ const save = async () => {
         } else {
             await playerStore.createPlayer(editedPlayer.value).catch(e => console.error(e));
         }
-        await playerStore.listPlayers();
         close();
     }
 };
 
-const processFile = async () => {
-    if(selectedExcelFile.value){
-        console.log("Hay archivos en la variable");
-        // Utiliza la función readXlsxFile para leer los datos del archivo Excel
-        readXlsxFile(selectedExcelFile.value)
-        .then((rows) => {
-            // rows contendrá los datos del archivo Excel en forma de matriz
-            // Puedes procesar los datos según tus necesidades
-            console.log(rows);
-        })
-        .catch((error) => {
-            console.error('Error al leer el archivo Excel:', error);
-        });
+const handleFileUpload = async () => {
+    const file = fileInput.value[0];
+    if (file) {
+        const ab = await readFileAsArrayBuffer(file);
+        const wb = read(ab);
+        fileEmails.value = utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
+        //Limpiar los correos vacios
+        fileEmails.value = fileEmails.value.filter((row) => row.length > 0);
+    }
+};
+
+async function readFileAsArrayBuffer(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      resolve(e.target.result);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+const saveEmails = async () => {
+    if(fileInput.value){
+        //Once the file is Uploaded and the user press the Ok buttom insert in database
+        await playerStore.createPlayersByFile(fileEmails.value).catch(e => console.error(e));
+        closeFile();
     }
 };
 
 const loadFileDialog = () => {
-    dialogFile.value = true;    
+    dialogFile.value = true;
 };
- 
+
 
 const nameRules = [
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
@@ -345,8 +363,7 @@ const ageRules = [
     if(!v){
         return true;
     } else {
-       return (v >= 1 && v <= 140) ? 'Ingrese una edad válida' : true;
+       return (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida';
     }
 }];
 </script>
-  
