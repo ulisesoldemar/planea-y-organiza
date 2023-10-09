@@ -6,7 +6,7 @@ const playerSchema = new Schema({
     surName: { type: String },
     secondSurName: { type: String },
     email: { type: String, unique: true },
-    phone: { type: String, unique: true, },
+    phone: { type: String },
     age: { type: Number },
     addedAt: { type: Date, default: Date.now() }, // La primera vez que se registra el sujeto
     firstPlayedAt: { type: Date }, // Última vez que se hizo la prueba
