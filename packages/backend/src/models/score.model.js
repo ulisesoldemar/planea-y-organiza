@@ -8,6 +8,8 @@ const scoreSchema = new Schema({
     distancePerSection: [Number],
     transitions: [Number],
     patterns: [[Object]],
+    fullPattern: [Object],
+    enteredBalls: { type: Number, default: 0 },
     score: { type: Number, default: 0 },
 });
 

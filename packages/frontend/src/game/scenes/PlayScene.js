@@ -4,7 +4,10 @@ import { useGame } from '@/stores/game';
 export default class PlayScene extends BaseScene {
     constructor() {
         super('PlayScene', 'play');
-        this.pathTraveled = [];
+        this.transitions = [];
+        this.currentSection = null;
+        this.prevSection = null;
+        this.fullPattern = [];
         this.sectionPattern = [
             [], // Section 1
             [], // Section 2
@@ -39,11 +42,17 @@ export default class PlayScene extends BaseScene {
 
             // Agregado el evento para trackear cambio de sección
             ball.on('pointerdown', () => {
-                const lastIndex = this.pathTraveled.slice(-1)[0];
                 const currentIndex = ball.getData('sectionIndex');
-                // Solo se agregan las pelotas cuando se cambia de seccion
-                if (lastIndex !== currentIndex) {
-                    this.pathTraveled.push(ball.getData('sectionIndex'));
+                if (this.currentSection === null) {
+                    this.currentSection = currentIndex;
+                    this.prevSection = currentIndex;
+                } else if (currentIndex !== this.currentSection) {
+                    this.prevSection = this.currentSection;
+                    this.currentSection = currentIndex;
+                    this.transitions.push({
+                        from: this.prevSection,
+                        to: this.currentSection,
+                    });
                 }
             });
         });
@@ -66,22 +75,22 @@ export default class PlayScene extends BaseScene {
         console.log("El juego ha terminado");
         this.gameStore.isTimeOver = true;
         this.gameOver();
-        
+
     }
 
     gameOver() {
         // Agregar Gracias, la tarea ha terminado
         const elapsedTime = Date.now() - this.startTime;
-        const data = this.cache.json.get(this.phase + 'Coords');
-        const a = this.distanceTraveled;
-        const b = data.totalDistance;
-        const finalScore = (this.enteredBalls / 200) * Math.min(a/b, b/a);
+        const time = elapsedTime / 1000;
+        const finalScore = this.totalDistance / time;
         this.gameStore.uploadScore({
-            time: elapsedTime / 1000,
+            time: time,
             distance: this.distanceTraveled,
             distancePerSection: this.distanceTraveledPerSection,
-            transitions: this.pathTraveled,
+            transitions: this.transitions,
             patterns: this.sectionPattern,
+            fullPattern: this.fullPattern,
+            enteredBalls: this.enteredBalls,
             score: finalScore,
         });
         this.scene.stop();
