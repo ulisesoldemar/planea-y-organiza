@@ -29,8 +29,24 @@ const createPlayer = errorHandler(async (req, res) => {
         admin: adminDoc,
     });
 
-    await newPlayer.save();
-    return newPlayer;
+    try{
+        await newPlayer.save();
+        return newPlayer;
+    } catch(error) {
+         //Error de Duplicated key
+         if (error.code === 11000 || error.code === 11001) {
+            const emailMatch = error.errmsg.match(/email: "([^"]+)"/); // Buscar el valor de email en el mensaje
+
+            if (emailMatch) {
+                const errMessage = `Ocurrio un error: El correo electrónico "${emailMatch[1]}" ya existe`;
+                throw new HttpError(400, errMessage);
+            }
+
+        } else {
+            console.error('Error desconocido al crear el jugador:', error);
+        }
+    }
+
 });
 
 // Crear nuevos jugadores a partir de un archivo de Excel
@@ -53,8 +69,18 @@ const createPlayersByFile = errorHandler(async (req, res) => {
         const savedPlayers = await Player.insertMany(playersObject);
         return savedPlayers;
     } catch(error){
-        console.error('Error al guardar los jugadores:', error);
-        throw error;
+        //Error de Duplicated key
+        if (error.code === 11000 || error.code === 11001) {
+            const emailMatch = error.errmsg.match(/email: "([^"]+)"/); // Buscar el valor de email en el mensaje
+
+            if (emailMatch) {
+                const errMessage = `Ocurrio un error: El correo electrónico "${emailMatch[1]}" ya existe`;
+                throw new HttpError(400, errMessage);
+            }
+
+        } else {
+            console.error('Error desconocido al crear jugadores:', error);
+        }
     }
 });
 

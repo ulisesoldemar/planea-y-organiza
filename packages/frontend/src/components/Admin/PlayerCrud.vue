@@ -54,6 +54,8 @@
                                         </v-col>
                                     </v-row>
 
+                                    <p v-if="errorMessagePlayer" class="text-center text-red mt-5">{{ errorMessagePlayer }}</p>
+
                                 </v-container>
                             </v-card-text>
 
@@ -98,6 +100,9 @@
                                 ></v-file-input>
                             </v-col>
                         </v-row>
+
+                        <p v-if="errorMessage" class="text-center text-red mt-5">{{ errorMessage }}</p>
+
 
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -247,7 +252,6 @@ watch(dialogFile, (val) => {
 
 // Methods
 const editPlayer = (player) => {
-    console.log(player)
     editedIndex.value = 1;
     editedPlayer.value = { ...player };
     dialog.value = true;
@@ -267,6 +271,7 @@ const deletePlayerConfirm = async () => {
 
 const close = () => {
     dialog.value = false;
+    errorMessagePlayer.value = "";
     nextTick(() => {
         editedPlayer.value = { ...defaultPlayer };
         editedIndex.value = -1;
@@ -288,17 +293,24 @@ const closeFile = () => {
     });
 };
 
+const errorMessagePlayer = ref("");
 
 const save = async () => {
     const { valid } = await formFunc.value.validate();
 
     if (valid) {
-        if (editedIndex.value > -1) {
-            await playerStore.updatePlayer(editedPlayer.value);
-        } else {
-            await playerStore.createPlayer(editedPlayer.value).catch(e => console.error(e));
+        errorMessagePlayer.value = "";
+
+        try{
+            if (editedIndex.value > -1) {
+                await playerStore.updatePlayer(editedPlayer.value);
+            } else {
+                await playerStore.createPlayer(editedPlayer.value);
+            }
+            close();
+        } catch(error) {
+            errorMessagePlayer.value = error.message;
         }
-        close();
     }
 };
 
@@ -329,22 +341,22 @@ const saveEmails = async () => {
 
     errorMessage.value = "";
     
+    //Once the file is Uploaded and the user press the Ok buttom insert in database
     if(fileInput.value){
         try{
-            await playerStore.createPlayersByFile(fileEmails.value)
-            .then(closeFile())
-            .catch(e => console.error(e));
+            await playerStore.createPlayersByFile(fileEmails.value);
+            closeFile();
             
         } catch(error) {
             errorMessage.value = error.message;
             fileInput.value = null;
         }
-        //Once the file is Uploaded and the user press the Ok buttom insert in database
     }
 };
 
 const loadFileDialog = () => {
     dialogFile.value = true;
+    errorMessage.value = "";
 };
 
 

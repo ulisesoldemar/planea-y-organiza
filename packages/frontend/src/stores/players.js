@@ -57,7 +57,13 @@ export const usePlayers = defineStore('players', {
                     throw new Error(`Error al crear un jugador: ${response.statusText}`);
                 }
             } catch (error) {
+                //Duplicated Key for email
+                if(error.response.status === 400){
+                    const errMessage = error.response.data.error;
+                    throw new Error(errMessage);
+                }
                 await this.handleError(this.listPlayers, error);
+                throw new Error(`Error al crear los sujetos, intentelo de nuevo`);
             }
         },
 
@@ -116,13 +122,13 @@ export const usePlayers = defineStore('players', {
 
                 } 
             } catch (error) {
-                console.log(error);
-
-                if(error.code === 11000){
-                    throw new Error('Error de duplicacion, algun correo que se ingreso ya existe');
+                
+                if(error.response.status === 400){
+                    const errMessage = error.response.data.error;
+                    throw new Error(errMessage);
                 }
-                throw new Error(`Error al crear los sujetos, intentelo de nuevo`);
                 await this.handleError(this.listPlayers, error);
+                throw new Error(`Error al crear los sujetos, intentelo de nuevo`);
             }
         },
     },

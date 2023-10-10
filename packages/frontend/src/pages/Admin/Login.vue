@@ -86,7 +86,7 @@ async function handleLogin() {
       errorMessage.value = error.message;
       loading.value = false;
     }
-  }, 500);
+  }, 400);
 }
 
 </script>
