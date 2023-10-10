@@ -114,10 +114,14 @@ export const usePlayers = defineStore('players', {
                 if (response.status === 200) {
                     this.players = [ ...this.players, ...response.data];
 
-                } else {
-                    throw new Error(`Error al crear los sujetos: ${response.statusText}`);
-                }
+                } 
             } catch (error) {
+                console.log(error);
+
+                if(error.code === 11000){
+                    throw new Error('Error de duplicacion, algun correo que se ingreso ya existe');
+                }
+                throw new Error(`Error al crear los sujetos, intentelo de nuevo`);
                 await this.handleError(this.listPlayers, error);
             }
         },

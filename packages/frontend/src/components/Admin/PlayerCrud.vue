@@ -323,17 +323,30 @@ async function readFileAsArrayBuffer(file) {
   });
 }
 
+const errorMessage = ref("");
+
 const saveEmails = async () => {
+
+    errorMessage.value = "";
+    
     if(fileInput.value){
+        try{
+            await playerStore.createPlayersByFile(fileEmails.value)
+            .then(closeFile())
+            .catch(e => console.error(e));
+            
+        } catch(error) {
+            errorMessage.value = error.message;
+            fileInput.value = null;
+        }
         //Once the file is Uploaded and the user press the Ok buttom insert in database
-        await playerStore.createPlayersByFile(fileEmails.value).catch(e => console.error(e));
-        closeFile();
     }
 };
 
 const loadFileDialog = () => {
     dialogFile.value = true;
 };
+
 
 
 const nameRules = [
