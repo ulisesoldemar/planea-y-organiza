@@ -80,23 +80,24 @@ export default class PlayScene extends BaseScene {
     }
 
     gameOver() {
-        // Agregar Gracias, la tarea ha terminado
-        const elapsedTime = Date.now() - this.startTime;
-        const time = elapsedTime / 1000;
-        const finalScore = this.totalDistance / time;
         // Sumatoria de las distancias recorridas por sección
         for (let i = 0; i < this.sectionPattern.length; ++i) {
-            let distance = 0;
             const section = this.sectionPattern[i];
-            for (let j = 0; j < section[i].length - 1; ++j) {
+            console.log(section);
+            let distance = 0;
+            for (let j = 0; j < section.length - 1; ++j) {
                 distance += Phaser.Math.Distance.Between(
                     section[j].x, section[j].y,
                     section[j + 1].x, section[j + 1].y
                 );
             }
+            console.log(`Sección ${i + 1}: ${distance}`)
             this.distancePerSection[i] = distance;
             this.distance += distance;
         }
+        const elapsedTime = Date.now() - this.startTime;
+        const time = elapsedTime / 1000;
+        const finalScore = this.distance / time;
 
         this.gameStore.uploadScore({
             time: time,
