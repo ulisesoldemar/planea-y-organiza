@@ -6,7 +6,7 @@ const scoreSchema = new Schema({
     time: { type: Number },
     distance: { type: Number, default: 0 },
     distancePerSection: [Number],
-    transitions: [Number],
+    transitions: [Object],
     patterns: [[Object]],
     fullPattern: [Object],
     enteredBalls: { type: Number, default: 0 },

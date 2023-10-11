@@ -8,6 +8,7 @@ export default class PlayScene extends BaseScene {
         this.currentSection = null;
         this.prevSection = null;
         this.fullPattern = [];
+        this.transitionsPattern = [];
         this.sectionPattern = [
             [], // Section 1
             [], // Section 2
@@ -15,9 +16,9 @@ export default class PlayScene extends BaseScene {
             [], // Section 4
             [], // Section 5
         ];
-        this.distanceTraveledPerSection = [0.0, 0.0, 0.0, 0.0, 0.0];
+        this.distancePerSection = [0.0, 0.0, 0.0, 0.0, 0.0];
         this.enteredBalls = 0;
-        this.distanceTraveled = 0.0;
+        this.distance = 0.0;
         this.gameStore = useGame();
     }
 
@@ -57,17 +58,17 @@ export default class PlayScene extends BaseScene {
             });
         });
 
-        // Se agrega el calculo de distancia al arrastrar la pelota
-        this.input.on('drag', (pointer, ball, dragX, dragY) => {
-            const distance = Phaser.Math.Distance.Between(
-                ball.prevX, ball.prevY,
-                ball.x, ball.y
-            );
-            this.distanceTraveled += distance;
-            this.distanceTraveledPerSection[ball.getData('sectionIndex')] += distance;
-            ball.prevX = ball.x;
-            ball.prevY = ball.y;
-        });
+        // // Se agrega el calculo de distancia al arrastrar la pelota
+        // this.input.on('drag', (pointer, ball, dragX, dragY) => {
+        //     const distance = Phaser.Math.Distance.Between(
+        //         ball.prevX, ball.prevY,
+        //         ball.x, ball.y
+        //     );
+        //     this.distanceTraveled += distance;
+        //     this.distanceTraveledPerSection[ball.getData('sectionIndex')] += distance;
+        //     ball.prevX = ball.x;
+        //     ball.prevY = ball.y;
+        // });
     }
 
     timeOver() {
@@ -83,10 +84,24 @@ export default class PlayScene extends BaseScene {
         const elapsedTime = Date.now() - this.startTime;
         const time = elapsedTime / 1000;
         const finalScore = this.totalDistance / time;
+        // Sumatoria de las distancias recorridas por sección
+        for (let i = 0; i < this.sectionPattern.length; ++i) {
+            let distance = 0;
+            const section = this.sectionPattern[i];
+            for (let j = 0; j < section[i].length - 1; ++j) {
+                distance += Phaser.Math.Distance.Between(
+                    section[j].x, section[j].y,
+                    section[j + 1].x, section[j + 1].y
+                );
+            }
+            this.distancePerSection[i] = distance;
+            this.distance += distance;
+        }
+
         this.gameStore.uploadScore({
             time: time,
-            distance: this.distanceTraveled,
-            distancePerSection: this.distanceTraveledPerSection,
+            distance: this.distance,
+            distancePerSection: this.distancePerSection,
             transitions: this.transitions,
             patterns: this.sectionPattern,
             fullPattern: this.fullPattern,
@@ -107,6 +122,12 @@ export default class PlayScene extends BaseScene {
     ballGoalCollision(ball, goal) {
         super.ballGoalCollision(ball, goal);
         this.sectionPattern[ball.getData('sectionIndex')].push(
+            {
+                x: ball.startX,
+                y: ball.startY,
+            }
+        );
+        this.fullPattern.push(
             {
                 x: ball.startX,
                 y: ball.startY,

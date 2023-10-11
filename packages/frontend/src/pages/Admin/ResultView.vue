@@ -53,6 +53,7 @@
                     </v-col>
 
                     <v-col class="ma-2">
+                        <v-select label="Patrón" v-model="patternSelect" :items="['Por sección', 'Completo']"></v-select>
                         <v-divider v-if="cvHeight == 450" />
                         <canvas ref="canvasRef" width="1280" height="720"></canvas>
                         <v-card>
@@ -85,6 +86,7 @@ const cvHeight = ref('');
 const loading = computed(() => scoreStore.loading);
 const currentResult = ref(null);
 const currentResultId = ref(null);
+const patternSelect = ref('Por sección');
 
 const scores = computed(() => scoreStore.scores);
 const { name } = useDisplay();
@@ -122,15 +124,15 @@ onMounted(async () => {
     }
 });
 
+watch(heightScreen, async () => {
+    cvHeight.value = heightScreen.value;
+});
+
 watch(currentResultId, (newId) => {
     if (newId) {
         currentResult.value = scores.value.find(score => score._id === newId); // Filtrar por el nuevo id
         drawPatterns();
     }
-});
-
-watch(heightScreen, async () => {
-    cvHeight.value = heightScreen.value;
 });
 
 // Con este watch evito que se inicialice la referencia al canvas como null
@@ -141,53 +143,82 @@ watch(canvasRef, (val) => {
     }
 });
 
+watch(patternSelect, (val) => {
+    if (val) {
+        drawPatterns();
+    }
+});
+
 function drawPatterns() {
-    if (!canvasRef.value) {
+    const canvas = canvasRef.value;
+    if (!canvas) {
         console.log("No hay canvas");
         return;
     }
 
-    const canvas = canvasRef.value;
     const ctx = canvas.getContext('2d');
-    const patterns = currentResult.value.patterns;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Validar que existan los patrones
+    const patterns = patternSelect.value === 'Completo' ? [currentResult.value.fullPattern] : currentResult.value.patterns;
+    
+    if (!patterns) {
+        drawNoDataMessage(ctx, canvas);
+        return;
+    }
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = 'blue';
     ctx.fillStyle = 'yellow';
-    for (let i = 0; i < patterns.length; ++i) {
-        const points = patterns[i];
-        if (points.length === 0) {
-            continue;
-        }
-        // Dibuja líneas entre los puntos
-        for (let j = 0; j < points.length - 1; ++j) {
-            // Dibujar linea
-            const x = points[j].x;
-            ctx.beginPath();
-            ctx.moveTo(x, points[j].y);
-            ctx.lineTo(points[j + 1].x, points[j + 1].y);
-            ctx.stroke();
 
-            // Dibujar punto
-            ctx.beginPath();
-            if (j === 0) {
-                ctx.fillStyle = 'red';
-            } else {
-                ctx.fillStyle = 'yellow';
-            }
-            ctx.arc(x, points[j].y, 6, 0, Math.PI * 2);
-            ctx.fill();
+    for (const pattern of patterns) {
+        if (pattern.length === 0) continue;
+
+        for (let j = 0; j < pattern.length - 1; j++) {
+            const pointFrom = pattern[j];
+            const pointTo = pattern[j + 1];
+
+            drawLine(ctx, pointFrom, pointTo);
+            drawPoint(ctx, pointFrom, j === 0);
         }
 
-        // Dibujar último punto
-        ctx.beginPath();
-        ctx.arc(points[points.length - 1].x, points[points.length - 1].y, 6, 0, Math.PI * 2);
-        ctx.fill();
+        drawPoint(ctx, pattern[pattern.length - 1]);
     }
-    // Convierte el canvas a una imagen y actualiza el src de la etiqueta <img>
+
+    updateCanvasImage(canvas);
+}
+
+function drawLine(ctx, from, to) {
+    const sectionFrom = Math.floor(from.x / 256);
+    const sectionTo = Math.floor(to.x / 256);
+
+    ctx.strokeStyle = sectionFrom === sectionTo ? 'blue' : 'red';
+
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+}
+
+function drawPoint(ctx, point, isFirstPoint = false) {
+    ctx.fillStyle = isFirstPoint ? 'green' : 'yellow';
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawNoDataMessage(ctx, canvas) {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "red";
+    ctx.textAlign = "center";
+    ctx.fillText("Sin datos", canvas.width / 2, canvas.height / 2);
+    updateCanvasImage(canvas);
+}
+
+function updateCanvasImage(canvas) {
     const canvasDataUrl = canvas.toDataURL('image/png');
     canvasImage.value.src = canvasDataUrl;
 }
+
 
 </script>
 
