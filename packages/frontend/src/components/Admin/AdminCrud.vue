@@ -1,10 +1,12 @@
 <template>
-    <v-data-table :headers="headers" :items="admins" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
+    <v-data-table :headers="headers" :items="admins" :search="search" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
         :items-length="admins.length" class="pb-3 rounded elevation-1">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t">
+            <v-toolbar flat class="rounded-t py-1">
+                <v-text-field v-model="search" append-inner-icon="mdi-magnify" label="Buscar administrador" hide-details
+                    density="compact" variant="solo" single-line class="mx-5"></v-text-field>
+                    <v-divider class="mx-4" inset vertical></v-divider>
                 <v-toolbar-title>Administradores</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="900">
                     <template v-slot:activator="{ props }">
@@ -97,6 +99,7 @@ const selected = ref([]);
 const dialog = ref(false);
 const dialogDelete = ref(false);
 const errorMsg = ref('');
+const search = ref('');
 
 const props = defineProps({
     enabledCheckbox: Boolean,

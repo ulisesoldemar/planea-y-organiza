@@ -1,18 +1,46 @@
 <template>
-    <v-data-table :headers="headers" :items="players" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
-        :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox" :height="enabledCheckbox ? 600 : null">
+    <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
+        :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox"
+        :height="enabledCheckbox ? 600 : null">
         <template v-slot:top>
-            <v-toolbar flat class="rounded-t">
-                <v-toolbar-title>Sujetos</v-toolbar-title>
+            <v-toolbar flat class="rounded-t py-1">
+                <v-text-field v-model="search" append-inner-icon="mdi-magnify" label="Buscar sujeto" hide-details
+                    density="compact" variant="solo" single-line class="mx-5"></v-text-field>
                 <v-divider class="mx-4" inset vertical></v-divider>
+                <v-toolbar-title>Sujetos</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="800px">
                     <template v-slot:activator="{ props }">
-                        <v-btn color="primary" variant="outlined" dark class="mr-4" @click="loadFileDialog()">
-                            Agregar con archivo
+
+
+                        <v-btn-toggle v-if="!enabledCheckbox" v-model="toggle" :color="isHovering ? 'primary' : undefined" divided
+                            variant="outlined" class="v-btn-toggle-h mr-15" density="compact">
+
+                            <v-btn value="import" color="primary" @click="importFileDialog()"
+                                style="border-inline-end-color: #6634c3">
+                                <v-icon start>
+                                    mdi-file-import-outline
+                                </v-icon>
+                                <span class="hidden-sm-and-down">Importar</span>
+                            </v-btn>
+
+                            <v-btn value="export" color="primary" @click="exportFileDialog()">
+                                <v-icon start>
+                                    mdi-file-export-outline
+                                </v-icon>
+                                <span class="hidden-sm-and-down">Exportar</span>
+                            </v-btn>
+                        </v-btn-toggle>
+                        <!-- <v-btn v-if="!enabledCheckbox" color="primary" variant="outlined" dark class="mr-4"
+                            @click="importFileDialog()" prepend-icon="mdi-file-import-outline">
+                            Importar
                         </v-btn>
-                        <v-btn color="primary" dark class="mr-4" v-bind="props" variant="outlined">
-                            Agregar nuevo
+                        <v-btn v-if="!enabledCheckbox" color="primary" variant="outlined" dark class="mr-4"
+                            @click="exportFileDialog()" prepend-icon="mdi-file-export-outline">
+                            Exportar
+                        </v-btn> -->
+                        <v-btn color="primary" dark class="mx-7" v-bind="props" variant="outlined">
+                            Crear nuevo
                         </v-btn>
                         <v-btn v-if="enabledCheckbox" color="primary" dark class="mr-4" @click="addPlayersToRoom"
                             variant="outlined">
@@ -54,7 +82,8 @@
                                         </v-col>
                                     </v-row>
 
-                                    <p v-if="errorMessagePlayer" class="text-center text-red mt-5">{{ errorMessagePlayer }}</p>
+                                    <p v-if="errorMessagePlayer" class="text-center text-red mt-5">{{ errorMessagePlayer }}
+                                    </p>
 
                                 </v-container>
                             </v-card-text>
@@ -77,37 +106,65 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
-                <!-- DIALOG PARA CARGAR SUJETOS CON ARCHIVO DE EXCEL -->
-                <v-dialog v-model="dialogFile" width="auto" >
+                <!-- DIALOG PARA importar SUJETOS CON ARCHIVO DE EXCEL -->
+                <v-dialog v-model="dialogImport" width="auto">
                     <v-card class="pa-4">
                         <v-card-title class="text-h5">Agregar sujetos con archivo</v-card-title>
-                        <v-card-subtitle class="mb-7">Sube el archivo de Excel con los correos de los sujetos. Ordenalos por fila (uno debajo de otro) como se muestra en la imagen</v-card-subtitle>
+                        <v-card-subtitle class="mb-7">Sube el archivo de Excel con los correos de los sujetos. Ordenalos por
+                            fila (uno debajo de otro) como se muestra en la imagen</v-card-subtitle>
                         <v-row>
                             <v-col cols="5">
-                                <v-img :src="excelInstructions" alt="Excel Instructions" style="margin-left: auto; margin-right: auto; width: 60%;"></v-img>
+                                <v-img :src="excelInstructions" alt="Excel Instructions"
+                                    style="margin-left: auto; margin-right: auto; width: 60%;"></v-img>
                             </v-col>
                             <v-col class=" d-flex align-center" cols="7">
-                                <v-file-input
-                                color="primary"
-                                class="mx-5"
-                                clearable
-                                accept=".xls, .xlsx"
-                                label="clic para subir el archivo"
-                                variant="outlined"
-                                prepend-icon="mdi-microsoft-excel"
-                                v-model="fileInput"
-                                @change="handleFileUpload"
-                                ></v-file-input>
+                                <v-file-input color="primary" class="mx-5" clearable accept=".xls, .xlsx"
+                                    label="clic para subir el archivo" variant="outlined" prepend-icon="mdi-microsoft-excel"
+                                    v-model="fileInput" @change="handleFileUpload"></v-file-input>
                             </v-col>
                         </v-row>
-
                         <p v-if="errorMessage" class="text-center text-red mt-5">{{ errorMessage }}</p>
-
-
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary" variant="text" @click="closeFile">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="closeImport">Cancelar</v-btn>
                             <v-btn color="primary" variant="text" @click="saveEmails">OK</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <!-- DIALOG PARA Exportar SUJETOS CON ARCHIVO DE EXCEL -->
+                <v-dialog v-model="dialogExport" scrollable width="auto">
+                    <v-card>
+                        <v-card-title>Jugadores a Exportar</v-card-title>
+                        <v-divider></v-divider>
+                        <v-card-text style="height: 500px;">
+                            <v-list lines="two">
+                                <v-list-item v-for="item in players" :title="item.email"
+                                    :subtitle="item.firstName ? item.firstName : ''">
+
+                                    <template v-slot:prepend>
+                                        <v-list-item-action start>
+                                            <v-checkbox-btn :key="item._id" :value="item._id"
+                                                v-model="selectedToExport"></v-checkbox-btn>
+                                        </v-list-item-action>
+                                    </template>
+                                    <!-- <v-checkbox-btn
+                                            :key="item._id"
+                                            v-model="selectedToExport"
+                                            :label="item.firstName ? item.firstName + ' - ' + item.email : item.email"
+                                            :value="item._id"
+                                        ></v-checkbox-btn>  -->
+
+                                    <!-- <v-list-item-title>{{ item.email }}</v-list-item-title>
+                                            <v-list-item-subtitle>{{ item.firstName ? item.firstName : '' }}</v-list-item-subtitle> -->
+
+                                </v-list-item>
+                            </v-list>
+                        </v-card-text>
+                        <v-divider></v-divider>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="primary" variant="text" @click="closeExport">Cancelar</v-btn>
+                            <v-btn color="primary" variant="text" @click="exportPlayers">OK</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -134,15 +191,15 @@
                     <span>Eliminar sujeto</span>
                 </v-tooltip>
                 <!-- <v-checkbox :label="item.raw.id" value="John"></v-checkbox> -->
-                <v-btn :to="{
-                    name: 'ResultView',
-                    params: { id: item.raw._id },
-                }" density="comfortable" class="text-none" prepend-icon="mdi-archive-search" variant="flat">
-                    <template v-slot:prepend>
-                        <v-icon color="primary"></v-icon>
+                <v-tooltip location="bottom center" origin="auto">
+                    <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" :to="{ name: 'ResultView', params: { id: item.raw._id } }"
+                            density="comfortable" class="me-2" icon="mdi-archive-search" variant="flat" size="small">
+                            <v-icon color="primary"></v-icon>
+                        </v-btn>
                     </template>
-                    Resultados
-                </v-btn>
+                    <span>Resultados</span>
+                </v-tooltip>
                 <!-- <v-icon size="small" @click="console.log(item.raw._id)">mdi-account-multiple-plus</v-icon> -->
             </v-container>
             <v-container v-else>
@@ -157,13 +214,14 @@
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
-import { read, utils } from 'xlsx';
+import { read, utils, writeFileXLSX } from 'xlsx';
 import excelInstructions from '@/assets/images/excelInstructions.png';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
-
+const search = ref("");
 const formFunc = ref(null);
+const selectedToExport = ref([]);
 
 const props = defineProps({
     enabledCheckbox: Boolean,
@@ -184,9 +242,11 @@ onMounted(async () => {
 
 const dialog = ref(false);
 const dialogDelete = ref(false);
-const dialogFile = ref(false);
+const dialogImport = ref(false);
+const dialogExport = ref(false);
 const fileInput = ref(null);
 const fileEmails = ref([]);
+const toggle = ref();
 
 const headers = [
     { title: 'Nombre(s)', align: 'start', key: 'firstName' },
@@ -244,9 +304,15 @@ watch(dialogDelete, (val) => {
     }
 });
 
-watch(dialogFile, (val) => {
+watch(dialogImport, (val) => {
     if (!val) {
-        closeFile();
+        closeImport();
+    }
+});
+
+watch(dialogExport, (val) => {
+    if (!val) {
+        closeImport();
     }
 });
 
@@ -286,10 +352,19 @@ const closeDelete = () => {
     });
 };
 
-const closeFile = () => {
-    dialogFile.value = false;
+const closeImport = () => {
+    dialogImport.value = false;
+    toggle.value = null;
     nextTick(() => {
         fileInput.value = null;
+    });
+};
+
+const closeExport = () => {
+    dialogExport.value = false;
+    toggle.value = null;
+    nextTick(() => {
+        selectedToExport.value = [];
     });
 };
 
@@ -301,14 +376,14 @@ const save = async () => {
     if (valid) {
         errorMessagePlayer.value = "";
 
-        try{
+        try {
             if (editedIndex.value > -1) {
                 await playerStore.updatePlayer(editedPlayer.value);
             } else {
                 await playerStore.createPlayer(editedPlayer.value);
             }
             close();
-        } catch(error) {
+        } catch (error) {
             errorMessagePlayer.value = error.message;
         }
     }
@@ -326,40 +401,59 @@ const handleFileUpload = async () => {
 };
 
 async function readFileAsArrayBuffer(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      resolve(e.target.result);
-    };
-    reader.readAsArrayBuffer(file);
-  });
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            resolve(e.target.result);
+        };
+        reader.readAsArrayBuffer(file);
+    });
 }
+
+const importFileDialog = () => {
+    dialogImport.value = true;
+    errorMessage.value = "";
+};
+
+const exportFileDialog = () => {
+    dialogExport.value = true;
+    errorMessage.value = "";
+};
 
 const errorMessage = ref("");
 
 const saveEmails = async () => {
 
     errorMessage.value = "";
-    
     //Once the file is Uploaded and the user press the Ok buttom insert in database
-    if(fileInput.value){
-        try{
+    if (fileInput.value) {
+        try {
             await playerStore.createPlayersByFile(fileEmails.value);
-            closeFile();
-            
-        } catch(error) {
+            closeImport();
+
+        } catch (error) {
             errorMessage.value = error.message;
             fileInput.value = null;
         }
     }
 };
 
-const loadFileDialog = () => {
-    dialogFile.value = true;
-    errorMessage.value = "";
-};
+const exportPlayers = async () => {
+    console.log('Sujetos seleccionados:', selectedToExport.value);
+    const playersExported = players.value.filter(player => selectedToExport.value.includes(player._id));
+    console.log("Sujetos a exportar", playersExported);
 
-
+    //Export the players
+    try {
+        const ws = utils.json_to_sheet(playersExported);
+        const wb = utils.book_new();
+        utils.book_append_sheet(wb, ws, "Data");
+        writeFileXLSX(wb, "Players.xlsx");
+        closeExport();
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const nameRules = [
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
@@ -376,19 +470,27 @@ const emailRules = [
 
 const phoneRules = [
     (v) => {
-    if(!v){
-        return true;
-    } else {
-        return /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido';
-    }
-}];
+        if (!v) {
+            return true;
+        } else {
+            return /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido';
+        }
+    }];
 
 const ageRules = [
-(v) => {
-    if(!v){
-        return true;
-    } else {
-       return (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida';
-    }
-}];
+    (v) => {
+        if (!v) {
+            return true;
+        } else {
+            return (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida';
+        }
+    }];
 </script>
+
+<style scoped>
+.v-btn-toggle-h {
+    border-color: #6634c3;
+    /* Cambia el color de fondo al color deseado */
+    color: #6634c3;
+}
+</style>
