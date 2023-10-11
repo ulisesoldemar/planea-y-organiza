@@ -33,7 +33,11 @@
                                     <div class="text-h6 title-data">
                                         Distancia
                                     </div>
-                                    <div class="text-subtitle-1">{{ currentResult.distance }} Puntos</div>
+                                    <div class="text-subtitle-1" v-for="distance in currentResult.distancePerSection">
+                                        {{ distance }}
+                                    </div>
+                                    <div class="text-subtitle-1" style="font-weight: bold">Total: {{ currentResult.distance
+                                    }}</div>
                                 </div>
 
                                 <v-divider class="my-5"></v-divider>
@@ -43,10 +47,34 @@
                                     <div class="text-h6 title-data">
                                         Pelotas ingresadas
                                     </div>
-                                    <div class="text-subtitle-1"> Sec 1 <v-icon>mdi-arrow-right-thin</v-icon> 37</div>
-                                    <div class="text-subtitle-1"> Sec 2 <v-icon>mdi-arrow-right-thin</v-icon> 30</div>
-                                    <div class="text-subtitle-1"> Sec 3 <v-icon>mdi-arrow-right-thin</v-icon> 15</div>
-                                    <div class="text-subtitle-1"> Sec 4 <v-icon>mdi-arrow-right-thin</v-icon> 40</div>
+                                    <div class="text-subtitle-1" v-for="(coords, index) in currentResult.patterns">
+                                        Sección {{ index + 1 }}: {{ coords.length }}
+                                    </div>
+                                    <div class="text-subtitle-1" style="font-weight: bold">Total: {{
+                                        currentResult.enteredBalls }}</div>
+                                </div>
+
+                                <v-divider class="my-5"></v-divider>
+
+                                <div class="text-center">
+                                    <v-icon size="x-large" color="primary" icon="mdi-arrow-right"></v-icon>
+                                    <div class="text-h6 title-data">
+                                        Transiciones
+                                    </div>
+                                    <div class="text-subtitle-1" v-for="transition in currentResult.transitions">
+                                        {{ transition.from + 1 }} <v-icon>mdi-arrow-right-thin</v-icon> {{ transition.to +
+                                            1 }}
+                                    </div>
+                                </div>
+
+                                <v-divider class="my-5"></v-divider>
+
+                                <div class="text-center">
+                                    <v-icon size="x-large" color="primary" icon="mdi-star-circle"></v-icon>
+                                    <div class="text-h6 title-data">
+                                        Puntaje
+                                    </div>
+                                    <div class="text-subtitle-1">{{ currentResult.score }}</div>
                                 </div>
                             </v-card-text>
                         </v-card>
@@ -158,10 +186,10 @@ function drawPatterns() {
 
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     // Validar que existan los patrones
     const patterns = patternSelect.value === 'Completo' ? [currentResult.value.fullPattern] : currentResult.value.patterns;
-    
+
     if (!patterns) {
         drawNoDataMessage(ctx, canvas);
         return;
@@ -200,7 +228,7 @@ function drawLine(ctx, from, to) {
 }
 
 function drawPoint(ctx, point, isFirstPoint = false) {
-    ctx.fillStyle = isFirstPoint ? 'green' : 'yellow';
+    ctx.fillStyle = isFirstPoint ? '#6bb120' : 'yellow';
     ctx.beginPath();
     ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
     ctx.fill();
