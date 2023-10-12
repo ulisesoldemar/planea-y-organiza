@@ -17,19 +17,27 @@ export default class GameStartDialogScene extends Phaser.Scene {
         // Texto con una fuente adecuada
         const titleText = this.add.text(
             this.cameras.main.centerX,
-            this.cameras.main.centerY - 60,
+            this.cameras.main.centerY - 170,
             'Bienvenido',
-            { fontFamily: 'Roboto', fontSize: '72px', fill: '#000', fontWeight: '700'} // Cambia la fuente y el tamaño
+            { fontFamily: 'Roboto', fontSize: '48px', fill: '#000', fontWeight: '700'} // Cambia la fuente y el tamaño
         );
         titleText.setOrigin(0.5);
 
         const messageText = this.add.text(
             this.cameras.main.centerX,
-            this.cameras.main.centerY,
-            '¿Estás listo para comenzar la tarea?',
-            { fontFamily: 'Roboto', fontSize: '32px', fill: '#000', align: 'center', wordWrap: { width: 550 } } // Cambia la fuente y el tamaño
+            this.cameras.main.centerY - 80,
+            'No tienes tiempo límite para realizar la tarea, pero trata de hacerlo lo más rápido posible',
+            { fontFamily: 'Roboto', fontSize: '24px', fill: '#000', align: 'center', wordWrap: { width: 600 }, lineSpacing: 8 } // Cambia la fuente y el tamaño
         );
         messageText.setOrigin(0.5);
+
+        const messageText2 = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            '¿Estás listo para comenzar?',
+            { fontFamily: 'Roboto', fontSize: '24px', fill: '#000', align: 'center', wordWrap: { width: 550 } } // Cambia la fuente y el tamaño
+        );
+        messageText2.setOrigin(0.5);
 
         // Botón de Play (círculo)
         const alignButtonY = this.cameras.main.centerY + 80;
@@ -61,6 +69,16 @@ export default class GameStartDialogScene extends Phaser.Scene {
 
         // Hacer que la imagen sea interactiva como un botón
         playButtonImage.setInteractive();
+
+        // Cambia el cursor a "pointer" cuando el cursor está sobre la imagen
+        playButtonImage.on('pointerover', () => {
+            document.body.style.cursor = 'pointer';
+        });
+
+        // Restaura el cursor predeterminado cuando el cursor sale de la imagen
+        playButtonImage.on('pointerout', () => {
+            document.body.style.cursor = 'default';
+        });
 
         // Agregar un evento al hacer clic en la imagen
         playButtonImage.on('pointerdown', () => {

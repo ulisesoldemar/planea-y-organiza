@@ -25,14 +25,18 @@
         </v-card-text>
 
 
-        <v-card-text class="mt-15" v-if="item.num == 7">
+        <v-card-text class="mt-16" v-if="item.num == 7">
+          <!-- <p class="text-subtitle-2 mb-5x"> Es necesario el uso de mouse para la realización de la tarea</p> -->
           <p class="text-h6">
-            <span class="font-weight-black"> ¿Estas listo para comenzar la fase de entrenamiento? </span> <br> Haz click
-            en el siguiente boton
+            <span class="font-weight-black"> ¿Estás listo para comenzar la fase de entrenamiento? </span> <br> 
+          </p>
+          <p class="mt-6 text-h6">
+            <span>Haz click
+            en el siguiente botón</span>
           </p>
         </v-card-text>
 
-        <v-btn v-if="item.num == 7" icon="mdi-play" size="x-large" color="primary" class="mt-10" to="/game"></v-btn>
+        <v-btn v-if="item.num == 7" icon="mdi-play" size="x-large" color="primary" class="mt-6" to="/game"></v-btn>
       </v-card>
 
       <v-pagination color="primary" class="mb-2" v-model="page" :length="pages"
@@ -43,12 +47,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-//import video1 from "@/assets/animations/Instrucciones-1.mp4";
-// import video2 from "@/assets/animations/Instrucciones-2.mp4";
-// import video3 from "@/assets/animations/Instrucciones-3.mp4";
-// import video4 from "@/assets/animations/Instrucciones-4.mp4";
-// import video5 from "@/assets/animations/Instrucciones-5.mp4";
-// import video6 from "@/assets/animations/Instrucciones-6.mp4";
 import video1 from "@/assets/animations/Instrucciones-1.gif";
 import video2 from "@/assets/animations/Instrucciones-2.gif";
 import video3 from "@/assets/animations/Instrucciones-3.gif";
@@ -62,7 +60,7 @@ const pageSize = 1;
 const list = [
   {
     num: 1,
-    title: "Arrastra la pelota manteniendo el clic.",
+    title: "Arrastra la pelota manteniendo el clic izquierdo del ratón.",
     video: video1,
   },
   {
