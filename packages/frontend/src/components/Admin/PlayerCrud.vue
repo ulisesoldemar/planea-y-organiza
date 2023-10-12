@@ -13,7 +13,7 @@
                     <template v-slot:activator="{ props }">
 
 
-                        <v-btn-toggle v-if="!enabledCheckbox" v-model="toggle" :color="isHovering ? 'primary' : undefined" divided
+                        <v-btn-toggle v-if="!enabledCheckbox" v-model="toggle" :color="'primary'" divided
                             variant="outlined" class="v-btn-toggle-h mr-15" density="compact">
 
                             <v-btn value="import" color="primary" @click="importFileDialog()"
@@ -138,25 +138,24 @@
                         <v-divider></v-divider>
                         <v-card-text style="height: 500px;">
                             <v-list lines="two">
+                                <v-list-item title="Seleccionar todos">
+                                    <template v-slot:prepend>
+                                        <v-list-item-action start>
+                                            <v-checkbox-btn v-model="selectAll" @change="selectAllPlayers" :color="selectAll ? 'primary' : undefined" :indeterminate="isSelectAll"></v-checkbox-btn>
+                                        </v-list-item-action>
+                                    </template>
+                                </v-list-item>
+
+                                <v-divider></v-divider>
+                                
                                 <v-list-item v-for="item in players" :title="item.email"
                                     :subtitle="item.firstName ? item.firstName : ''">
-
                                     <template v-slot:prepend>
                                         <v-list-item-action start>
                                             <v-checkbox-btn :key="item._id" :value="item._id"
                                                 v-model="selectedToExport"></v-checkbox-btn>
                                         </v-list-item-action>
                                     </template>
-                                    <!-- <v-checkbox-btn
-                                            :key="item._id"
-                                            v-model="selectedToExport"
-                                            :label="item.firstName ? item.firstName + ' - ' + item.email : item.email"
-                                            :value="item._id"
-                                        ></v-checkbox-btn>  -->
-
-                                    <!-- <v-list-item-title>{{ item.email }}</v-list-item-title>
-                                            <v-list-item-subtitle>{{ item.firstName ? item.firstName : '' }}</v-list-item-subtitle> -->
-
                                 </v-list-item>
                             </v-list>
                         </v-card-text>
@@ -421,6 +420,7 @@ const exportFileDialog = () => {
 };
 
 const errorMessage = ref("");
+const selectAll = ref(false);
 
 const saveEmails = async () => {
 
@@ -439,9 +439,17 @@ const saveEmails = async () => {
 };
 
 const exportPlayers = async () => {
-    console.log('Sujetos seleccionados:', selectedToExport.value);
-    const playersExported = players.value.filter(player => selectedToExport.value.includes(player._id));
-    console.log("Sujetos a exportar", playersExported);
+    function mapPlayerForExport(player) {
+        const { email, firstName, surName, secondSurName, phone, age, scores, addedAt } = player;
+        return { email, firstName, surName, secondSurName, phone, age, scores, addedAt };
+    }
+
+  // Filtrar y mapear los jugadores seleccionados
+  const playersExported = players.value
+    .filter(player => selectedToExport.value.includes(player._id))
+    .map(mapPlayerForExport);
+
+  console.log("Sujetos a exportar", playersExported);
 
     //Export the players
     try {
@@ -454,6 +462,18 @@ const exportPlayers = async () => {
         console.log(error);
     }
 }
+
+const isSelectAll = computed(() => {
+  return selectedToExport.value.length > 0 && selectedToExport.value.length < players.value.length;
+});
+
+const selectAllPlayers = () => {
+  if (selectAll.value) {
+    selectedToExport.value = selectAll ? players.value.map(player => player._id) : [];
+  } else {
+    selectedToExport.value = [];
+  }
+};
 
 const nameRules = [
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
