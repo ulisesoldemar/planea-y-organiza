@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
+    <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'desc' }]"
         :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox"
         :height="enabledCheckbox ? 600 : null">
         <template v-slot:top>
@@ -152,7 +152,7 @@
                                     :subtitle="item.firstName ? item.firstName : ''">
                                     <template v-slot:prepend>
                                         <v-list-item-action start>
-                                            <v-checkbox-btn :key="item._id" :value="item._id"
+                                            <v-checkbox-btn :key="item._id" :value="item"
                                                 v-model="selectedToExport"></v-checkbox-btn>
                                         </v-list-item-action>
                                     </template>
@@ -212,12 +212,14 @@
 <script setup>
 import { usePlayers } from '@/stores/players';
 import { useRooms } from '@/stores/rooms';
+import { useScores } from '@/stores/scores';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 import { read, utils, writeFileXLSX } from 'xlsx';
 import excelInstructions from '@/assets/images/excelInstructions.png';
 
 const playerStore = usePlayers();
 const roomStore = useRooms();
+const scoresStore = useScores();
 const search = ref("");
 const formFunc = ref(null);
 const selectedToExport = ref([]);
@@ -237,6 +239,7 @@ async function addPlayersToRoom() {
 
 onMounted(async () => {
     await playerStore.listPlayers();
+    await scoresStore.listResults();
 });
 
 const dialog = ref(false);
@@ -439,24 +442,38 @@ const saveEmails = async () => {
 };
 
 const exportPlayers = async () => {
+    const playersScores = scoresStore.scores;
+
     function mapPlayerForExport(player) {
-        const { email, firstName, surName, secondSurName, phone, age, scores, addedAt } = player;
-        return { email, firstName, surName, secondSurName, phone, age, scores, addedAt };
+        const playerScores = playersScores.filter(score => player.scores.includes(score._id));
+
+        const { email, firstName, surName, secondSurName, phone, age, addedAt } = player;
+        return { email, firstName, surName, secondSurName, phone, age, addedAt, playerScores };
     }
 
-  // Filtrar y mapear los jugadores seleccionados
-  const playersExported = players.value
-    .filter(player => selectedToExport.value.includes(player._id))
-    .map(mapPlayerForExport);
+    // mapear los jugadores seleccionados
+    const playersExported = selectedToExport.value.map(mapPlayerForExport);
 
-  console.log("Sujetos a exportar", playersExported);
+    console.log("Sujetos a exportar", playersExported);
 
-    //Export the players
+    // Export the players
     try {
-        const ws = utils.json_to_sheet(playersExported);
+        // Crear hojas de cálculo separadas para jugadores y puntajes
+        const wsPlayers = utils.json_to_sheet(playersExported, { header: ["email", "firstName", "surName", "secondSurName", "phone", "age", "addedAt", "playerScores"] });
+        const wsScores = utils.json_to_sheet(
+        playersExported.flatMap(player => player.playerScores.map(scor => {
+                const distancePerSection = scor.distancePerSection.join(' ');
+                const { score, date, distance, enteredBalls, time } = scor;
+                return { email: player.email, name: player.firstName, score, date, distance, distancePerSection, enteredBalls, time };
+            })),
+            { header: ["email", "name", "score", "date", "distance", "distancePerSection", "enteredBalls", "time"] }
+        );
+
         const wb = utils.book_new();
-        utils.book_append_sheet(wb, ws, "Data");
-        writeFileXLSX(wb, "Players.xlsx");
+        utils.book_append_sheet(wb, wsPlayers, "Players");
+        utils.book_append_sheet(wb, wsScores, "Scores");
+
+        writeFileXLSX(wb, "PlayersAndScores.xlsx");
         closeExport();
     } catch (error) {
         console.log(error);
@@ -469,7 +486,7 @@ const isSelectAll = computed(() => {
 
 const selectAllPlayers = () => {
   if (selectAll.value) {
-    selectedToExport.value = selectAll ? players.value.map(player => player._id) : [];
+    selectedToExport.value = selectAll ? players.value.map(player => player) : [];
   } else {
     selectedToExport.value = [];
   }

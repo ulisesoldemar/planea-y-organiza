@@ -6,13 +6,13 @@ export const useScores = defineStore('scores', {
     state: () => ({
         adminStore: useAdmins(),
         playerName: '',
-        localStores: [],
+        localScores: [],
         loading: false,
     }),
 
     getters: {
         scores: (state) => {
-            return state.localStores.map((score) => {
+            return state.localScores.map((score) => {
                 return { ...score, date: new Date(score.date).toLocaleDateString('es-MX', { timeZone: 'UTC' }).toString(), 
                             distancePerSection: score.distancePerSection.map((section, index) => {
                                 return `Sección ${index + 1}: ${section}, \n`;
@@ -30,7 +30,7 @@ export const useScores = defineStore('scores', {
                 }
             })
                 .then((res) => {
-                    this.localStores = res.data;
+                    this.localScores = res.data;
                 })
                 .catch((err) => {
                     console.log(err)
@@ -47,7 +47,7 @@ export const useScores = defineStore('scores', {
                 .then((res) => {
                     this.loading = false;
                     this.playerName = res.data.playerName;
-                    this.localStores = res.data.scores;
+                    this.localScores = res.data.scores;
                     return res;
                 })
                 .catch((err) => {
