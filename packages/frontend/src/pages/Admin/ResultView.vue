@@ -99,6 +99,7 @@
   
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import PlayCoords from '@/game/assets/json/play_coords.json';
 
 import { useRoute, useRouter } from 'vue-router'
 import { ref, watch, computed, onMounted, onBeforeUnmount } from 'vue';
@@ -211,7 +212,7 @@ function drawPatterns() {
 
         drawPoint(ctx, pattern[pattern.length - 1]);
     }
-
+    drawBlueSquares(ctx);
     updateCanvasImage(canvas);
 }
 
@@ -232,6 +233,16 @@ function drawPoint(ctx, point, isFirstPoint = false) {
     ctx.beginPath();
     ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
     ctx.fill();
+}
+
+function drawBlueSquares(ctx) {
+    ctx.fillStyle = 'rgb(0, 0, 255, 0.4)';
+    const sections = PlayCoords.sections;
+
+    for (let i = 0; i < sections.length; ++i) {
+        const target = sections[i].target;
+        ctx.fillRect(target.x + (i * 256) - 27, target.y - 27, 54, 54);
+    }
 }
 
 function drawNoDataMessage(ctx, canvas) {
