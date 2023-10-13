@@ -4,11 +4,12 @@
             <v-card-title>
                 Verifica tus datos
             </v-card-title>
+            <small class="d-flex flex-row-reverse">* Indica campos requeridos</small>
             <v-form v-model="formFunction" @submit.prevent="">
-                <v-text-field v-model="formData.firstName" label="Nombre(s)" :rules="nameRules" required></v-text-field>
+                <v-text-field v-model="formData.firstName" class="mt-5" label="* Nombre(s)" :rules="nameRules" required></v-text-field>
                 <v-row>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="formData.surName" label="Primer Apellido" :rules="nameRules"
+                        <v-text-field v-model="formData.surName" label="* Primer Apellido" :rules="nameRules"
                             required></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
@@ -17,13 +18,13 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" md="12">
-                        <v-text-field v-model="formData.email" label="Correo Electrónico" :rules="emailRules"
+                        <v-text-field v-model="formData.email" label="* Correo Electrónico" :rules="emailRules"
                             required></v-text-field>
                     </v-col>
                 </v-row>
                 <v-row>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="formData.age" label="Edad" type="number" :rules="ageRules"></v-text-field>
+                        <v-text-field v-model="formData.age" label="* Edad" type="number" :rules="ageRules"></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="formData.phone" label="Teléfono" :rules="phoneRules"></v-text-field>
