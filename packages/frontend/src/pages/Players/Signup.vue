@@ -12,7 +12,7 @@
                             required></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="formData.secondSurName" label="Segundo Apellido"></v-text-field>
+                        <v-text-field v-model="formData.secondSurName" label="Segundo Apellido" :rules="secSurNameRules"></v-text-field>
                     </v-col>
                 </v-row>
                 <v-row>
@@ -60,18 +60,32 @@ const nameRules = [
     v => (v && v.length >= 2) || 'Ingrese al menos 2 caracteres',
 ];
 
+const secSurnameRules = [
+    v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
+];
+
 const emailRules = [
     v => !!v || 'Este campo es obligatorio',
     v => /.+@.+\..+/.test(v) || 'Ingrese una dirección de correo electrónico válida',
 ];
 
 const phoneRules = [
-    v => /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido',
-];
+    (v) => {
+        if (!v) {
+            return true;
+        } else {
+            return /^\d{10}$/.test(v) || 'Ingrese un número de teléfono válido';
+        }
+}];
 
 const ageRules = [
-    v => (v >= 0 && v <= 150) || 'Ingrese una edad válida',
-];
+    (v) => {
+        if (!v) {
+            return true;
+        } else {
+            return (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida';
+        }
+}];
 
 const submitForm = async () => {
     loading.value = true;
