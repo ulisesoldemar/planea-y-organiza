@@ -111,9 +111,10 @@ export const useRooms = defineStore('room', {
                     this.currentRoom = roomData;
                     this.currentRoom.players = this.currentRoom.players.map(player => ({
                         _id: player._id,
-                        fullName: `${player.firstName} ${player.surName}`
+                        fullName: player.firstName ? `${player.firstName} ${player.surName}` : player.email,
+
                     }));
-                    console.log(this.currentRoom);
+
                     this.joinRoom(roomNumber);
                 } else {
                     throw new Error(`Error al obtener los datos de la sala: ${response.statusText}`);
@@ -157,7 +158,6 @@ export const useRooms = defineStore('room', {
         },
 
         async removePlayersFromRoom(roomNumber, playerIds) {
-            console.log(playerIds)
             try {
                 const headers = {
                     Authorization: `Bearer ${this.adminStore.accessToken}`,

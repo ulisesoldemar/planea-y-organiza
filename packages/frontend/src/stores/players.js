@@ -32,7 +32,11 @@ export const usePlayers = defineStore('players', {
                 });
 
                 if (response.status === 200) {
-                    this.players = response.data;
+                    const data = response.data.map(data => {
+                        data.addedAt = new Date(data.addedAt).toLocaleDateString('es-MX', { timeZone: 'UTC' });
+                        return data;
+                    });
+                    this.players = data;
                     // ... tu código para manejar la lista de jugadores ...
                 } else {
                     throw new Error(`Error al obtener la lista de jugadores: ${response.statusText}`);

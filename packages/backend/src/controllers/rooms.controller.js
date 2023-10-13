@@ -90,7 +90,7 @@ const fetchRoom = errorHandler(async (req, res) => {
     const { roomNumber } = req.params;
 
     const room = await Room.findOne({ roomNumber, admin: req.userId })
-    .populate('players', '_id firstName surName')
+    .populate('players', '_id firstName surName email')
     .exec();
 
     if (!room) {
