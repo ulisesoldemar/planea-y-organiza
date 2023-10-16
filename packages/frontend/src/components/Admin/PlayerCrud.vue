@@ -1,7 +1,7 @@
 <template>
     <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'desc' }]"
         :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox"
-        :height="enabledCheckbox ? 600 : null">
+        :height="enabledCheckbox ? 500 : null">
         <template v-slot:top>
             <v-toolbar flat class="rounded-t py-1">
                 <v-text-field v-model="search" append-inner-icon="mdi-magnify" label="Buscar sujeto" hide-details

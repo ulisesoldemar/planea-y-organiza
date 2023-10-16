@@ -3,7 +3,7 @@
     <div class="text-center">
       <v-card class="mb-5 pa-3 mx-auto elevation-4" width="500" max-width="500" height="550" max-height="550"
         v-for="(item, index) in historyList" :key="index">
-        <v-card-title v-if="item.num != 7" class="text-right text-subtitle-1 font-weight-black">
+        <v-card-title v-if="item.num != 6" class="text-right text-subtitle-1 font-weight-black">
           <v-avatar color="grey-lighten-1" density="compact">
             <div>{{ item.num }}</div>
           </v-avatar>
@@ -17,7 +17,7 @@
             loop
           ></video> -->
 
-          <v-img v-if="item.num != 7" :src="item.video" class="video pb-2 mt-1" height="350"></v-img>
+          <v-img v-if="item.num != 6" :src="item.video" class="video pb-2 mt-1" height="350"></v-img>
         </transition>
 
         <v-card-text class="mt-4">
@@ -25,7 +25,7 @@
         </v-card-text>
 
 
-        <v-card-text class="mt-16" v-if="item.num == 7">
+        <v-card-text class="mt-16" v-if="item.num == 6">
           <!-- <p class="text-subtitle-2 mb-5x"> Es necesario el uso de mouse para la realización de la tarea</p> -->
           <p class="text-h6">
             <span class="font-weight-black"> ¿Estás listo para comenzar la fase de entrenamiento? </span> <br> 
@@ -36,7 +36,7 @@
           </p>
         </v-card-text>
 
-        <v-btn v-if="item.num == 7" icon="mdi-play" size="x-large" color="primary" class="mt-6" to="/game"></v-btn>
+        <v-btn v-if="item.num == 6" icon="mdi-play" size="x-large" color="primary" class="mt-6" to="/game"></v-btn>
       </v-card>
 
       <v-pagination color="primary" class="mb-2" v-model="page" :length="pages"
@@ -51,7 +51,6 @@ import video1 from "@/assets/animations/Instrucciones-1.gif";
 import video2 from "@/assets/animations/Instrucciones-2.gif";
 import video3 from "@/assets/animations/Instrucciones-3.gif";
 import video4 from "@/assets/animations/Instrucciones-4.gif";
-import video5 from "@/assets/animations/Instrucciones-5.gif";
 import video6 from "@/assets/animations/Instrucciones-6.gif";
 
 
@@ -88,12 +87,6 @@ const list = [
   },
   {
     num: 6,
-    title:
-      "Esta fase de entrenamiento termina cuando escuches un sonido y \naparezca un circulo rojo en la parte superior derecha.",
-    video: video5,
-  },
-  {
-    num: 7,
     title: "",
     video: "",
   },

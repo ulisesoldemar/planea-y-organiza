@@ -5,7 +5,7 @@
                 Verifica tus datos
             </v-card-title>
             <small class="d-flex flex-row-reverse">* Indica campos requeridos</small>
-            <v-form v-model="formFunction" @submit.prevent="">
+            <v-form ref="formFunction" @submit.prevent="">
                 <v-text-field v-model="formData.firstName" class="mt-5" label="* Nombre(s)" :rules="nameRules" required></v-text-field>
                 <v-row>
                     <v-col cols="12" md="6">
@@ -13,7 +13,7 @@
                             required></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="formData.secondSurName" label="Segundo Apellido" :rules="secSurNameRules"></v-text-field>
+                        <v-text-field v-model="formData.secondSurName" label="Segundo Apellido" :rules="SecSurnameRules"></v-text-field>
                     </v-col>
                 </v-row>
                 <v-row>
@@ -58,10 +58,10 @@ const submited = ref(false);
 
 const nameRules = [
     v => !!v || 'Este campo es obligatorio',
-    v => (v && v.length >= 2) || 'Ingrese al menos 2 caracteres',
+    v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
 ];
 
-const secSurnameRules = [
+const SecSurnameRules = [
     v => /^[^0-9_!¡?÷?¿\/\\+=@#$%ˆ&*(){}|~<>;:[\]]*$/.test(v) || 'Ingrese un nombre valido',
 ];
 
@@ -80,17 +80,19 @@ const phoneRules = [
 }];
 
 const ageRules = [
-    (v) => {
-        if (!v) {
-            return true;
-        } else {
-            return (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida';
-        }
-}];
+    v => !!v || 'Este campo es obligatorio',
+    v => (v >= 1 && v <= 140) ? true : 'Ingrese una edad válida',
+];
 
 const submitForm = async () => {
-    loading.value = true;
-    await gameStore.updatePlayer(formData.value).then(loading.value = false).then(submited.value = true);
+
+    const { valid } = await formFunction.value.validate();
+
+    if (valid) {
+        loading.value = true;
+        await gameStore.updatePlayer(formData.value).then(loading.value = false).then(submited.value = true);
+    }
+
 }
 </script>
   
