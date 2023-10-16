@@ -13,6 +13,7 @@ export const useGame = defineStore('game', {
         playerData: useStorage('playerData', []),
         roomNumber: useStorage('roomNumber', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
+        currentSession: useStorage('currentSession', []),
     }),
 
     getters: {
@@ -45,14 +46,13 @@ export const useGame = defineStore('game', {
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));
                     this.connectionStatus = response.status;
                     this.quickStart = quickStart;
+                    this.currentSession = 1;
 
                     const joinData = {
                         roomNumber: roomNumber,
                         playerId: this.playerData.id,
                         playerName: `${this.playerData.firstName} ${this.playerData.surName} ${this.playerData.secondSurName || ''}`,
                     };
-
-                    console.log(joinData);
 
                     if (!socket.connected) {
                         socket.io.opts.query = { token: this.token.accessToken };
@@ -111,23 +111,23 @@ export const useGame = defineStore('game', {
                     Authorization: `Bearer ${this.token.accessToken}`
                 }
             })
-                .then(async (res) => {
-                    const playerId = this.playerData.id;
-                    const roomNumber = this.roomNumber;
-                    await api.post('/api/game/leave-room', { roomNumber, playerId});
-                })
-                .then(async (res) => {
-                    const refreshToken = this.token.refreshToken;
-                    await api.post('/api/game/logout', { refreshToken });
-                })
                 .catch(async (err) => {
                     await this.handleError('uploadScore', err);
                 });
         },
 
-        gameOver() {
-            localStorage.clear();
-            this.router.push('thank-you');
+        async gameOver() {
+            const playerId = this.playerData.id;
+            const roomNumber = this.roomNumber;
+            await api.post('/api/game/leave-room', { roomNumber, playerId })
+                .then(async (res) => {
+                    const refreshToken = this.token.refreshToken;
+                    await api.post('/api/game/logout', { refreshToken });
+                })
+                .then(async (res) => {
+                    localStorage.clear();
+                    this.router.push('thank-you');
+                });
         }
     },
 });

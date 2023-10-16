@@ -71,19 +71,33 @@ export default class PlayScene extends BaseScene {
         // });
     }
 
+    resetScene() {
+        this.transitions = [];
+        this.currentSection = null;
+        this.prevSection = null;
+        this.fullPattern = [];
+        this.transitionsPattern = [];
+        this.sectionPattern = [
+            [], // Section 1
+            [], // Section 2
+            [], // Section 3
+            [], // Section 4
+            [], // Section 5
+        ];
+        this.distancePerSection = [0.0, 0.0, 0.0, 0.0, 0.0];
+        this.enteredBalls = 0;
+        this.distance = 0.0;
+    }
+
     timeOver() {
-        // Agregar Gracias, el tiempo ha terminado
-        console.log("El juego ha terminado");
         this.gameStore.isTimeOver = true;
         this.gameOver();
-
     }
 
     gameOver() {
         // Sumatoria de las distancias recorridas por sección
         for (let i = 0; i < this.sectionPattern.length; ++i) {
             const section = this.sectionPattern[i];
-            console.log(section);
             let distance = 0;
             for (let j = 0; j < section.length - 1; ++j) {
                 distance += Phaser.Math.Distance.Between(
@@ -91,14 +105,12 @@ export default class PlayScene extends BaseScene {
                     section[j + 1].x, section[j + 1].y
                 );
             }
-            console.log(`Sección ${i + 1}: ${distance}`)
             this.distancePerSection[i] = distance;
             this.distance += distance;
         }
         const elapsedTime = Date.now() - this.startTime;
         const time = elapsedTime / 1000;
         const finalScore = this.distance / time;
-
         this.gameStore.uploadScore({
             time: time,
             distance: this.distance,
@@ -109,8 +121,15 @@ export default class PlayScene extends BaseScene {
             enteredBalls: this.enteredBalls,
             score: finalScore,
         });
-        this.scene.stop();
-        this.gameStore.gameOver();
+        if (this.gameStore.currentSession === 1) {
+            this.gameStore.currentSession = 2;
+            this.gameStore.maxTime = (time / 120); // !20 para que sea la mitad del tiempo en minutos
+            this.resetScene();
+            this.scene.start('GameStartDialogScene', { welcome: `Bien hecho, tu tiempo fue ${(time / 60).toFixed()} minutos`, message: `Ahora vamos a hacer la prueba de nuevo, pero esta vez tienes ${this.gameStore.maxTime.toFixed()} minutos para completarla` });
+        } else {
+            this.scene.stop();
+            this.gameStore.gameOver();
+        }
     }
 
     addZeros(num) {

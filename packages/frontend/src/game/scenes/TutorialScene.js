@@ -60,7 +60,7 @@ export default class TutorialScene extends BaseScene {
 
         if (allGoalsReached) {
             // Prueba completada
-            this.scene.start('GameStartDialogScene');
+            this.scene.start('GameStartDialogScene', { welcome: 'Bienvenido', message: 'No tienes tiempo límite para realizar la tarea, pero trata de hacerlo lo más rápido posible' });
         }
     }
 }
