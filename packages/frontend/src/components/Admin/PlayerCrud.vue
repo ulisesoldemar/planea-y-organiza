@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'desc' }]"
+    <v-data-table :headers="headers" :items="players" :search="search" :sort-by="[{ key: 'addedAt', order: 'asc' }]"
         :items-length="players.length" class="pb-3 rounded elevation-1" :fixed-header="enabledCheckbox"
         :height="enabledCheckbox ? 500 : null">
         <template v-slot:top>
