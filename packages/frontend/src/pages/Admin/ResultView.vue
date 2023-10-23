@@ -23,7 +23,7 @@
                                     <div class="text-h6 title-data ">
                                         Tiempo
                                     </div>
-                                    <div class="text-subtitle-1 ">{{ currentResult.time }} Segundos</div>
+                                    <div class="text-subtitle-1 ">{{ currentResult.time.toFixed(3) }} Segundos</div>
                                 </div>
 
                                 <v-divider class="my-5"></v-divider>
@@ -36,12 +36,12 @@
                                     <div class="text-subtitle-1" v-for="distance in currentResult.distancePerSection">
                                         {{ distance }}
                                     </div>
-                                    <div class="text-subtitle-1" style="font-weight: bold">Total: {{ currentResult.distance
-                                    }}</div>
+                                    <div class="text-subtitle-1 mt-4" style="font-weight: bold">- Total: {{ currentResult.distance.toFixed(3)
+                                    }} -</div>
                                 </div>
-
+                                
                                 <v-divider class="my-5"></v-divider>
-
+                                
                                 <div class="text-center">
                                     <v-icon size="x-large" color="primary" icon="mdi-tennis-ball"></v-icon>
                                     <div class="text-h6 title-data">
@@ -50,10 +50,16 @@
                                     <div class="text-subtitle-1" v-for="(coords, index) in currentResult.patterns">
                                         Sección {{ index + 1 }}: {{ coords.length }}
                                     </div>
-                                    <div class="text-subtitle-1" style="font-weight: bold">Total: {{
-                                        currentResult.enteredBalls }}</div>
+                                    
+                                    <div class="text-subtitle-1 mt-4" style="font-weight: bold">
+                                        -
+                                        Total: {{
+                                            currentResult.enteredBalls }}
+                                        -
+                                    </div>
+                                        
                                 </div>
-
+                                
                                 <v-divider class="my-5"></v-divider>
 
                                 <div class="text-center">

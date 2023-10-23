@@ -105,21 +105,21 @@ export default class PlayScene extends BaseScene {
                     section[j + 1].x, section[j + 1].y
                 );
             }
-            this.distancePerSection[i] = distance;
+            this.distancePerSection[i] = distance.toFixed(3);
             this.distance += distance;
         }
         const elapsedTime = Date.now() - this.startTime;
         const time = elapsedTime / 1000;
         const finalScore = this.distance / time;
         this.gameStore.uploadScore({
-            time: time,
-            distance: this.distance,
+            time: time.toFixed(3),
+            distance: this.distance.toFixed(3),
             distancePerSection: this.distancePerSection,
             transitions: this.transitions,
             patterns: this.sectionPattern,
             fullPattern: this.fullPattern,
             enteredBalls: this.enteredBalls,
-            score: finalScore,
+            score: finalScore.toFixed(3),
         });
         if (this.gameStore.currentSession === 1) {
             this.gameStore.currentSession = 2;
