@@ -267,8 +267,10 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
 
     const { id, firstName, surName, secondSurName, age, phone } = playerDoc;
     const { maxTime, status, expiration, quickStart } = roomDoc;
+    const roomId = roomDoc._id;
 
     return {
+        roomId,
         roomNumber,
         maxTime,
         status,

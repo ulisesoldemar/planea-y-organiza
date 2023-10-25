@@ -12,6 +12,7 @@ export const useGame = defineStore('game', {
         connectionStatus: useStorage('connectionStatus', []),
         playerData: useStorage('playerData', []),
         roomNumber: useStorage('roomNumber', []),
+        roomId: useStorage('roomId', []),
         token: JSON.parse(localStorage.getItem('token')) || null,
         currentSession: useStorage('currentSession', []),
     }),
@@ -33,7 +34,7 @@ export const useGame = defineStore('game', {
                 const response = await api.post('/api/game/join-room/', formData);
 
                 if (response.status >= 200 && response.status < 300) {
-                    const { roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
+                    const { roomId, roomNumber, maxTime, status, expiration, quickStart, player, accessToken, refreshToken } = response.data;
                     console.log('Entro status 200')
 
                     if (status === 'Closed' || Date.now() > Date.parse(expiration)) {
@@ -41,6 +42,7 @@ export const useGame = defineStore('game', {
                     }
                     this.token = { accessToken, refreshToken };
                     this.playerData = player;
+                    this.roomId = roomId;
                     this.roomNumber = roomNumber;
                     this.maxTime = maxTime;
                     localStorage.setItem('token', JSON.stringify({ accessToken, refreshToken }));

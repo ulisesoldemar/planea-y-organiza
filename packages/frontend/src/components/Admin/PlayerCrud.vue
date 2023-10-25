@@ -13,8 +13,8 @@
                     <template v-slot:activator="{ props }">
 
 
-                        <v-btn-toggle v-if="!enabledCheckbox" v-model="toggle" :color="'primary'" divided
-                            variant="outlined" class="v-btn-toggle-h mr-15" density="compact">
+                        <v-btn-toggle v-if="!enabledCheckbox" v-model="toggle" :color="'primary'" divided variant="outlined"
+                            class="v-btn-toggle-h mr-15" density="compact">
 
                             <v-btn value="import" color="primary" @click="importFileDialog()"
                                 style="border-inline-end-color: #6634c3">
@@ -141,13 +141,15 @@
                                 <v-list-item title="Seleccionar todos">
                                     <template v-slot:prepend>
                                         <v-list-item-action start>
-                                            <v-checkbox-btn v-model="selectAll" @change="selectAllPlayers" :color="selectAll ? 'primary' : undefined" :indeterminate="isSelectAll"></v-checkbox-btn>
+                                            <v-checkbox-btn v-model="selectAll" @change="selectAllPlayers"
+                                                :color="selectAll ? 'primary' : undefined"
+                                                :indeterminate="isSelectAll"></v-checkbox-btn>
                                         </v-list-item-action>
                                     </template>
                                 </v-list-item>
 
                                 <v-divider></v-divider>
-                                
+
                                 <v-list-item v-for="item in players" :title="item.email"
                                     :subtitle="item.firstName ? item.firstName : ''">
                                     <template v-slot:prepend>
@@ -460,14 +462,31 @@ const exportPlayers = async () => {
     try {
         // Crear hojas de cálculo separadas para jugadores y puntajes
         const wsPlayers = utils.json_to_sheet(playersExported, { header: ["email", "firstName", "surName", "secondSurName", "phone", "age", "addedAt", "playerScores"] });
-        const wsScores = utils.json_to_sheet(
-        playersExported.flatMap(player => player.playerScores.map(scor => {
-                const distancePerSection = scor.distancePerSection.join(' ');
-                const { score, date, distance, enteredBalls, time } = scor;
-                return { email: player.email, name: player.firstName, score, date, distance, distancePerSection, enteredBalls, time };
-            })),
-            { header: ["email", "name", "score", "date", "distance", "distancePerSection", "enteredBalls", "time"] }
-        );
+
+        const withPhase = {};
+        const withoutPhaseArray = [];
+        playersExported.forEach((player) => {
+            player.playerScores.forEach((scoreIter) => {
+                const email = player.email;
+                const name = player.firstName + ' ' + player.surName + ' ' + (player.secondSurName || '');
+                const room = scoreIter.room;
+                const { date, score, distance, enteredBalls, time } = scoreIter;
+                const distancePerSection = scoreIter.distancePerSection.join(' ');
+                if (!room) {
+                    withoutPhaseArray.push({ email, name, date, score, distance, distancePerSection, enteredBalls, time });
+                } else {
+                    const key = `${email}-${room}`;
+                    if (!withPhase[key]) {
+                        withPhase[key] = { email, name, date, score, distance, distancePerSection, enteredBalls, time };
+                    } else if (scoreIter.phase === 2) {
+                        withPhase[key] = { ...withPhase[key], score2: score, distance2: distance, distancePerSection2: distancePerSection, enteredBalls2: enteredBalls, time2: time };
+                    }
+                }
+            });
+        });
+        const finalResult = [...Object.values(withPhase), ...withoutPhaseArray];
+        
+        const wsScores = utils.json_to_sheet(finalResult);
 
         const wb = utils.book_new();
         utils.book_append_sheet(wb, wsPlayers, "Players");
@@ -481,15 +500,15 @@ const exportPlayers = async () => {
 }
 
 const isSelectAll = computed(() => {
-  return selectedToExport.value.length > 0 && selectedToExport.value.length < players.value.length;
+    return selectedToExport.value.length > 0 && selectedToExport.value.length < players.value.length;
 });
 
 const selectAllPlayers = () => {
-  if (selectAll.value) {
-    selectedToExport.value = selectAll ? players.value.map(player => player) : [];
-  } else {
-    selectedToExport.value = [];
-  }
+    if (selectAll.value) {
+        selectedToExport.value = selectAll ? players.value.map(player => player) : [];
+    } else {
+        selectedToExport.value = [];
+    }
 };
 
 const nameRules = [

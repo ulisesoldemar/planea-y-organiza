@@ -57,7 +57,6 @@ export default class PlayScene extends BaseScene {
                 }
             });
         });
-
         // // Se agrega el calculo de distancia al arrastrar la pelota
         // this.input.on('drag', (pointer, ball, dragX, dragY) => {
         //     const distance = Phaser.Math.Distance.Between(
@@ -120,6 +119,8 @@ export default class PlayScene extends BaseScene {
             fullPattern: this.fullPattern,
             enteredBalls: this.enteredBalls,
             score: finalScore.toFixed(3),
+            phase: this.gameStore.currentSession,
+            room: this.gameStore.roomId,
         });
         if (this.gameStore.currentSession === 1) {
             this.gameStore.currentSession = 2;
