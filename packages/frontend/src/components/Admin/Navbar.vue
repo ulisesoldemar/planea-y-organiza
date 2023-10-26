@@ -21,6 +21,8 @@
             <!-- <v-list-item color="secondary" prepend-icon="mdi-list-status" title="Resultados" value="results" to="/results"></v-list-item> -->
             <v-list-item color="secondary" v-if="adminStore.userData.superAdmin" prepend-icon="mdi-account-tie" title="Administradores"
                 value="admins" to="/admins"></v-list-item>
+            <v-list-item color="secondary" v-if="adminStore.userData.superAdmin" prepend-icon="mdi-map-plus" title="Creador de tareas"
+                value="admins" to="/tasks"></v-list-item>
         </v-list>
 
         <template v-slot:append>

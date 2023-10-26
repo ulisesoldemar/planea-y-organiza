@@ -16,7 +16,10 @@ import Players from '@/pages/Admin/Players.vue';
 import Admins from '@/pages/Admin/Admins.vue';
 // Results
 import Results from '@/pages/Admin/Results.vue';
-import ResultView from '@/pages/Admin/ResultView.vue'
+import ResultView from '@/pages/Admin/ResultView.vue';
+// Tasks
+import Tasks from '@/pages/Admin/Tasks.vue';
+import TaskView from '@/pages/Admin/TaskView.vue';
 
 
 //Players
@@ -103,6 +106,24 @@ const adminRoutes = [
         name: 'ResultView',
         meta: {
             title: 'Resultados',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/tasks',
+        name: 'tasks',
+        component: Tasks,
+        meta: {
+            title: 'Tareas',
+            requiresAuth: true, // Indica que esta ruta requiere autenticación
+        }
+    },
+    {
+        path: '/tasks/:id',
+        component: TaskView,
+        name: 'taskView',
+        meta: {
+            title: 'Tareas',
             requiresAuth: true, // Indica que esta ruta requiere autenticación
         }
     },
