@@ -35,10 +35,6 @@
                                                 :style="{ transform: `rotate(${item.rotation}deg) scaleX(${item.flipH ? -1 : 1})` }"></v-img>
                                             <v-card-title class="text-h6 flex-column">
                                                 <p class="mt-4">{{ item.title }}</p>
-                                                <!-- <div>
-                                    <p class="ma-0 text-body-1 font-weight-bold">{{ item.text }}</p>
-                                    <p class="text-caption font-weight-medium">{{ item.subtext }}</p>
-                                </div> -->
                                             </v-card-title>
                                         </div>
                                         <div class="button-container">
@@ -85,7 +81,6 @@ import { ref, watch, computed, onMounted } from 'vue';
 
 const route = useRoute();
 
-
 onMounted(async () => {
     if (route.params.id) {
         // await roomStore.fetchRoomData(route.params.id);
@@ -100,6 +95,10 @@ onMounted(async () => {
 
     }
 });
+
+ const nameRules = [
+    (v) => v && v.length <= 50 || 'El nombre de la sala debe tener 50 caracteres o menos',
+];
 
 /**
  * Codigo para el funcionamiento 
@@ -145,7 +144,6 @@ const items = ref([
     {
         id: 0,
         title: 'Sección 1',
-        text: `It's New Release Friday`,
         img: sec1,
         rotation: 0,
         flipH: false,
@@ -153,7 +151,6 @@ const items = ref([
     {
         id: 1,
         title: 'Sección 2',
-        text: 'Greatest Rock Hits',
         img: sec2,
         rotation: 0,
         flipH: false,
@@ -161,7 +158,6 @@ const items = ref([
     {
         id: 2,
         title: 'Sección 3',
-        text: 'Ambient Bass',
         img: sec3,
         rotation: 0,
         flipH: false,
@@ -169,7 +165,6 @@ const items = ref([
     {
         id: 3,
         title: 'Sección 4',
-        text: 'Ambient Bass',
         img: sec4,
         rotation: 0,
         flipH: false,
@@ -177,7 +172,6 @@ const items = ref([
     {
         id: 4,
         title: 'Sección 5',
-        text: 'Ambient Bass',
         img: sec5,
         rotation: 0,
         flipH: false,
@@ -302,4 +296,5 @@ const submitCords = () => {
     height: auto;
     position: absolute;
     top: 27%;
-}</style>
+}
+</style>

@@ -11,11 +11,11 @@
                             variant="text"
                             color="primary"
                             class="ma-2"
-                            prepend-icon="mdi-link-variant"
+                            prepend-icon="mdi-cog-outline"
                             density="comfortable"
                             size="large"
                         >
-                        Ver Tarea
+                        Ver configuracion de Tarea
                         </v-btn>
                     </div>
                     <v-divider></v-divider>
@@ -54,7 +54,7 @@
 
         <v-dialog v-model="deleteDialog" width="auto">
             <v-card class="pa-3">
-                <v-card-title class="text-h5">¿Estás seguro de eliminar esta sala?</v-card-title>
+                <v-card-title class="text-h5">¿Estás seguro de eliminar esta configuracion de tarea?</v-card-title>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
@@ -69,51 +69,35 @@
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useRouter } from 'vue-router';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
+import { useTasks } from '@/stores/tasks';
 
 const router = useRouter();
+const taskStore = useTasks();
 
 onMounted(async () => {
-    //await taskStore.listtasks();
+    await taskStore.listTasks();
 });
-
-const nameRules = [
-    (v) => v && v.length <= 50 || 'El nombre de la sala debe tener 50 caracteres o menos',
-];
-
 
 const form = ref(null); // Crear referencia al formulario
 const taskDialog = ref(false);
 const deleteDialog = ref(false);
-const copySnackbar = ref(false);
 
-// const tasks = computed(() => taskStore.tasks);
-const expandedtasks = ref([]);
-const currenttaskNumber = ref('');
+const tasks = computed(() => taskStore.tasks);
 
 const editedIndex = ref(-1);
 
-const editedtask = ref({
+const editedTask = ref({
     taskNumber: null,
     taskName: null,
-    password: null,
-    expiration: null,
-    maxTime: 30,
-    status: null,
-    quickStart: false,
 });
 
-const defaulttask = {
+const defaultTask = {
     taskNumber: null,
     taskName: '',
-    password: '',
-    expiration: null,
-    maxTime: 30,
-    status: null,
-    quickStart: false,
 }
 
 const formTitle = computed(() => {
-    return editedIndex.value === -1 ? 'Agregar sala' : 'Editar sala';
+    return editedIndex.value === -1 ? 'Agregar tarea' : 'Editar tarea';
 });
 
 
@@ -132,8 +116,8 @@ watch(deleteDialog, (val) => {
 
 function edittask(task, index) {
     editedIndex.value = index;
-    editedtask.value = { ...task };
-    editedtask.value.password = null;
+    editedTask.value = { ...task };
+    editedTask.value.password = null;
     taskDialog.value = true;
 }
 
@@ -141,18 +125,18 @@ function createTask() {
     router.push({ name: 'taskView', params: { id: 123 } });
 
     editedIndex.value = -1;
-    editedtask.value = { ...defaulttask };
+    editedTask.value = { ...defaulttask };
     taskDialog.value = true;
 }
 
 async function deletetask(task, index) {
     editedIndex.value = index;
-    editedtask.value = { ...task };
+    editedTask.value = { ...task };
     deleteDialog.value = true;
 }
 
 async function deletetaskConfirm() {
-    await taskStore.deletetask(editedtask.value.taskNumber);
+    await taskStore.deletetask(editedTask.value.taskNumber);
     tasks.value.splice(editedIndex.value, 1);
     closeDelete();
 }
@@ -160,7 +144,7 @@ async function deletetaskConfirm() {
 const close = () => {
     taskDialog.value = false;
     nextTick(() => {
-        editedtask.value = { ...defaulttask };
+        editedTask.value = { ...defaulttask };
         editedIndex.value = -1;
     });
 };
@@ -168,7 +152,7 @@ const close = () => {
 function closeDelete() {
     deleteDialog.value = false;
     nextTick(() => {
-        editedtask.value = { ...defaulttask };
+        editedTask.value = { ...defaulttask };
         editedIndex.value = -1;
     });
 }
@@ -178,19 +162,15 @@ async function save() {
     const { valid } = await form.value.validate(); // Validamos todos los campos
 
     if (valid) {
-        if (editedIndex.value > -1) {
-            await taskStore.updatetask(editedtask.value);
-        } else {
-            await taskStore.createTask(editedtask.value);
-        }
+        // if (editedIndex.value > -1) {
+        //     await taskStore.updateTask(editedTask.value);
+        // } else {
+        //     await taskStore.createTask(editedTask.value);
+        // }
         close();
     }
 }
 
-const copyText = (taskNumber) => {
-    navigator.clipboard.writeText(taskNumber);
-    copySnackbar.value = true;
-}
 
 </script>
 
