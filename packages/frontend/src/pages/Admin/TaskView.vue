@@ -8,22 +8,25 @@
                             variant="tonal">Regresar</v-btn>
                     </router-link>
                 </div>
-                <!-- <div class="room-title">Nombre de tarea: {{ currentRoom.roomName }}</div> -->
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text>
-                <v-row>
-                    <v-col cols="12" sm="6" md="6">
-                        <v-text-field color="primary" label="Nombre de la tarea" :rules="nameRules"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                        <v-btn @click="submitCords()" color="primary">Guardar</v-btn>
-                    </v-col>
-                </v-row>
+                <v-form ref="form" @submit.prevent="">
+                    <v-row>
+                        <v-spacer class="mt-5"></v-spacer>
+                        <v-col>
+                            <v-text-field color="primary" label="Nombre de la tarea" v-model="name" :rules="nameRules"></v-text-field>
+                        </v-col>
+                        <v-col>
+                            <v-btn @click="submitCords()" color="primary">Guardar</v-btn>
+                        </v-col>
+                    </v-row>
+                </v-form>
                 
                 <!-- Funcionamiento de las secciones -->
                 <v-container class="text-center">
                     <v-spacer class="mt-5"></v-spacer>
+                    <v-divider></v-divider>
                     <v-row class="fill-height" align="center" justify="center">
                         <template v-for="(item, index) in items" :key="index">
                             <v-col cols="12" md="2">
@@ -75,29 +78,28 @@
 
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ref, watch, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useTasks } from '@/stores/tasks';
 
-
+const form = ref(null); // Crear referencia al formulario
 const route = useRoute();
+const taskStore = useTasks();
+const editedId = ref(null);
+const name = ref("Tarea");
+
+const currentTask = computed(() => taskStore.currentTask); 
 
 onMounted(async () => {
-    if (route.params.id) {
-        // await roomStore.fetchRoomData(route.params.id);
-
-        // if (currentRoom.value.expiration) {
-        //     expiredAt.value = roomStore.formatDate(currentRoom.value.expiration);
-        //     isExpired.value = new Date() > new Date(currentRoom.value.expiration);
-        // } else {
-        //     expiredAt.value = "No expira";
-        //     isExpired.value = false;
-        // }
-
+    editedId.value = route.params.id;
+    
+    if (editedId.value) {
+        await taskStore.fetchTaskData(editedId.value);
     }
 });
 
  const nameRules = [
-    (v) => v && v.length <= 50 || 'El nombre de la sala debe tener 50 caracteres o menos',
+    (v) => v && v.length <= 5 || 'El nombre de la tarea debe tener al menos 5 caracteres',
 ];
 
 /**
@@ -116,27 +118,27 @@ const sectionStates = ref([
     {
         finalPos: 0,
         flipped: false,
-        rotated: false
+        inverted: false
     },
     {
         finalPos: 1,
         flipped: false,
-        rotated: false
+        inverted: false
     },
     {
         finalPos: 2,
         flipped: false,
-        rotated: false
+        inverted: false
     },
     {
         finalPos: 3,
         flipped: false,
-        rotated: false
+        inverted: false
     },
     {
         finalPos: 4,
         flipped: false,
-        rotated: false
+        inverted: false
     },
 ]);
 
@@ -201,7 +203,7 @@ const rotateLeft = (index) => {
     //Rotate the image
     items.value[index].rotation -= 180;
     //Save state rotation
-    sectionStates.value[secc].rotated = (items.value[index].rotation % 360) !== 0 ? true : false;
+    sectionStates.value[secc].inverted = (items.value[index].rotation % 360) !== 0 ? true : false;
 };
 
 const rotateRight = (index) => {
@@ -211,22 +213,23 @@ const rotateRight = (index) => {
     //Rotate the image
     items.value[index].rotation += 180;
     //Save state rotation
-    sectionStates.value[secc].rotated = (items.value[index].rotation % 360) !== 0 ? true : false;
+    sectionStates.value[secc].inverted = (items.value[index].rotation % 360) !== 0 ? true : false;
 };
 
 const moveLeft = (index) => {
     console.log("Move-left");
     const id1 = items.value[index].id;
     const id2 = items.value[index - 1].id;
+    sectionStates.value[index].finalPos = id2;
+    sectionStates.value[index - 1].finalPos = id1;
+
+    console.log("id1: ", id1, "id2: ", id2);
+    console.log("index", index);
 
     //Swap images
     const temp = items.value[index];
     items.value[index] = items.value[index - 1];
     items.value[index - 1] = temp;
-
-    sectionStates.value[id1].finalPos = id2;
-    sectionStates.value[id2].finalPos = id1;
-
 };
 
 const flipHorizontal = (index) => {
@@ -241,19 +244,26 @@ const moveRight = (index) => {
     console.log("Move-right");
     const id1 = items.value[index].id;
     const id2 = items.value[index + 1].id;
+    sectionStates.value[index].finalPos = id2;
+    sectionStates.value[index + 1].finalPos = id1;
 
     //Swap images
     const temp = items.value[index];
     items.value[index] = items.value[index + 1];
     items.value[index + 1] = temp;
-
-
-    sectionStates.value[id1].finalPos = id2;
-    sectionStates.value[id2].finalPos = id1;
 };
 
-const submitCords = () => {
-    console.log(sectionStates.value);
+const submitCords = async () => {
+    
+    const { valid } = await form.value.validate(); // Validamos todos los campos
+
+    if (valid) {
+        if (editedId.value > -1) {
+            await taskStore.updateTask(sectionStates.value, name);
+        } else {
+            await taskStore.createTask(sectionStates.value, name);
+        }
+    }
 };
 
 

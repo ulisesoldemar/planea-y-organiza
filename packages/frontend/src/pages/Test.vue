@@ -10,10 +10,6 @@
                   :style="{ transform: `rotate(${item.rotation}deg) scaleX(${item.flipH ? -1 : 1})`}"></v-img>
                 <v-card-title class="text-h6 flex-column">
                   <p class="mt-4">{{ item.title }}</p>
-                  <!-- <div>
-                     <p class="ma-0 text-body-1 font-weight-bold">{{ item.text }}</p>
-                     <p class="text-caption font-weight-medium">{{ item.subtext }}</p>
-                   </div> -->
                 </v-card-title>
               </div>
               <div class="button-container">
@@ -62,27 +58,27 @@ const sectionStates = ref([
   {
     finalPos: 0,
     flipped: false,
-    rotated: false
+    inverted: false
   },
   {
     finalPos: 1,
     flipped: false,
-    rotated: false
+    inverted: false
   },
   {
     finalPos: 2,
     flipped: false,
-    rotated: false
+    inverted: false
   },
   {
     finalPos: 3,
     flipped: false,
-    rotated: false
+    inverted: false
   },
   {
     finalPos: 4,
     flipped: false,
-    rotated: false
+    inverted: false
   },
 ]);
 
@@ -152,7 +148,7 @@ const rotateLeft = (index) => {
   //Rotate the image
   items.value[index].rotation -= 180;
   //Save state rotation
-  sectionStates.value[secc].rotated = (items.value[index].rotation % 360) !== 0 ? true : false;
+  sectionStates.value[secc].inverted = (items.value[index].rotation % 360) !== 0 ? true : false;
 };
 
 const rotateRight = (index) => {
@@ -162,7 +158,7 @@ const rotateRight = (index) => {
   //Rotate the image
   items.value[index].rotation += 180;
   //Save state rotation
-  sectionStates.value[secc].rotated = (items.value[index].rotation % 360) !== 0 ? true : false; 
+  sectionStates.value[secc].inverted = (items.value[index].rotation % 360) !== 0 ? true : false; 
 };
 
 const moveLeft = (index) => {

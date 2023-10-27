@@ -35,7 +35,7 @@
                         <v-tooltip location="bottom center" origin="auto">
                             <template v-slot:activator="{ props }">
                                 <v-btn v-bind="props" size="small" color="surface-variant" variant="text" icon="mdi-delete"
-                                    @click="deletetask(task, index)" :disabled="task.status === 'Running'"></v-btn>
+                                    @click="deleteTask(task, index)" :disabled="task.status === 'Running'"></v-btn>
                             </template>
                             <span>Eliminar Tarea</span>
                         </v-tooltip>
@@ -58,7 +58,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" variant="text" @click="closeDelete">Cancelar</v-btn>
-                    <v-btn color="primary" variant="text" @click="deletetaskConfirm">OK</v-btn>
+                    <v-btn color="primary" variant="text" @click="deleteTaskConfirm">OK</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -75,31 +75,14 @@ const router = useRouter();
 const taskStore = useTasks();
 
 onMounted(async () => {
-    await taskStore.listTasks();
+    //await taskStore.listTasks();
 });
 
-const form = ref(null); // Crear referencia al formulario
+
 const taskDialog = ref(false);
 const deleteDialog = ref(false);
 
 const tasks = computed(() => taskStore.tasks);
-
-const editedIndex = ref(-1);
-
-const editedTask = ref({
-    taskNumber: null,
-    taskName: null,
-});
-
-const defaultTask = {
-    taskNumber: null,
-    taskName: '',
-}
-
-const formTitle = computed(() => {
-    return editedIndex.value === -1 ? 'Agregar tarea' : 'Editar tarea';
-});
-
 
 watch(taskDialog, (val) => {
     if (!val) {
@@ -113,62 +96,32 @@ watch(deleteDialog, (val) => {
     }
 });
 
-
-function edittask(task, index) {
-    editedIndex.value = index;
-    editedTask.value = { ...task };
-    editedTask.value.password = null;
-    taskDialog.value = true;
-}
-
 function createTask() {
-    router.push({ name: 'taskView', params: { id: 123 } });
-
-    editedIndex.value = -1;
-    editedTask.value = { ...defaulttask };
-    taskDialog.value = true;
+    router.push({ name: 'taskView', params: { id: -1} });
 }
 
-async function deletetask(task, index) {
-    editedIndex.value = index;
+async function deleteTask(task, index) {
     editedTask.value = { ...task };
     deleteDialog.value = true;
 }
 
-async function deletetaskConfirm() {
-    await taskStore.deletetask(editedTask.value.taskNumber);
-    tasks.value.splice(editedIndex.value, 1);
+async function deleteTaskConfirm() {
+    await taskStore.deletTask(editedTask.value.taskNumber);
     closeDelete();
 }
 
 const close = () => {
     taskDialog.value = false;
     nextTick(() => {
-        editedTask.value = { ...defaulttask };
-        editedIndex.value = -1;
+        editedTask.value = { ...defaultTask };
     });
 };
 
 function closeDelete() {
     deleteDialog.value = false;
     nextTick(() => {
-        editedTask.value = { ...defaulttask };
-        editedIndex.value = -1;
+        editedTask.value = { ...defaultTask };
     });
-}
-
-
-async function save() {
-    const { valid } = await form.value.validate(); // Validamos todos los campos
-
-    if (valid) {
-        // if (editedIndex.value > -1) {
-        //     await taskStore.updateTask(editedTask.value);
-        // } else {
-        //     await taskStore.createTask(editedTask.value);
-        // }
-        close();
-    }
 }
 
 

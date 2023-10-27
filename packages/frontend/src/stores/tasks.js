@@ -15,43 +15,45 @@ export const useTasks = defineStore('task', {
         },
 
         async listTasks() {
-            try{
-                const headers = {
-                    Authorization: `Bearer ${this.adminStore.accessToken}`
-                };
+            // try{
+            //     const headers = {
+            //         Authorization: `Bearer ${this.adminStore.accessToken}`
+            //     };
 
-                const tasksDataResponse = await api.get('/api/admin/tasks/', { headers });
+            //     const tasksDataResponse = await api.get('/api/admin/tasks/', { headers });
 
-                if(tasksDataResponse.status >= 200){
-                    this.tasks = tasksDataResponse.data;
-                } else {
-                    throw new Error('Error al obtener los datos de las tareas');
-                }
+            //     if(tasksDataResponse.status >= 200){
+            //         this.tasks = tasksDataResponse.data;
+            //     } else {
+            //         throw new Error('Error al obtener los datos de las tareas');
+            //     }
 
-            } catch (error) {
-                await this.handleError('listTasks', error);
-            }
+            // } catch (error) {
+            //     await this.handleError('listTasks', error);
+            // }
         },
 
-        async createTask(taskData) {
-            try {
-                const headers = {
-                    Authorization: `Bearer ${this.adminStore.accessToken}`,
-                };
+        async createTask(taskData, nameTask) {
 
-                taskData.admin = this.adminStore.id;
+            console.log(taskData, nameTask);
+            // try {
+            //     const headers = {
+            //         Authorization: `Bearer ${this.adminStore.accessToken}`,
+            //     };
 
-                const response = await api.post('/api/admin/tasks/', taskData, { headers });
+            //     taskData.admin = this.adminStore.id;
 
-                if(response.status >= 200 && response.status < 300){
-                    this.tasks.push(response.data);
-                } else {
-                    throw new Error(`Error al crear la tarea: ${response.statusText}`);
-                }
+            //     const response = await api.post('/api/admin/tasks/', taskData, { headers });
 
-            } catch (error) {
-                await this.handleError('createTask', error);
-            }
+            //     if(response.status >= 200 && response.status < 300){
+            //         this.tasks.push(response.data);
+            //     } else {
+            //         throw new Error(`Error al crear la tarea: ${response.statusText}`);
+            //     }
+
+            // } catch (error) {
+            //     await this.handleError('createTask', error);
+            // }
         },
 
         async deleteTaks(taskId, adminId) {
@@ -96,21 +98,21 @@ export const useTasks = defineStore('task', {
         },
 
         async fetchTaskData(taskId) {
-            try {
-                const headers = {
-                    Authorization: `Bearer ${this.adminStore.accessToken}`,
-                };
+            // try {
+            //     const headers = {
+            //         Authorization: `Bearer ${this.adminStore.accessToken}`,
+            //     };
 
-                const response = await api.get(`/api/admin/tasks/${taskId}`, { headers });
+            //     const response = await api.get(`/api/admin/tasks/${taskId}`, { headers });
 
-                if (response.status >= 200 && response.status < 300) {
-                    this.currentTask = response.data;
-                } else {
-                    throw new Error(`Error al obtener los datos de la tarea: ${response.statusText}`);
-                }
-            } catch (error) {
-                await this.handleError('fetchTaskData', error);
-            }
+            //     if (response.status >= 200 && response.status < 300) {
+            //         this.currentTask = response.data;
+            //     } else {
+            //         throw new Error(`Error al obtener los datos de la tarea: ${response.statusText}`);
+            //     }
+            // } catch (error) {
+            //     await this.handleError('fetchTaskData', error);
+            // }
         },
 
 
