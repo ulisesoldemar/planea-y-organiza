@@ -41,7 +41,8 @@
 import { useTheme } from "vuetify";
 import { useAdmins } from "@/stores/admin";
 import { ref } from "vue";
-import logo from "@/assets/images/Logo.svg";
+// import logo from "@/assets/images/Logo.svg";
+import logo from "@/assets/images/Logo-Sail.svg";
 import { computed } from "vue";
 
 const formFunction = ref(false);

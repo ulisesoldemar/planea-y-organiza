@@ -14,8 +14,8 @@
             <div>
                 <v-row :style="textAlign">
                     <v-col cols="12" md="5" sm="6" xs="12" :style="centerText">
-                        <p v-if="!xs" class="text-h3 font-weight-bold text-center" style="color: #39343E;">Planea y Organiza</p>
-                        <p v-else class="text-h4 font-weight-bold text-center" style="color: #39343E;">Planea y Organiza</p>
+                        <p v-if="!xs" class="text-h3 font-weight-bold text-center" style="color: #39343E;">Play And Sail</p>
+                        <p v-else class="text-h4 font-weight-bold text-center" style="color: #39343E;">Play And Sail</p>
                     </v-col>
                 </v-row>
                 <v-row justify="start" :style="textAlign">
@@ -45,8 +45,10 @@
   
 <script setup>
 import { computed, } from 'vue';
-import logo from "@/assets/images/Logo.svg";
-import logoWhite from "@/assets/images/Logo-White.svg";
+// import logo from "@/assets/images/Logo.svg";
+// import logoWhite from "@/assets/images/Logo-White.svg";
+import logo from "@/assets/images/Logo-Sail.svg";
+import logoWhite from "@/assets/images/Logo-White-Sail.svg";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 
 const { xs, mdAndUp, sm } = useDisplay()

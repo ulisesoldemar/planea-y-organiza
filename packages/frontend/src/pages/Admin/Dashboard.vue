@@ -16,7 +16,8 @@
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import CookiesBanner from '@/components/Admin/CookiesBanner.vue';
-import logo from "@/assets/images/Logo-Home.svg";
+// import logo from "@/assets/images/Logo-Home.svg";
+import logo from "@/assets/images/Logo-Home-Sail.svg";
 import { useAdmins } from '@/stores/admin';
 
 </script>
