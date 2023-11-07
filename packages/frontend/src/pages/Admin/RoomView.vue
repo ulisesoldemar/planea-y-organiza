@@ -1,11 +1,18 @@
 <template>
     <AdminLayout>
         <v-card class="pa-2" width="100%">
-            <v-card-title class="d-flex justify-space-between">
-                <div>
+            <v-card-title class="d-flex">
+                <div class="me-auto">
                     <router-link to="/rooms">
                         <v-btn size="small" icon="mdi-arrow-left-bold" color="secondary" variant="tonal"></v-btn>
                     </router-link>
+                </div>
+                <div class="mr-10">
+                    <v-btn size="small" :color="currentRoom.status === 'Open' ? 'primary' : 'surface-variant'"
+                        :disabled="currentRoom.status === 'Closed'" @click="copyTextInvitation(currentRoom.roomNumber)"
+                        variant="outlined" prepend-icon="mdi-content-copy">
+                        Copiar invitación
+                    </v-btn>
                 </div>
                 <div class="room-title">Sala: {{ currentRoom.roomName }}</div>
             </v-card-title>
@@ -16,7 +23,8 @@
                 <v-row>
                     <v-col cols="12" md="7">
 
-                        <v-list-item class="rounded mb-3 py-2" style="border: solid rgb(217, 217, 217) 1px;" title="Número de sala" :subtitle="currentRoom.roomNumber"
+                        <v-list-item class="rounded mb-3 py-2" style="border: solid rgb(217, 217, 217) 1px;"
+                            title="Número de sala" :subtitle="currentRoom.roomNumber"
                             @click="copyText(currentRoom.roomNumber)">
                             <template v-slot:append>
                                 <v-icon icon="mdi-content-copy"></v-icon>
@@ -25,10 +33,11 @@
 
                         <v-row>
                             <v-col cols="12" md="6">
-                                <v-list-item title="Fecha de creación" :subtitle="roomStore.formatDate(currentRoom.createdAt)"></v-list-item>
+                                <v-list-item title="Fecha de creación"
+                                    :subtitle="roomStore.formatDate(currentRoom.createdAt)"></v-list-item>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-list-item  title="Fecha de expiración">
+                                <v-list-item title="Fecha de expiración">
                                     <v-list-item-subtitle :style="isExpired ? 'color: #B71C1C' : ''">
                                         {{ expiredAt }}
                                         <span v-if="isExpired"> - Expirado </span>
@@ -39,18 +48,22 @@
                         <v-list-item title="Tiempo maximo de la prueba:"
                             :subtitle="currentRoom.maxTime + ' minutos'"></v-list-item>
                         <v-list-item title="Inicio rápido"
-                                :subtitle="currentRoom.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
-                        <v-list-item title="Estado de la sala" :subtitle="currentRoom.status === 'Open' ? 'Abierta' : 'Cerrada'"></v-list-item>
-                        
+                            :subtitle="currentRoom.quickStart ? 'Activado' : 'Desactivado'"></v-list-item>
+                        <v-list-item title="Estado de la sala"
+                            :subtitle="currentRoom.status === 'Open' ? 'Abierta' : 'Cerrada'"></v-list-item>
+
                         <div class="pa-2 my-1"></div>
-                        
+
                         <div class="d-flex flex-row-reverse">
                             <v-list-item title="Iniciar tarea" class="text-center">
-                                <v-btn size="small"
-                                    :color="currentRoom.status === 'Open' ? 'primary' : 'surface-variant'"
-                                    :disabled="currentRoom.status === 'Closed'" @click="roomStore.startGame(currentRoom.roomNumber)"
-                                    variant="outlined" icon="mdi-play">
+                                <v-btn size="small" :color="currentRoom.status === 'Open' ? 'primary' : 'surface-variant'"
+                                    :disabled="currentRoom.status === 'Closed'"
+                                    @click="roomStore.startGame(currentRoom.roomNumber)" variant="outlined" icon="mdi-play">
                                 </v-btn>
+                            </v-list-item>
+
+                            <v-list-item class="text-center">
+
                             </v-list-item>
                         </div>
 
@@ -81,21 +94,22 @@
                             <div class="d-flex flex-column align-end justify-end">
                                 <v-row v-for="notification in notifications">
 
-                                        <v-card color="indigo" variant="tonal" class="mb-2 text-end rounded-lg rounded-be-0">
-                                            <v-card-item style="padding: 8px 5px 5px 8px;">
-                                                <div class="text-body-2" style="line-height: 1.2 !important;">
-                                                    {{notification.text}}
-                                                </div>
-                                                <div class="text-caption" style="line-height: 1 !important; font-size: 0.68rem !important;">
-                                                    {{ notification.time }}
-                                                </div>
-                                            </v-card-item>
-                                        </v-card>
+                                    <v-card color="indigo" variant="tonal" class="mb-2 text-end rounded-lg rounded-be-0">
+                                        <v-card-item style="padding: 8px 5px 5px 8px;">
+                                            <div class="text-body-2" style="line-height: 1.2 !important;">
+                                                {{ notification.text }}
+                                            </div>
+                                            <div class="text-caption"
+                                                style="line-height: 1 !important; font-size: 0.68rem !important;">
+                                                {{ notification.time }}
+                                            </div>
+                                        </v-card-item>
+                                    </v-card>
 
                                 </v-row>
                             </div>
                         </div>
-                        </v-col>
+                    </v-col>
                 </v-row>
 
             </v-card-text>
@@ -104,6 +118,14 @@
             Número de sala copiado
             <template v-slot:actions>
                 <v-btn color="blue" variant="text" @click="copySnackbar = false">
+                    Cerrar
+                </v-btn>
+            </template>
+        </v-snackbar>
+        <v-snackbar v-model="copyInvitation" timeout="2000">
+            Invitación a la sala copiado
+            <template v-slot:actions>
+                <v-btn color="blue" variant="text" @click="copyInvitation = false">
                     Cerrar
                 </v-btn>
             </template>
@@ -134,14 +156,14 @@ onMounted(async () => {
     if (route.params.roomNumber) {
         await roomStore.fetchRoomData(route.params.roomNumber);
 
-        if(currentRoom.value.expiration){
+        if (currentRoom.value.expiration) {
             expiredAt.value = roomStore.formatDate(currentRoom.value.expiration);
             isExpired.value = new Date() > new Date(currentRoom.value.expiration);
         } else {
             expiredAt.value = "No expira";
             isExpired.value = false;
         }
-        
+
     }
 });
 
@@ -155,6 +177,22 @@ const copyText = (roomNumber) => {
     copySnackbar.value = true;
 }
 
+const copyInvitation = ref(false);
+
+const copyTextInvitation = (roomNumber) => {
+    const invitationText = "Esta es una invitación para realizar una tarea en Play And Sail" + `\n \n` +
+        "Enlace de invitación: " + `\n` +
+        "https://play-and-sail.com/join-room" + `\n \n` +
+        "Número de sala:" + `\n` +
+        roomNumber + `\n \n` +
+        "Fecha de expiración: " + `\n` +
+        expiredAt.value + `\n \n` +
+        "Contraseña de la sala: " + `\n` +
+        " ... Escribir contraseña ...";
+
+    navigator.clipboard.writeText(invitationText);
+    copyInvitation.value = true;
+}
 </script>
 
 <style scoped>
@@ -164,12 +202,11 @@ const copyText = (roomNumber) => {
     margin-right: 15px;
 }
 
-  .list-notifications {
+.list-notifications {
     height: calc(100vh - 200px);
     overflow-y: auto;
     padding-right: 20px;
     padding-top: 20px;
     /* overflow-x: hidden; */
-  }
-
+}
 </style>
