@@ -9,9 +9,9 @@
                 </div>
                 <div class="mr-10">
                     <v-btn size="small" :color="currentRoom.status === 'Open' ? 'primary' : 'surface-variant'"
-                        :disabled="currentRoom.status === 'Closed'" @click="copyTextInvitation(currentRoom.roomNumber)"
-                        variant="outlined" prepend-icon="mdi-content-copy">
-                        Copiar invitación
+                        :disabled="currentRoom.status === 'Closed'" @click="dialog = true"
+                        variant="outlined" prepend-icon="mdi-pencil">
+                        Editar invitación
                     </v-btn>
                 </div>
                 <div class="room-title">Sala: {{ currentRoom.roomName }}</div>
@@ -131,6 +131,26 @@
             </template>
         </v-snackbar>
     </AdminLayout>
+
+    <v-dialog
+      v-model="dialog"
+      width="600px"
+      height="auto"
+    >
+      <v-card class="pa-2">
+        <v-card-title>
+            Crear invitacion
+        </v-card-title>
+        <v-card-text>
+            <v-textarea auto-grow v-model="invitationText" label="Texto de la invitación" variant="outlined" color="primary"></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+          <v-btn color="primary"  @click="dialog = false">Cerrar</v-btn>
+          <v-btn color="primary" prepend-icon="mdi-content-copy" variant="outlined" @click="copyTextInvitation(currentRoom.roomNumber)">Copiar invitación</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
@@ -148,9 +168,12 @@ const notifications = computed(() => roomStore.currentRoom.notifications);
 console.log(currentRoom.value);
 
 const status = ref(null);
+const dialog = ref(false);
 
 const expiredAt = ref('');
 const isExpired = ref(null);
+
+const invitationText = ref('');
 
 onMounted(async () => {
     if (route.params.roomNumber) {
@@ -163,6 +186,14 @@ onMounted(async () => {
             expiredAt.value = "No expira";
             isExpired.value = false;
         }
+
+        invitationText.value = "Esta es una invitación para realizar una tarea en Play And Sail" + `\n \n` +
+        "Enlace de invitación: " + `\n` +
+        "https://play-and-sail.com/join-room" + `\n \n` +
+        "Número de sala:" + `\n` +
+        route.params.roomNumber + `\n \n` +
+        "Contraseña de la sala: " + `\n` +
+        " ... Escribir contraseña ...";
 
     }
 });
@@ -180,17 +211,9 @@ const copyText = (roomNumber) => {
 const copyInvitation = ref(false);
 
 const copyTextInvitation = (roomNumber) => {
-    const invitationText = "Esta es una invitación para realizar una tarea en Play And Sail" + `\n \n` +
-        "Enlace de invitación: " + `\n` +
-        "https://play-and-sail.com/join-room" + `\n \n` +
-        "Número de sala:" + `\n` +
-        roomNumber + `\n \n` +
-        "Fecha de expiración: " + `\n` +
-        expiredAt.value + `\n \n` +
-        "Contraseña de la sala: " + `\n` +
-        " ... Escribir contraseña ...";
+    dialog.value = false;
 
-    navigator.clipboard.writeText(invitationText);
+    navigator.clipboard.writeText(invitationText.value);
     copyInvitation.value = true;
 }
 </script>
