@@ -29,12 +29,12 @@ const createPlayer = errorHandler(async (req, res) => {
         admin: adminDoc,
     });
 
-    try{
+    try {
         await newPlayer.save();
         return newPlayer;
-    } catch(error) {
-         //Error de Duplicated key
-         if (error.code === 11000 || error.code === 11001) {
+    } catch (error) {
+        //Error de Duplicated key
+        if (error.code === 11000 || error.code === 11001) {
             const emailMatch = error.errmsg.match(/email: "([^"]+)"/); // Buscar el valor de email en el mensaje
 
             if (emailMatch) {
@@ -65,10 +65,10 @@ const createPlayersByFile = errorHandler(async (req, res) => {
         admin: adminDoc,
     }));
 
-    try{
+    try {
         const savedPlayers = await Player.insertMany(playersObject);
         return savedPlayers;
-    } catch(error){
+    } catch (error) {
         //Error de Duplicated key
         if (error.code === 11000 || error.code === 11001) {
             const emailMatch = error.errmsg.match(/email: "([^"]+)"/); // Buscar el valor de email en el mensaje
@@ -96,9 +96,19 @@ const getPlayer = errorHandler(async (req, res) => {
 
 // Actualizar los datos de un jugador
 const updatePlayer = errorHandler(async (req, res) => {
-    const playerId = req.params.playerId;
-    const updates = req.body;
 
+    const formatDateToISO = (date) => {
+        const parts = date.split('/');
+        const year = parts[2];
+        const month = parts[1];
+        const day = parts[0];
+        return `${year}-${month}-${day}`;
+    }
+
+    const playerId = req.params.playerId;
+    let updates = req.body;
+    const addedAt = formatDateToISO(updates.addedAt);
+    updates = { ...updates, addedAt };
     // Uso de transacción para actualizar los datos del jugador
     const session = await mongoose.startSession();
     session.startTransaction();
