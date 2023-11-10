@@ -5,7 +5,7 @@ const playerSchema = new Schema({
     firstName: { type: String },
     surName: { type: String },
     secondSurName: { type: String },
-    email: { type: String, unique: true },
+    email: { type: String, unique: false },
     phone: { type: String },
     age: { type: Number },
     addedAt: { type: Date, default: Date.now() }, // La primera vez que se registra el sujeto

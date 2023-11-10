@@ -19,6 +19,11 @@ const createPlayer = errorHandler(async (req, res) => {
 
     const adminDoc = req.adminDoc;
 
+    if (await Player.exists({ email: playerData.email, admin: adminDoc })) {
+        const errMessage = `Ocurrio un error: El correo electrónico "${playerData.email}" ya existe`;
+        throw new HttpError(400, errMessage);
+    }
+
     const newPlayer = new Player({
         firstName: playerData.firstName || null,
         surName: playerData.surName || null,
@@ -106,24 +111,38 @@ const updatePlayer = errorHandler(async (req, res) => {
     }
 
     const playerId = req.params.playerId;
-    let updates = req.body;
-    const addedAt = formatDateToISO(updates.addedAt);
-    updates = { ...updates, addedAt };
+
     // Uso de transacción para actualizar los datos del jugador
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        const player = await Player.findByIdAndUpdate(playerId, updates, { new: true, session }).exec();
-
+        const player = await Player.findById(playerId);
         if (!player) {
             throw new HttpError(404, 'Player not found');
         }
 
+        let updates = req.body;
+        let addedAt = updates.addedAt;
+        if (!Date.parse(addedAt)) {
+            addedAt = formatDateToISO(addedAt);
+        }
+
+        updates = { ...updates, addedAt };
+
+        if (await Player.exists({ email: updates.email, admin: player.admin })) {
+            if (player.email !== updates.email) {
+                const errMessage = `Ocurrio un error: El correo electrónico "${updates.email}" ya existe`;
+                throw new HttpError(400, errMessage);
+            }
+        }
+
+        const updatedPlayer = await Player.findByIdAndUpdate(playerId, updates, { new: true, session }).exec();
+
         await session.commitTransaction();
         session.endSession();
 
-        return player;
+        return updatedPlayer;
     } catch (error) {
         await session.abortTransaction();
         session.endSession();

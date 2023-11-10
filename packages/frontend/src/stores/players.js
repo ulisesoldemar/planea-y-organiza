@@ -89,7 +89,13 @@ export const usePlayers = defineStore('players', {
                     throw new Error(`Error al actualizar el jugador: ${response.statusText}`);
                 }
             } catch (error) {
+                if (error.response.status === 400) {
+                    const errMessage = error.response.data.error;
+                    throw new Error(errMessage);
+                }
                 await this.handleError(this.listPlayers, error);
+                throw new Error(`Error al actualizar los sujetos, intentelo de nuevo`);
+
             }
         },
 

@@ -244,7 +244,9 @@ const joinRoom = errorHandler(withTransaction(async (req, res, session) => {
         throw new HttpError(404, 'Sala no encontrada');
     }
 
-    const playerDoc = await Player.findOne({ email });
+    const admin = roomDoc.admin;
+
+    const playerDoc = await Player.findOne({ email, admin });
     await verifyPassword(roomDoc.password, password, 'Usuario o contraseña no válidos');
 
     if (!playerDoc || !roomDoc.players.includes(playerDoc._id)) {

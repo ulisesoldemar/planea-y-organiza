@@ -444,6 +444,7 @@ const saveEmails = async () => {
 };
 
 const exportPlayers = async () => {
+    // TODO: Exportar distancia por secciones en cada columna
     const playersScores = scoresStore.scores;
 
     function mapPlayerForExport(player) {
