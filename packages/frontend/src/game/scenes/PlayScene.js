@@ -126,7 +126,7 @@ export default class PlayScene extends BaseScene {
             this.gameStore.currentSession = 2;
             this.gameStore.maxTime = (time / 120); // !20 para que sea la mitad del tiempo en minutos
             this.resetScene();
-            this.scene.start('GameStartDialogScene', { welcome: `Bien hecho, tu tiempo fue ${(time / 60).toFixed(2)} minutos`, message: `Ahora vamos a hacer la prueba de nuevo, pero esta vez tienes la mitad del tiempo, es decir ${this.gameStore.maxTime.toFixed(2)} minutos para completarla` });
+            this.scene.start('GameStartDialogScene', { welcome: `Bien hecho, tu tiempo fue ${(time / 60).toFixed(2)} minutos`, message: `Ahora vamos a hacer la prueba de nuevo, pero esta vez tienes la mitad del tiempo, es decir ${this.gameStore.maxTime.toFixed(2)} minutos para meter en las canastillas el mayor número de pelotas que puedas` });
         } else {
             this.scene.stop();
             this.gameStore.gameOver();
