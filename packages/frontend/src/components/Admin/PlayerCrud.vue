@@ -472,21 +472,49 @@ const exportPlayers = async () => {
                 const name = player.firstName + ' ' + player.surName + ' ' + (player.secondSurName || '');
                 const room = scoreIter.room;
                 const { date, score, distance, enteredBalls, time } = scoreIter;
-                const distancePerSection = scoreIter.distancePerSection.join(' ');
+                const distancePerSection1 = scoreIter.distancePerSection[0] || 0;
+                const distancePerSection2 = scoreIter.distancePerSection[1] || 0;
+                const distancePerSection3 = scoreIter.distancePerSection[2] || 0;
+                const distancePerSection4 = scoreIter.distancePerSection[3] || 0;
+                const distancePerSection5 = scoreIter.distancePerSection[4] || 0;
                 if (!room) {
-                    withoutPhaseArray.push({ email, name, date, score, distance, distancePerSection, enteredBalls, time });
+                    withoutPhaseArray.push({
+                        email, name, date, score, distance,
+                        distancePerSection1,
+                        distancePerSection2,
+                        distancePerSection3,
+                        distancePerSection4,
+                        distancePerSection5,
+                        enteredBalls, time
+                    });
                 } else {
                     const key = `${email}-${room}`;
                     if (!withPhase[key]) {
-                        withPhase[key] = { email, name, date, score, distance, distancePerSection, enteredBalls, time };
+                        withPhase[key] = {
+                            email, name, date, score, distance,
+                            distancePerSection1,
+                            distancePerSection2,
+                            distancePerSection3,
+                            distancePerSection4,
+                            distancePerSection5,
+                            enteredBalls, time
+                        };
                     } else if (scoreIter.phase === 2) {
-                        withPhase[key] = { ...withPhase[key], score2: score, distance2: distance, distancePerSection2: distancePerSection, enteredBalls2: enteredBalls, time2: time };
+                        withPhase[key] = {
+                            ...withPhase[key], score2: score, distance2: distance,
+                            distancePerSection12: distancePerSection1,
+                            distancePerSection22: distancePerSection2,
+                            distancePerSection32: distancePerSection3,
+                            distancePerSection42: distancePerSection4,
+                            distancePerSection52: distancePerSection5,
+                            enteredBalls2: enteredBalls, time2: time
+                        };
                     }
                 }
             });
         });
         const finalResult = [...Object.values(withPhase), ...withoutPhaseArray];
-        
+
         const wsScores = utils.json_to_sheet(finalResult);
 
         const wb = utils.book_new();

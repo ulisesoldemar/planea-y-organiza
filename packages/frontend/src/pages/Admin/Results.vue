@@ -37,7 +37,7 @@ import { useScores } from '@/stores/scores';
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 
 const scoreStore = useScores();
-const scores = computed(() => scoreStore.scores);
+const scores = computed(() => scoreStore.formatedScores);
 const dialog = ref(false);
 const dialogDelete = ref(false);
 

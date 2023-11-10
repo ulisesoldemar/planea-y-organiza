@@ -123,7 +123,7 @@ const currentResult = ref(null);
 const currentResultId = ref(null);
 const patternSelect = ref('Por sección');
 
-const scores = computed(() => scoreStore.scores);
+const scores = computed(() => scoreStore.formatedScores);
 const { name } = useDisplay();
 
 
