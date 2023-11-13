@@ -55,6 +55,7 @@ export const usePlayers = defineStore('players', {
                 });
 
                 if (response.status === 200) {
+                    response.data.addedAt = new Date(response.data.addedAt).toLocaleDateString('es-MX', { timeZone: 'UTC' });
                     this.players.push(response.data);
 
                 } else {
@@ -82,6 +83,9 @@ export const usePlayers = defineStore('players', {
                 if (response.status === 200) {
                     // Find the index of the item to replace
                     const index = this.players.findIndex((player) => player._id === response.data._id);
+                    
+                    response.data.addedAt = new Date(response.data.addedAt).toLocaleDateString('es-MX', { timeZone: 'UTC' });
+                    
                     // // Replace the item at the found index
                     this.players[index] = response.data;
 
